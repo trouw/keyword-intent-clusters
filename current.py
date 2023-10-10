@@ -57,13 +57,13 @@ def obtain_access_token():
             "token_uri": "https://oauth2.googleapis.com/token",
             "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
             "redirect_uris": [
-                "https://keyword-intent-clusters.streamlit.app/OAuth2"
+                "https://keyword-intent-clusters.streamlit.app"
             ]
         }
     }
 
     flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
-    authorization_url, _ = flow.authorization_url(prompt='consent')
+    authorization_url, _ = flow.authorization_url(prompt='consent', redirect_uri="https://keyword-intent-clusters.streamlit.app")
 
     # Print the authorization URL for the user to open in their browser
     st.text("Open the following URL in your browser to authenticate:")
