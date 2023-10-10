@@ -62,7 +62,7 @@ def obtain_access_token():
 
     flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
 
-    credentials_obj = flow.run_local_server(port=0)
+    credentials_obj = flow.run_console()
 
     # Check if credentials have been obtained
     if credentials_obj:
