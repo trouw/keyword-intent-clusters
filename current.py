@@ -62,6 +62,17 @@ def obtain_access_token():
     }
 
     flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
+    authorization_url, _ = flow.authorization_url(prompt='consent')
+
+    # Print the authorization URL for the user to open in their browser
+    st.text("Open the following URL in your browser to authenticate:")
+    st.write(authorization_url)
+
+    # Wait for the user to complete the OAuth2 flow
+    st.info("After authenticating, come back to this application.")
+    st.text("Once authenticated, you will be provided with a token.")
+    st.text("Copy the token and paste it in the application to continue.")
+
     credentials_obj = flow.run_local_server(port=0)
     
     # Check if credentials have been obtained
