@@ -367,11 +367,12 @@ def main():
         st.session_state.oauth2_set = False
 
         # Input the OAuth2 details
-        with st.expander("Enter OAuth2 Details"):
+        with st.expander("Enter OAuth2 Details", expanded=st.session_state.oauth2_expander_state):
             get_oauth2_details()
 
             if st.button("Set OAuth2 Details"):
                 st.session_state.oauth2_set = True
+                st.session_state.oauth2_expander_state = True  # Update the session state variable to keep expander expanded
                 st.success("OAuth2 details set successfully!")
 
         # Only allow the user to obtain an access token if OAuth2 details are set
@@ -497,6 +498,9 @@ def main():
     with st.expander("Viz"):
         if cluster_df is not None:
             create_bubble_chart(cluster_df)
+
+if 'oauth2_expander_state' not in st.session_state:
+    st.session_state.oauth2_expander_state = False
 
 if __name__ == "__main__":
     main()
