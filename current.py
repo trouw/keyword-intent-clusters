@@ -56,7 +56,7 @@ def obtain_access_token():
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
             "token_uri": "https://oauth2.googleapis.com/token",
             "redirect_uris": [
-                "https://keyword-intent-clusters.streamlit.app/"
+                "https://keyword-intent-clusters.streamlit.app"
             ]
         }
     }
