@@ -377,7 +377,6 @@ def main():
 
         # Only allow the user to obtain an access token if OAuth2 details are set
         if st.session_state.oauth2_set:
-            with st.expander("Obtain Access Token"):
                 if st.button("Obtain Access Token"):
                     access_token = obtain_access_token()
                     if access_token is not None:
