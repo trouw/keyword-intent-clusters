@@ -63,7 +63,7 @@ def obtain_access_token():
     }
 
     flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
-    authorization_url, _ = flow.authorization_url(prompt='consent', redirect_uri="https://keyword-intent-clusters.streamlit.app")
+    authorization_url, _ = flow.authorization_url(prompt='consent')
 
     # Print the authorization URL for the user to open in their browser
     st.text("Open the following URL in your browser to authenticate:")
