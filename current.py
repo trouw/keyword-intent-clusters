@@ -56,14 +56,14 @@ def obtain_access_token():
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
             "token_uri": "https://oauth2.googleapis.com/token",
             "redirect_uris": [
-        "https://keyword-intent-clusters.streamlit.app/"]
+                "https://keyword-intent-clusters.streamlit.app/"
+            ]
         }
     }
 
     flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
-    print('hi')
-    credentials_obj = flow.run_console()
-    print('hello')
+    credentials_obj = flow.run_local_server(port=0)
+    
     # Check if credentials have been obtained
     if credentials_obj:
         st.success("Access token obtained successfully!")
