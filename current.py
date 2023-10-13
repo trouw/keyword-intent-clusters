@@ -55,27 +55,15 @@ def obtain_access_token():
             "project_id": PROJECT_ID,
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
             "token_uri": "https://oauth2.googleapis.com/token",
-            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
             "redirect_uris": [
-                "https://keyword-intent-clusters.streamlit.app"
-            ]
+        "https://keyword-intent-clusters.streamlit.app/"]
         }
     }
 
     flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
-    authorization_url, _ = flow.authorization_url(prompt='consent')
-
-    # Print the authorization URL for the user to open in their browser
-    st.text("Open the following URL in your browser to authenticate:")
-    st.write(authorization_url)
-
-    # Wait for the user to complete the OAuth2 flow
-    st.info("After authenticating, come back to this application.")
-    st.text("Once authenticated, you will be provided with a token.")
-    st.text("Copy the token and paste it in the application to continue.")
 
     credentials_obj = flow.run_local_server(port=0)
-    
+
     # Check if credentials have been obtained
     if credentials_obj:
         st.success("Access token obtained successfully!")
@@ -371,34 +359,12 @@ def main():
     cluster_df = None
     st.title("Google Search Console API - Keyword Data")
 
-    # Initialize session state variable for dataframe visibility
-    if 'show_dataframe' not in st.session_state:
-        st.session_state.show_dataframe = False
+    # Access Token Input
+    access_token = st.text_input("Enter your Access Token:")
 
-    if 'oauth2_set' not in st.session_state:
-        st.session_state.oauth2_set = False
-
-        # Input the OAuth2 details
-    with st.expander("Enter OAuth2 Details", expanded=st.session_state.oauth2_expander_state):
-        get_oauth2_details()
-
-        if st.button("Set OAuth2 Details"):
-            st.session_state.oauth2_set = True
-            st.session_state.oauth2_expander_state = True  # Update the session state variable to keep expander expanded
-            st.success("OAuth2 details set successfully!")
-
-        # Only allow the user to obtain an access token if OAuth2 details are set
-        if st.session_state.oauth2_set:
-                if st.button("Obtain Access Token"):
-                    access_token = obtain_access_token()
-                    if access_token is not None:
-                        st.session_state.access_token = access_token
-
-                st.info("Click the button above to obtain an access token.")
-
-                if 'access_token' not in st.session_state or st.session_state.access_token is None:
-                    st.warning("Access token not available. Please obtain an access token.")
-                    return
+    if not access_token:
+        st.warning("Please enter an Access Token.")
+        return  # Return early if the access token isn't provided
 
     # Initially, only show Keyword Data Query section
     with st.expander("Keyword Data Query", expanded=True):
@@ -408,7 +374,7 @@ def main():
 
         # Button to fetch the keyword data
         if st.button("Fetch Keyword Data"):
-            keyword_data_df = query_keyword_data(st.session_state.access_token, site_url, start_date, end_date)
+            keyword_data_df = query_keyword_data(access_token, site_url, start_date, end_date)
             if keyword_data_df is not None:
                 st.session_state.keyword_data_df = keyword_data_df
 
