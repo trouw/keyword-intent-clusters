@@ -88,19 +88,26 @@ def to_csv_download_link(df, filename="data.csv"):
 # Function to preprocess data and apply filters
 def preprocess_data(data, exclude_keywords, include_keywords, exclude_urls, include_urls):
     if data is not None:
+        keyword_col = next((col for col in data.columns if col.lower() == 'keyword'), None)
+        url_col = next((col for col in data.columns if col.lower() == 'url'), None)
+        
         if exclude_keywords or include_keywords:
-            keyword_col = [col for col in data.columns if col.lower() == 'keyword'][0]
-            if exclude_keywords:
-                data = data[~data[keyword_col].str.contains('|'.join(exclude_keywords), case=False)]
-            if include_keywords:
-                data = data[data[keyword_col].str.contains('|'.join(include_keywords), case=False)]
+            if keyword_col:
+                if exclude_keywords:
+                    data = data[~data[keyword_col].str.contains('|'.join(exclude_keywords), case=False)]
+                if include_keywords:
+                    data = data[data[keyword_col].str.contains('|'.join(include_keywords), case=False)]
+            else:
+                print("No 'keyword' column found")
         
         if exclude_urls or include_urls:
-            url_col = [col for col in data.columns if col.lower() == 'url'][0]
-            if exclude_urls:
-                data = data[~data[url_col].str.contains('|'.join(exclude_urls), case=False)]
-            if include_urls:
-                data = data[data[url_col].str.contains('|'.join(include_urls), case=False)]
+            if url_col:
+                if exclude_urls:
+                    data = data[~data[url_col].str.contains('|'.join(exclude_urls), case=False)]
+                if include_urls:
+                    data = data[data[url_col].str.contains('|'.join(include_urls), case=False)]
+            else:
+                print("No 'url' column found")
 
     return data
 
