@@ -313,9 +313,7 @@ def main():
             min_max_dict = {}
             
             for col in data.columns:
-                if col.lower() in ['keyword', 'url']:
-                    exclude_dict[col] = st.text_input(f"Exclude values from {col} (comma-separated):")
-                elif pd.api.types.is_numeric_dtype(data[col]):
+                if  pd.api.types.is_numeric_dtype(data[col]):
                     min_value, max_value = st.slider(f"{col} Range", float(data[col].min()), float(data[col].max()), (float(data[col].min()), float(data[col].max())))
                     min_max_dict[col] = (min_value, max_value)
             
