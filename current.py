@@ -247,12 +247,12 @@ def gsc_serps_similarity(df):
 
     return msv_merged_df
 
-def create_clusters_search_volume(similarity_df, data_df):
+def create_clusters_search_volume(similarity_df):
     clusters = {}
     for row in similarity_df:
-        keyword_a = row['Keyword']
-        keyword_b = row['Keyword_B']
-        similarity_score = row['Similarity']
+        keyword_a = similarity_df['Keyword'][row]
+        keyword_b = similarity_df['Keyword_B'][row]
+        similarity_score = similarity_df['Similarity'][row]
         
         if similarity_score >= 0.4: 
             if keyword_a not in clusters:
