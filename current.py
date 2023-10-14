@@ -372,8 +372,8 @@ def main():
             st.write("SERP Similarity Matrix:")
             st.dataframe(similarity_df.reset_index())  # Reset index to include 'Keyword' column
             
-            if 'keyword_data_df_filtered' in st.session_state and 'result_df' in st.session_state:
-                merged_df = pd.merge(st.session_state['keyword_data_df_filtered'], st.session_state['result_df'][['Keyword', 'Keyword Intent']], on='Keyword', how='inner')
+            if 'filtered_data' in st.session_state and 'result_df' in st.session_state:
+                merged_df = pd.merge(st.session_state['filtered_data'], st.session_state['result_df'][['Keyword', 'Keyword Intent']], on='Keyword', how='inner')
                 cluster_df = create_clusters(similarity_df, merged_df)
 
             # Adding a download button for the SERP similarity matrix
