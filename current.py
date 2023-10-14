@@ -341,12 +341,14 @@ def main():
     filtered_data = None
     st.title("Data Preprocessor")
     
-    uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
-    if uploaded_file is not None:
-        data = pd.read_csv(uploaded_file, index_col=0)  # Use the first column as the index
-        st.write("Uploaded Data:")
-        st.write(data)
-        
+    with st.expander("Upload Data"):
+        uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+        if uploaded_file is not None:
+            data = pd.read_csv(uploaded_file, index_col=0)  # Use the first column as the index
+            st.write("Uploaded Data:")
+            st.write(data)
+    
+    with st.expander("Filter Data"):
         # Keyword filtering
         keyword_filter_toggle = st.checkbox('Enable Keyword Filtering')
         exclude_keywords, include_keywords = None, None
@@ -388,8 +390,12 @@ def main():
             # Download link for filtered data
             csv = filtered_data.to_csv(index=False)  # Do not write index to CSV
             b64 = base64.b64encode(csv.encode()).decode()
-            href = f'<a href="data:file/csv;base64,{b64}" download="filtered_data.csv">Download Filtered Data</a>'
-            st.markdown(href, unsafe_allow_html=True)
+            st.download_button(
+                label="Download Filtered Data",
+                data=b64,
+                file_name="filtered_data.csv",
+                mime="text/csv"
+            )
 
     with st.expander("DataForSEO API Integration"):
         st.warning("Running this part of the script will cost money. Ensure you have enough funds in your DataForSEO account.")
@@ -434,8 +440,8 @@ def main():
                 cluster_df = create_clusters(similarity_df, merged_df)
 
             # Adding a download button for the SERP similarity matrix
-            csv = similarity_df.reset_index().to_csv(index=False)  # Reset index to include 'Keyword' column
-            b64 = base64.b64encode(csv.encode()).decode()
+            csv1 = similarity_df.reset_index().to_csv(index=False)  # Reset index to include 'Keyword' column
+            b64 = base64.b64encode(csv1.encode()).decode()
             st.download_button(
                 label="Download SERP Similarity Matrix",
                 data=b64,
