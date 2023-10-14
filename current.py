@@ -86,7 +86,7 @@ def to_csv_download_link(df, filename="data.csv"):
 #     return None
 
 # Function to preprocess data and apply filters
-def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_urls=None, include_urls=None):
+def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_urls=None, include_urls=None, min_max_dict=None):
     if data is not None:
         # Determine the column names for keywords and URLs
         keyword_col = next((col for col in data.columns if col.lower() in ['keyword', 'query']), None)
@@ -116,6 +116,10 @@ def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_
             else:
                 print("No 'url' or 'page' column found")
 
+        # Handle value range filtering
+        if min_max_dict:
+            for col, (min_value, max_value) in min_max_dict.items():
+                data = data[(data[col] >= min_value) & (data[col] <= max_value)]
     return data
 
 
