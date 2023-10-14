@@ -323,7 +323,7 @@ def main():
     
     uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
     if uploaded_file is not None:
-        data = pd.read_csv(uploaded_file)
+        data = pd.read_csv(uploaded_file, index_col=0)  # Use the first column as the index
         st.write("Uploaded Data:")
         st.write(data)
         
@@ -343,7 +343,7 @@ def main():
             st.write(filtered_data)
             
             # Download link for filtered data
-            csv = filtered_data.to_csv(index=False)
+            csv = filtered_data.to_csv(index=False)  # Do not write index to CSV
             b64 = base64.b64encode(csv.encode()).decode()
             href = f'<a href="data:file/csv;base64,{b64}" download="filtered_data.csv">Download Filtered Data</a>'
             st.markdown(href, unsafe_allow_html=True)
