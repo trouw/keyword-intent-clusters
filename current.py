@@ -427,7 +427,7 @@ def main():
                 st.write(st.session_state['filtered_data'])
                 st.write(st.session_state['result_df'])
                 
-                selected_columns = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
+                selected_columns = st.session_state['result_df'][['Keyword', 'Keyword_B', 'Keyword Intent']]
                 merged_df = pd.merge(st.session_state['filtered_data'], selected_columns, on='Keyword_B', how='inner')
                 st.write(merged_df)
                 if 'Search Volume' in merged_df.columns:
