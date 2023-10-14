@@ -226,10 +226,7 @@ def serps_similarity(df):
     return melted_df
 
 
-def create_clusters(similarity_df, data_df, intent_col='Keyword Intent'):
-    # Determine available metrics in data_df
-    metrics_available = [col for col in ['Clicks', 'Impressions', 'Search Volume'] if col in data_df.columns]
-
+def create_clusters_search_volume(similarity_df, data_df):
     clusters = {}
     for index, row in similarity_df.iterrows():
         keyword_a = row['Keyword']
@@ -241,20 +238,42 @@ def create_clusters(similarity_df, data_df, intent_col='Keyword Intent'):
                 clusters[keyword_a] = [keyword_b]
             else:
                 clusters[keyword_a].append(keyword_b)
-    
+
     cluster_data = []
     for cluster, keywords in clusters.items():
         keyword_data = data_df[data_df['Keyword'].isin(keywords)]
-        total_metrics = {metric: keyword_data[metric].sum() for metric in metrics_available}
-        avg_intent = keyword_data[intent_col].mean() if intent_col in data_df.columns else None
-        
-        # Append data to cluster_data
-        cluster_row = [cluster] + [total_metrics.get(metric, None) for metric in ['Clicks', 'Impressions', 'Search Volume']] + [avg_intent]
+        total_volume = keyword_data['Search Volume'].sum()
+        avg_intent = keyword_data['Keyword Intent'].mean()
+        cluster_row = [cluster, total_volume, avg_intent]
         cluster_data.append(cluster_row)
-    
-    # Determine column names based on available metrics
-    columns = ['Cluster'] + [f'Total {metric}' for metric in ['Clicks', 'Impressions', 'Search Volume'] if metric in metrics_available] + ['Avg. Keyword Intent']
-    
+
+    columns = ['Cluster', 'Total Search Volume', 'Avg. Keyword Intent']
+    cluster_df = pd.DataFrame(cluster_data, columns=columns)
+    return cluster_df
+
+def create_clusters_clicks_impressions(similarity_df, data_df):
+    clusters = {}
+    for index, row in similarity_df.iterrows():
+        keyword_a = row['Keyword']
+        keyword_b = row['Keyword_B']
+        similarity_score = row['Similarity']
+        
+        if similarity_score >= 0.4:  # Assuming similarity is in range [0, 1]
+            if keyword_a not in clusters:
+                clusters[keyword_a] = [keyword_b]
+            else:
+                clusters[keyword_a].append(keyword_b)
+
+    cluster_data = []
+    for cluster, keywords in clusters.items():
+        keyword_data = data_df[data_df['Keyword'].isin(keywords)]
+        total_clicks = keyword_data['Clicks'].sum()
+        total_impressions = keyword_data['Impressions'].sum()
+        avg_intent = keyword_data['Keyword Intent'].mean()
+        cluster_row = [cluster, total_clicks, total_impressions, avg_intent]
+        cluster_data.append(cluster_row)
+
+    columns = ['Cluster', 'Total Clicks', 'Total Impressions', 'Avg. Keyword Intent']
     cluster_df = pd.DataFrame(cluster_data, columns=columns)
     return cluster_df
 
@@ -395,11 +414,12 @@ def main():
                 st.write(st.session_state['filtered_data'])
                 st.write(st.session_state['result_df'])
                 
-                selected_columns = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
-                merged_df = pd.merge(st.session_state['filtered_data'], selected_columns, on='Keyword', how='inner')
-                
-                # Modify this line to remove volume_col and impressions_col arguments
-                cluster_df = create_clusters(similarity_df, merged_df)
+                if 'Search Volume' in filtered_data.columns:
+                    cluster_df = create_clusters_search_volume(similarity_df, filtered_data)
+                elif 'Clicks' in filtered_data.columns and 'Impressions' in filtered_data.columns:
+                    cluster_df = create_clusters_clicks_impressions(similarity_df, filtered_data)
+                else:
+                    st.error("The data does not have the necessary columns for clustering.")
 
             # Adding a download button for the SERP similarity matrix
             csv1 = similarity_df.reset_index().to_csv(index=False)  # Reset index to include 'Keyword' column
