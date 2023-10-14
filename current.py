@@ -225,7 +225,7 @@ def serps_similarity(df):
     
     return melted_df
 
-def create_clusters(similarity_df, data_df):
+def create_clusters(similarity_df, data_df, clicks_col='Clicks', impressions_col='Impressions', intent_col='Keyword Intent'):
     clusters = {}
     for index, row in similarity_df.iterrows():
         keyword_a = row['Keyword']
@@ -241,9 +241,9 @@ def create_clusters(similarity_df, data_df):
     cluster_data = []
     for cluster, keywords in clusters.items():
         keyword_data = data_df[data_df['Keyword'].isin(keywords)]
-        total_clicks = keyword_data['Clicks'].sum()
-        total_impressions = keyword_data['Impressions'].sum()
-        avg_intent = keyword_data['Keyword Intent'].mean()
+        total_clicks = keyword_data[clicks_col].sum()
+        total_impressions = keyword_data[impressions_col].sum()
+        avg_intent = keyword_data[intent_col].mean()
         cluster_data.append([cluster, total_clicks, total_impressions, avg_intent])
     
     cluster_df = pd.DataFrame(cluster_data, columns=['Cluster', 'Total Clicks', 'Total Impressions', 'Avg. Keyword Intent'])
