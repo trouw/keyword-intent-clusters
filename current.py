@@ -90,17 +90,19 @@ def preprocess_data(data, exclude_dict, min_max_dict):
     if data is not None:
         # Filtering by value ranges
         for col, (min_value, max_value) in min_max_dict.items():
-            data = data[(data[col] >= min_value) & (data[col] <= max_value)]
+            if pd.api.types.is_numeric_dtype(data[col]):
+                data = data[(data[col] >= min_value) & (data[col] <= max_value)]
         
         # Filter by excluded keywords
-        for col, excluded_keywords in exclude_dict.items():
-            excluded_keywords = [kw.strip() for kw in excluded_keywords.split(",")]
-            
-            def exclude_keyword(row):
-                keywords = str(row[col]).split()
-                return not any(ex_kw.casefold() in kw.casefold() for kw in keywords for ex_kw in excluded_keywords)
-            
-            data = data[data.apply(exclude_keyword, axis=1)]
+        for col, keywords in exclude_dict.items():
+            if keywords:
+                excluded_keywords = [kw.strip() for kw in keywords.split(",")]
+
+                def exclude_keyword(row):
+                    keyword = str(row[col])
+                    return not any(excluded_keyword.casefold() in keyword.casefold() for excluded_keyword in excluded_keywords)
+
+                data = data[data.apply(exclude_keyword, axis=1)]
     
     return data
 
@@ -321,7 +323,7 @@ def main():
     
     uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
     if uploaded_file is not None:
-        data = pd.read_csv(uploaded_file, index_col=0)  # Assumes the first column is an index
+        data = pd.read_csv(uploaded_file)
         st.write("Uploaded Data:")
         st.write(data)
         
@@ -329,13 +331,10 @@ def main():
         min_max_dict = {}
         
         for col in data.columns:
-            if data[col].dtype == 'object':  # if column is string type
-                exclude_text = st.text_input(f"Exclude Keywords from column '{col}' (comma-separated):")
-                if exclude_text:
-                    exclude_dict[col] = exclude_text
-            else:  # if column is numeric type
-                min_value = st.slider(f'Min value for {col}:', float(data[col].min()), float(data[col].max()))
-                max_value = st.slider(f'Max value for {col}:', float(data[col].min()), float(data[col].max()))
+            if col.lower() in ['keyword', 'url']:
+                exclude_dict[col] = st.text_input(f"Exclude values from {col} (comma-separated):")
+            elif pd.api.types.is_numeric_dtype(data[col]):
+                min_value, max_value = st.slider(f"{col} Range", float(data[col].min()), float(data[col].max()), (float(data[col].min()), float(data[col].max())))
                 min_max_dict[col] = (min_value, max_value)
         
         if st.button("Filter Data"):
@@ -344,7 +343,7 @@ def main():
             st.write(filtered_data)
             
             # Download link for filtered data
-            csv = filtered_data.to_csv(index=False)  # Prevents the index from being written to the CSV file
+            csv = filtered_data.to_csv(index=False)
             b64 = base64.b64encode(csv.encode()).decode()
             href = f'<a href="data:file/csv;base64,{b64}" download="filtered_data.csv">Download Filtered Data</a>'
             st.markdown(href, unsafe_allow_html=True)
