@@ -279,7 +279,7 @@ def main():
                 except UnicodeDecodeError:
                     data = pd.read_csv(uploaded_file, index_col=0, header=0, encoding='windows-1252') 
             st.write("Uploaded Data:")
-            st.write(data)
+            st.dataframe(data)
             st.write(f'Row count before filtering: {len(data)}')
 
             # Identify the column name for keywords
