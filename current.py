@@ -446,9 +446,9 @@ def main():
                 # st.write(st.session_state['result_df'])
 
                 if 'Search Volume' in merged_df.columns:
-                    sim_df = msv_serps_similarity(merged_df)
-                    st.write(sim_df.columns)
-                    cluster_df = create_clusters_search_volume(sim_df)
+                    similarity_df = msv_serps_similarity(merged_df)
+                    st.write(similarity_df.columns)
+                    cluster_df = create_clusters_search_volume(similarity_df)
                 elif 'clicks' in merged_df.columns and 'impressions' in merged_df.columns:
                     similarity_df = gsc_serps_similarity(merged_df)
                     cluster_df = create_clusters_clicks_impressions(similarity_df)
