@@ -225,7 +225,7 @@ def serps_similarity(df):
     
     return melted_df
 
-def create_clusters(similarity_df, data_df, clicks_col='clicks', impressions_col='impressions', intent_col='Keyword Intent'):
+def create_clusters(similarity_df, data_df, volume_col=None, impressions_col=None, intent_col='Keyword Intent'):
     clusters = {}
     for index, row in similarity_df.iterrows():
         keyword_a = row['Keyword']
@@ -241,12 +241,16 @@ def create_clusters(similarity_df, data_df, clicks_col='clicks', impressions_col
     cluster_data = []
     for cluster, keywords in clusters.items():
         keyword_data = data_df[data_df['Keyword'].isin(keywords)]
-        total_clicks = keyword_data[clicks_col].sum()
-        total_impressions = keyword_data[impressions_col].sum()
-        avg_intent = keyword_data[intent_col].mean()
-        cluster_data.append([cluster, total_clicks, total_impressions, avg_intent])
+        total_volume = keyword_data[volume_col].sum() if volume_col and volume_col in data_df.columns else None
+        total_impressions = keyword_data[impressions_col].sum() if impressions_col and impressions_col in data_df.columns else None
+        avg_intent = keyword_data[intent_col].mean() if intent_col and intent_col in data_df.columns else None
+        cluster_data.append([cluster, total_volume, total_impressions, avg_intent])
     
-    cluster_df = pd.DataFrame(cluster_data, columns=['Cluster', 'Total Clicks', 'Total Impressions', 'Avg. Keyword Intent'])
+    # Determine column names based on provided parameters
+    volume_col_name = 'Total ' + volume_col if volume_col else 'Total Volume'
+    impressions_col_name = 'Total ' + impressions_col if impressions_col else 'Total Impressions'
+    
+    cluster_df = pd.DataFrame(cluster_data, columns=['Cluster', volume_col_name, impressions_col_name, 'Avg. Keyword Intent'])
     return cluster_df
 
 def create_bubble_chart(agg_data):
@@ -388,7 +392,7 @@ def main():
                 
                 selected_columns = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
                 merged_df = pd.merge(st.session_state['filtered_data'], selected_columns, on='Keyword', how='inner')
-                cluster_df = create_clusters(similarity_df, merged_df)
+                cluster_df = create_clusters(similarity_df, merged_df, volume_col='Search Volume' if 'Search Volume' in merged_df.columns else 'Clicks', impressions_col='Impressions')
 
             # Adding a download button for the SERP similarity matrix
             csv1 = similarity_df.reset_index().to_csv(index=False)  # Reset index to include 'Keyword' column
