@@ -88,28 +88,20 @@ def to_csv_download_link(df, filename="data.csv"):
 # Function to preprocess data and apply filters
 def preprocess_data(data, exclude_keywords, include_keywords, exclude_urls, include_urls):
     if data is not None:
-        # Filtering by keywords
         if exclude_keywords or include_keywords:
-            def filter_keywords(row):
-                keyword = str(row.get('Keyword') or row.get('Query'))
-                if exclude_keywords and any(ex_kw in keyword for ex_kw in exclude_keywords):
-                    return False
-                if include_keywords and not any(inc_kw in keyword for inc_kw in include_keywords):
-                    return False
-                return True
-            data = data[data.apply(filter_keywords, axis=1)]
+            keyword_col = [col for col in data.columns if col.lower() == 'keyword'][0]
+            if exclude_keywords:
+                data = data[~data[keyword_col].str.contains('|'.join(exclude_keywords), case=False)]
+            if include_keywords:
+                data = data[data[keyword_col].str.contains('|'.join(include_keywords), case=False)]
         
-        # Filtering by URLs
         if exclude_urls or include_urls:
-            def filter_urls(row):
-                url = str(row.get('URL') or row.get('Page'))
-                if exclude_urls and any(ex_url in url for ex_url in exclude_urls):
-                    return False
-                if include_urls and not any(inc_url in url for inc_url in include_urls):
-                    return False
-                return True
-            data = data[data.apply(filter_urls, axis=1)]
-        
+            url_col = [col for col in data.columns if col.lower() == 'url'][0]
+            if exclude_urls:
+                data = data[~data[url_col].str.contains('|'.join(exclude_urls), case=False)]
+            if include_urls:
+                data = data[data[url_col].str.contains('|'.join(include_urls), case=False)]
+
     return data
 
 # Function to query DataForSEO SERP for multiple keywords
