@@ -266,7 +266,6 @@ def main():
     filtered_df = None
     cluster_df = None
     filtered_data = None
-    data = None
     st.title("Data Preprocessor")
     
     with st.expander("Upload Data"):
@@ -278,11 +277,11 @@ def main():
             st.write(f'Row count before filtering: {len(data)}')
 
             # Identify the column name for keywords
-        keyword_col_name = next((col for col in data.columns if col.lower() in ['keyword', 'query']), None)
-        if keyword_col_name != 'Keyword':
-            data.rename(columns={keyword_col_name: 'Keyword'}, inplace=True)
-        else:
-            st.warning("No column for keywords found. Expected column name to be 'keyword' or 'query'.")
+            keyword_col_name = next((col for col in data.columns if col.lower() in ['keyword', 'query']), None)
+            if keyword_col_name != 'Keyword':
+                data.rename(columns={keyword_col_name: 'Keyword'}, inplace=True)
+            else:
+                st.warning("No column for keywords found. Expected column name to be 'keyword' or 'query'.")
     
     with st.expander("Filter Data"):
         # Keyword filtering
