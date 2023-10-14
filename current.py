@@ -332,6 +332,7 @@ def main():
                 st.write(f'Row count after filtering: {len(filtered_data)}')
                 st.session_state['filtered_data'] = filtered_data  
                 st.session_state['filtered_keywords'] = filtered_data['Keyword']
+                st.write(st.session_state['filtered_keywords'])
 
                 
                 # Download link for filtered data
