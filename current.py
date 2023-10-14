@@ -227,6 +227,20 @@ def serps_similarity(df):
 
 
 def create_clusters(similarity_df, data_df, volume_col=None, impressions_col=None, intent_col='Keyword Intent'):
+    # Determine available metrics in data_df
+    has_clicks = 'Clicks' in data_df.columns
+    has_impressions = 'Impressions' in data_df.columns
+    has_search_volume = 'Search Volume' in data_df.columns
+
+    # Adjust the volume_col and impressions_col based on available metrics
+    if has_clicks:
+        volume_col = 'Clicks'
+    elif has_search_volume:
+        volume_col = 'Search Volume'
+
+    if has_impressions:
+        impressions_col = 'Impressions'
+    
     clusters = {}
     for index, row in similarity_df.iterrows():
         keyword_a = row['Keyword']
@@ -246,13 +260,11 @@ def create_clusters(similarity_df, data_df, volume_col=None, impressions_col=Non
         total_impressions = None
         avg_intent = None
         
-        # Check if the volume column (either 'Clicks' or 'Search Volume') exists, and if so, calculate the total volume
-        if volume_col in data_df.columns:
+        # Calculate metrics based on availability
+        if volume_col:
             total_volume = keyword_data[volume_col].sum()
-        # Check if the impressions column exists, and if so, calculate the total impressions
-        if impressions_col in data_df.columns:
+        if impressions_col:
             total_impressions = keyword_data[impressions_col].sum()
-        # Check if the intent column exists, and if so, calculate the average intent
         if intent_col in data_df.columns:
             avg_intent = keyword_data[intent_col].mean()
         
@@ -260,26 +272,15 @@ def create_clusters(similarity_df, data_df, volume_col=None, impressions_col=Non
         cluster_row = [cluster, total_volume, total_impressions, avg_intent]
         cluster_data.append(cluster_row)
     
-    # Determine column names based on provided parameters and data
+    # Determine column names based on available metrics
     columns = ['Cluster']
-    if volume_col in data_df.columns:
+    if volume_col:
         columns.append('Total ' + volume_col)
-    if impressions_col in data_df.columns:
+    if impressions_col:
         columns.append('Total ' + impressions_col)
-    if intent_col in data_df.columns:
-        columns.append('Avg. Keyword Intent')
+    columns.append('Avg. Keyword Intent')
     
-    # Remove None values and their corresponding columns
-    cleaned_cluster_data = []
-    cleaned_columns = []
-    for row in cluster_data:
-        cleaned_row = [value for value, col in zip(row, columns) if value is not None]
-        cleaned_cluster_data.append(cleaned_row)
-    for col in columns:
-        if any(row[columns.index(col)] is not None for row in cluster_data):
-            cleaned_columns.append(col)
-    
-    cluster_df = pd.DataFrame(cleaned_cluster_data, columns=cleaned_columns)
+    cluster_df = pd.DataFrame(cluster_data, columns=columns)
     return cluster_df
 
 def create_bubble_chart(agg_data):
