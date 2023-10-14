@@ -271,7 +271,13 @@ def main():
     with st.expander("Upload Data"):
         uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
         if uploaded_file is not None:
-            data = pd.read_csv(uploaded_file, index_col=0)  # Use the first column as the index
+            try:
+                data = pd.read_csv(uploaded_file, index_col=0, encoding='utf-8')  # Try UTF-8 first
+            except UnicodeDecodeError:
+                try:
+                    data = pd.read_csv(uploaded_file, index_col=0, encoding='iso-8859-1')  # Try ISO-8859-1 next
+                except UnicodeDecodeError:
+                    data = pd.read_csv(uploaded_file, index_col=0, encoding='windows-1252') 
             st.write("Uploaded Data:")
             st.write(data)
             st.write(f'Row count before filtering: {len(data)}')
