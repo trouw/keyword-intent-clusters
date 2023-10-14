@@ -252,9 +252,10 @@ def create_clusters(similarity_df, data_df, clicks_col='clicks', impressions_col
 def create_bubble_chart(agg_data):
     # Check if 'size_metric' is in session state, otherwise set default to 'Clicks'
     if 'size_metric' not in st.session_state:
-        st.session_state.size_metric = 'Clicks'
+        st.session_state.size_metric = 'Clicks' or 'Search Volume'
 
-    st.session_state.size_metric = st.selectbox('Choose size metric', ['Total Clicks', 'Total Impressions'])
+    if st.session_state.size_metric == 'Clicks':
+        st.session_state.size_metric = st.selectbox('Choose size metric', ['Total Clicks', 'Total Impressions'])
 
     sizes = agg_data[str(st.session_state.size_metric)]
     fig, ax = plt.subplots()
@@ -409,4 +410,3 @@ if 'oauth2_expander_state' not in st.session_state:
 
 if __name__ == "__main__":
     main()
-
