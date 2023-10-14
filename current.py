@@ -86,26 +86,22 @@ def to_csv_download_link(df, filename="data.csv"):
 #     return None
 
 # Function to preprocess data and apply filters
-def preprocess_data(data, exclude_keywords, min_values, max_values):
+def preprocess_data(data, exclude_dict, min_max_dict):
     if data is not None:
         # Filtering by value ranges
-        for col, (min_value, max_value) in zip(data.columns[1:], zip(min_values, max_values)):  # Exclude 'URL' column
+        for col, (min_value, max_value) in min_max_dict.items():
             data = data[(data[col] >= min_value) & (data[col] <= max_value)]
-
+        
         # Filter by excluded keywords
-        if exclude_keywords:
-            excluded_keywords = [kw.strip() for kw in exclude_keywords.split(",")]
-
+        for col, excluded_keywords in exclude_dict.items():
+            excluded_keywords = [kw.strip() for kw in excluded_keywords.split(",")]
+            
             def exclude_keyword(row):
-                Keyword = str(row['Keyword'])
-                keywords = Keyword.split()  # Split the URL into a list of words
-                for keyword in keywords:
-                    if any(excluded_keyword.casefold() in keyword.casefold() for excluded_keyword in excluded_keywords):
-                        return False
-                return True
-
+                keywords = str(row[col]).split()
+                return not any(ex_kw.casefold() in kw.casefold() for kw in keywords for ex_kw in excluded_keywords)
+            
             data = data[data.apply(exclude_keyword, axis=1)]
-
+    
     return data
 
 # Function to query DataForSEO SERP for multiple keywords
@@ -329,15 +325,21 @@ def main():
         st.write("Uploaded Data:")
         st.write(data)
         
-        # Select columns to filter
-        filter_columns = st.multiselect("Select columns to filter:", data.columns)
-        min_values = [st.number_input(f'Min value for {col}:') for col in filter_columns]
-        max_values = [st.number_input(f'Max value for {col}:') for col in filter_columns]
+        exclude_dict = {}
+        min_max_dict = {}
         
-        exclude_keywords = st.text_input("Exclude Keywords (comma-separated):")
+        for col in data.columns:
+            if data[col].dtype == 'object':  # if column is string type
+                exclude_text = st.text_input(f"Exclude Keywords from column '{col}' (comma-separated):")
+                if exclude_text:
+                    exclude_dict[col] = exclude_text
+            else:  # if column is numeric type
+                min_value = st.slider(f'Min value for {col}:', float(data[col].min()), float(data[col].max()))
+                max_value = st.slider(f'Max value for {col}:', float(data[col].min()), float(data[col].max()))
+                min_max_dict[col] = (min_value, max_value)
         
         if st.button("Filter Data"):
-            filtered_data = preprocess_data(data, exclude_keywords, filter_columns, min_values, max_values)
+            filtered_data = preprocess_data(data, exclude_dict, min_max_dict)
             st.write("Filtered Data:")
             st.write(filtered_data)
             
