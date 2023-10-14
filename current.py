@@ -332,7 +332,6 @@ def main():
                 st.write(f'Row count after filtering: {len(filtered_data)}')
                 st.session_state['filtered_data'] = filtered_data  
                 st.session_state['filtered_keywords'] = filtered_data['Keyword']
-                st.write(st.session_state['filtered_keywords'])
 
                 
                 # Download link for filtered data
@@ -360,7 +359,7 @@ def main():
                 else:
                     # Get the list of keywords from the GSC DataFrame
                     if 'filtered_data' in st.session_state and 'keyword_col_name' in st.session_state:
-                        keywords_to_query = st.session_state['filtered_keywords'].tolist()
+                        keywords_to_query = st.session_state['filtered_keywords']
                         print(keywords_to_query)
                         # Run DataForSEO API query for multiple keywords
                         result_df = query_dataforseo_serp(username, password, keywords_to_query)
