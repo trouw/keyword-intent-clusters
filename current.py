@@ -240,19 +240,22 @@ def gsc_serps_similarity(df):
             similarity_df.loc[keyword_a, keyword_b] = jaccard_similarity
 
             # Melting the similarity matrix
-            melted_df = similarity_df.reset_index().melt(id_vars='Keyword', var_name='Keyword_B', value_name=['Similarity', 'clicks', 'impressions', 'Keyword Intent'])
-    
-    return melted_df
+            melted_df = similarity_df.reset_index().melt(id_vars='Keyword', var_name='Keyword_B', value_name='Similarity')
+            selected_columns = df[['Keyword', 'Keyword Intent', "clicks", "impressions"]]
+            msv_merged_df = pd.merge(melted_df, selected_columns, on='Keyword', how='inner')
+            msv_merged_df = msv_merged_df.drop_duplicates()
+
+    return msv_merged_df
 
 def create_clusters_search_volume(similarity_df, data_df):
     clusters = {}
-    for index, row in similarity_df.iterrows():
+    for row in similarity_df:
         keyword_a = row['Keyword']
         keyword_b = row['Keyword_B']
         similarity_score = row['Similarity']
         
-        if similarity_score >= 0.4:  # Assuming similarity is in range [0, 1]
-            if keyword_a not in clusters.items():
+        if similarity_score >= 0.4: 
+            if keyword_a not in clusters:
                 clusters.update({keyword_a: []})
             else:
                 clusters.update({keyword_a:keyword_b})
