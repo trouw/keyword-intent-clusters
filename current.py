@@ -225,6 +225,7 @@ def serps_similarity(df):
     
     return melted_df
 
+
 def create_clusters(similarity_df, data_df, volume_col=None, impressions_col=None, intent_col='Keyword Intent'):
     clusters = {}
     for index, row in similarity_df.iterrows():
@@ -240,14 +241,23 @@ def create_clusters(similarity_df, data_df, volume_col=None, impressions_col=Non
     
     cluster_data = []
     for cluster, keywords in clusters.items():
+
         keyword_data = data_df[data_df['Keyword'].isin(keywords)]
-        total_volume = keyword_data[volume_col].sum() if volume_col and volume_col in data_df.columns else None
-        total_impressions = keyword_data[impressions_col].sum() if impressions_col and impressions_col in data_df.columns else None
-        avg_intent = keyword_data[intent_col].mean() if intent_col and intent_col in data_df.columns else None
+
+        if data_df['Clicks'] not in data_df:
+            total_volume = keyword_data[volume_col].sum() if volume_col and volume_col in data_df.columns else None
+            avg_intent = keyword_data[intent_col].mean() if intent_col and intent_col in data_df.columns else None
+            cluster_row = [cluster, total_volume, avg_intent]
+            cluster_data.append(cluster_row)
+
+        if data_df['Search Volume'] not in data_df:
+            total_volume = keyword_data[volume_col].sum() if volume_col and volume_col in data_df.columns else None
+            total_impressions = keyword_data[impressions_col].sum() if impressions_col and impressions_col in data_df.columns else None
+            avg_intent = keyword_data[intent_col].mean() if intent_col and intent_col in data_df.columns else None
         
-        # Append data to cluster_data
-        cluster_row = [cluster, total_volume, total_impressions, avg_intent]
-        cluster_data.append(cluster_row)
+            # Append data to cluster_data
+            cluster_row = [cluster, total_volume, total_impressions, avg_intent]
+            cluster_data.append(cluster_row)
     
     # Determine column names based on provided parameters and data
     columns = ['Cluster']
