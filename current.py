@@ -216,7 +216,9 @@ def msv_serps_similarity(df):
             similarity_df.loc[keyword_a, keyword_b] = jaccard_similarity
 
             # Melting the similarity matrix
-            melted_df = similarity_df.reset_index().melt(id_vars='Keyword', var_name='Keyword_B', value_name=['Similarity', 'Search Volume', 'Keyword Intent'])
+            melted_df = df.melt(id_vars=['Keyword'], 
+                        value_vars=['Keyword_B', 'clicks', 'impressions', 'Avg. Keyword Intent'],
+                        var_name='Metric', value_name='Value')
     
     return melted_df
 
@@ -237,7 +239,9 @@ def gsc_serps_similarity(df):
             similarity_df.loc[keyword_a, keyword_b] = jaccard_similarity
 
             # Melting the similarity matrix
-            melted_df = similarity_df.reset_index().melt(id_vars='Keyword', var_name='Keyword_B', value_name=['Similarity', 'clicks', 'impressions', 'Keyword Intent'])
+            melted_df = df.melt(id_vars=['Keyword', 'Keyword_B'], 
+                        value_vars=['clicks', 'impressions', 'Avg. Keyword Intent'],
+                        var_name='Metric', value_name='Value')
     
     return melted_df
 
