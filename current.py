@@ -241,31 +241,33 @@ def create_clusters(similarity_df, data_df, volume_col=None, impressions_col=Non
     
     cluster_data = []
     for cluster, keywords in clusters.items():
-
         keyword_data = data_df[data_df['Keyword'].isin(keywords)]
-
-        if data_df['Clicks'] not in data_df:
-            total_volume = keyword_data[volume_col].sum() if volume_col and volume_col in data_df.columns else None
-            avg_intent = keyword_data[intent_col].mean() if intent_col and intent_col in data_df.columns else None
-            cluster_row = [cluster, total_volume, avg_intent]
-            cluster_data.append(cluster_row)
-
-        if data_df['Search Volume'] not in data_df:
-            total_volume = keyword_data[volume_col].sum() if volume_col and volume_col in data_df.columns else None
-            total_impressions = keyword_data[impressions_col].sum() if impressions_col and impressions_col in data_df.columns else None
-            avg_intent = keyword_data[intent_col].mean() if intent_col and intent_col in data_df.columns else None
+        total_volume = None
+        total_impressions = None
+        avg_intent = None
         
-            # Append data to cluster_data
-            cluster_row = [cluster, total_volume, total_impressions, avg_intent]
-            cluster_data.append(cluster_row)
+        # Check if the volume column (either 'Clicks' or 'Search Volume') exists, and if so, calculate the total volume
+        if volume_col in data_df.columns:
+            total_volume = keyword_data[volume_col].sum()
+        # Check if the impressions column exists, and if so, calculate the total impressions
+        if impressions_col in data_df.columns:
+            total_impressions = keyword_data[impressions_col].sum()
+        # Check if the intent column exists, and if so, calculate the average intent
+        if intent_col in data_df.columns:
+            avg_intent = keyword_data[intent_col].mean()
+        
+        # Append data to cluster_data
+        cluster_row = [cluster, total_volume, total_impressions, avg_intent]
+        cluster_data.append(cluster_row)
     
     # Determine column names based on provided parameters and data
     columns = ['Cluster']
-    if volume_col and volume_col in data_df.columns:
+    if volume_col in data_df.columns:
         columns.append('Total ' + volume_col)
-    if impressions_col != None:
+    if impressions_col in data_df.columns:
         columns.append('Total ' + impressions_col)
-    columns.append('Avg. Keyword Intent')
+    if intent_col in data_df.columns:
+        columns.append('Avg. Keyword Intent')
     
     # Remove None values and their corresponding columns
     cleaned_cluster_data = []
