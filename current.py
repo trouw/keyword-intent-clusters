@@ -282,7 +282,7 @@ def main():
                 data.rename(columns={keyword_col_name: 'Keyword'}, inplace=True)
             else:
                 st.warning("No column for keywords found. Expected column name to be 'keyword' or 'query'.")
-            st.session_state['keyword_col_name'] = keyword_col_name
+            
             st.session_state['data'] = data
     
     if 'data' in st.session_state: 
@@ -350,7 +350,7 @@ def main():
                 else:
                     # Get the list of keywords from the GSC DataFrame
                     if 'filtered_data' in st.session_state and 'keyword_col_name' in st.session_state:
-                        keywords_to_query = st.session_state['filtered_data'][st.session_state['keyword_col_name']].tolist()
+                        keywords_to_query = st.session_state['filtered_data']['Keyword'].tolist()
                         print(keywords_to_query)
                         # Run DataForSEO API query for multiple keywords
                         result_df = query_dataforseo_serp(username, password, keywords_to_query)
