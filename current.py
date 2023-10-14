@@ -247,10 +247,14 @@ def create_clusters(similarity_df, data_df, volume_col=None, impressions_col=Non
         cluster_data.append([cluster, total_volume, total_impressions, avg_intent])
     
     # Determine column names based on provided parameters
-    volume_col_name = 'Total ' + volume_col if volume_col else 'Total Volume'
-    impressions_col_name = 'Total ' + impressions_col if impressions_col else 'Total Impressions'
+    columns = ['Cluster']
+    if volume_col:
+        columns.append('Total ' + volume_col)
+    if impressions_col:
+        columns.append('Total ' + impressions_col)
+    columns.append('Avg. Keyword Intent')
     
-    cluster_df = pd.DataFrame(cluster_data, columns=['Cluster', volume_col_name, impressions_col_name, 'Avg. Keyword Intent'])
+    cluster_df = pd.DataFrame(cluster_data, columns=columns)
     return cluster_df
 
 def create_bubble_chart(agg_data):
