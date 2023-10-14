@@ -351,7 +351,7 @@ def main():
                     # Get the list of keywords from the GSC DataFrame
                     if 'filtered_data' in st.session_state and 'keyword_col_name' in st.session_state:
                         keywords_to_query = st.session_state['filtered_data'][st.session_state['keyword_col_name']].tolist()
-
+                        print(keywords_to_query)
                         # Run DataForSEO API query for multiple keywords
                         result_df = query_dataforseo_serp(username, password, keywords_to_query)
                         st.session_state['result_df'] = result_df
