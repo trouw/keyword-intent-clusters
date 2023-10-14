@@ -238,7 +238,7 @@ def create_clusters_search_volume(similarity_df, data_df):
                 clusters[keyword_a] = [keyword_b]
             else:
                 clusters[keyword_a].append(keyword_b)
-
+        st.write(clusters)
     cluster_data = []
     for cluster, keywords in clusters.items():
         keyword_data = data_df[data_df['Keyword'].isin(keywords)]
@@ -265,7 +265,7 @@ def create_clusters_clicks_impressions(similarity_df, data_df):
                 clusters[keyword_a] = [keyword_b]
             else:
                 clusters[keyword_a].append(keyword_b)
-
+        
     cluster_data = []
     for cluster, keywords in clusters.items():
         keyword_data = data_df[data_df['Keyword'].isin(keywords)]
