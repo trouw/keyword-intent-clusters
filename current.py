@@ -389,10 +389,10 @@ def main():
             
             # Download link for filtered data
             csv = filtered_data.to_csv(index=False)  # Do not write index to CSV
-            b64 = base64.b64encode(csv.encode()).decode()
+            csv_bytes = csv.encode()  # Convert string to bytes
             st.download_button(
                 label="Download Filtered Data",
-                data=b64,
+                data=csv_bytes,
                 file_name="filtered_data.csv",
                 mime="text/csv"
             )
