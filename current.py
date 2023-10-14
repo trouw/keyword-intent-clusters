@@ -166,7 +166,8 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
     # Create a DataFrame from the combined data for all keywords
     df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
-    
+    if 'Keyword' not in df.columns:
+    df.rename(columns={next((col for col in df.columns if col.lower() in ['keyword', 'query']), None): 'Keyword'}, inplace=True)
     return df
 
 def extract_info_from_serp(data):
@@ -278,8 +279,8 @@ def main():
 
             # Identify the column name for keywords
         keyword_col_name = next((col for col in data.columns if col.lower() in ['keyword', 'query']), None)
-        if keyword_col_name:
-            st.session_state['keyword_col_name'] = keyword_col_name
+        if keyword_col_name and keyword_col_name != 'Keyword':
+            data.rename(columns={keyword_col_name: 'Keyword'}, inplace=True)
         else:
             st.warning("No column for keywords found. Expected column name to be 'keyword' or 'query'.")
     
@@ -373,7 +374,7 @@ def main():
             st.dataframe(similarity_df.reset_index())  # Reset index to include 'Keyword' column
             
             if 'filtered_data' in st.session_state and 'result_df' in st.session_state:
-                merged_df = pd.merge(st.session_state['filtered_data'], st.session_state['result_df'][[st.session_state['keyword_col_name'], 'Keyword Intent']], on=st.session_state['keyword_col_name'], how='inner')
+                merged_df = pd.merge(st.session_state['filtered_data'], st.session_state['result_df'][['Keyword', 'Keyword Intent']], on='Keyword', how='inner')
                 cluster_df = create_clusters(similarity_df, merged_df)
 
             # Adding a download button for the SERP similarity matrix
@@ -396,4 +397,3 @@ if 'oauth2_expander_state' not in st.session_state:
 
 if __name__ == "__main__":
     main()
-
