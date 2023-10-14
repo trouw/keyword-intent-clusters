@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_urls=None, include_urls=None, min_max_dict=None):
     if data is not None:
         # Determine the column names for keywords and URLs
-        keyword_col = next((col for col in data.columns if col.lower() in ['keyword', 'query']), None)
-        url_col = next((col for col in data.columns if col.lower() in ['url', 'page']), None)
+        keyword_col = next((col for col in data.columns if col.lower() in ['Keyword', 'query']), None)
+        url_col = next((col for col in data.columns if col.lower() in ['URL', 'page']), None)
         
         # Handle keyword filtering
         if exclude_keywords or include_keywords:
@@ -277,7 +277,7 @@ def main():
             st.write(f'Row count before filtering: {len(data)}')
 
             # Identify the column name for keywords
-            keyword_col_name = next((col for col in data.columns if col.lower() in ['keyword', 'query']), None)
+            keyword_col_name = next((col for col in data.columns if col.lower() in ['Keyword', 'query']), None)
             if keyword_col_name != 'Keyword':
                 data.rename(columns={keyword_col_name: 'Keyword'}, inplace=True)
             else:
