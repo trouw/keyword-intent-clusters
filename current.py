@@ -219,7 +219,8 @@ def msv_serps_similarity(df):
             melted_df = similarity_df.reset_index().melt(id_vars='Keyword', var_name='Keyword_B', value_name='Similarity')
             selected_columns = df[['Keyword', 'Keyword Intent', "Search Volume"]]
             msv_merged_df = pd.merge(melted_df, selected_columns, on='Keyword', how='inner')
-    
+            msv_merged_df = msv_merged_df.drop_duplicates()
+
     return msv_merged_df
 
 def gsc_serps_similarity(df):
