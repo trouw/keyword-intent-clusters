@@ -119,7 +119,9 @@ def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_
         # Handle value range filtering
         if min_max_dict:
             for col, (min_value, max_value) in min_max_dict.items():
+                print(f"Filtering {col}: min_value = {min_value}, max_value = {max_value}")  # Debugging statement
                 data = data[(data[col] >= min_value) & (data[col] <= max_value)]
+                print(data)
     return data
 
 
@@ -378,7 +380,7 @@ def main():
                 min_max_dict[col] = (min_value, max_value)
         
         if st.button("Filter Data"):
-            filtered_data = preprocess_data(data, exclude_keywords, include_keywords, exclude_urls, include_urls)
+            filtered_data = preprocess_data(data, exclude_keywords, include_keywords, exclude_urls, include_urls, min_max_dict)
             st.write("Filtered Data:")
             st.write(filtered_data)
 
