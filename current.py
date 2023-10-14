@@ -282,7 +282,7 @@ def main():
                 data.rename(columns={keyword_col_name: 'Keyword'}, inplace=True)
             else:
                 st.warning("No column for keywords found. Expected column name to be 'keyword' or 'query'.")
-    
+            st.session_state['keyword_col_name'] = keyword_col_name
             st.session_state['data'] = data
     
     if 'data' in st.session_state: 
