@@ -267,8 +267,8 @@ def create_clusters_clicks_impressions(similarity_df, data_df):
     cluster_data = []
     for cluster, keywords in clusters.items():
         keyword_data = data_df[data_df['Keyword'].isin(keywords)]
-        total_clicks = keyword_data['Clicks'].sum()
-        total_impressions = keyword_data['Impressions'].sum()
+        total_clicks = keyword_data['clicks'].sum()
+        total_impressions = keyword_data['impressions'].sum()
         avg_intent = keyword_data['Keyword Intent'].mean()
         cluster_row = [cluster, total_clicks, total_impressions, avg_intent]
         cluster_data.append(cluster_row)
