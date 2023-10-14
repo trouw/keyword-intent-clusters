@@ -199,12 +199,7 @@ def extract_info_from_serp(data):
 
     return extracted_info
 
-def serps_similarity(df):
-    # Assuming df contains SERP data with 'keyword', 'URL' and 'Position' columns
-
-    # Filter for Page 1 results
-    df = df[df['Position'] <= 10]
-    
+def msv_serps_similarity(df):
     # Group by keyword and join URLs into a single string
     serp_strings = df.groupby('Keyword').apply(lambda group: ' '.join(map(str, group['URL'])))
     
@@ -221,10 +216,30 @@ def serps_similarity(df):
             similarity_df.loc[keyword_a, keyword_b] = jaccard_similarity
 
             # Melting the similarity matrix
-            melted_df = similarity_df.reset_index().melt(id_vars='Keyword', var_name='Keyword_B', value_name='Similarity')
+            melted_df = similarity_df.reset_index().melt(id_vars='Keyword', var_name='Keyword_B', value_name=['Similarity', 'Search Volume', 'Keyword Intent'])
     
     return melted_df
 
+def gsc_serps_similarity(df):
+    # Group by keyword and join URLs into a single string
+    serp_strings = df.groupby('Keyword').apply(lambda group: ' '.join(map(str, group['URL'])))
+    
+    # Create a DataFrame to store similarity scores
+    similarity_df = pd.DataFrame(index=serp_strings.index, columns=serp_strings.index)
+    
+    # Compare SERP similarity
+    for keyword_a, serp_string_a in serp_strings.items():
+        for keyword_b, serp_string_b in serp_strings.items():
+            # Simple similarity measure - Jaccard similarity
+            set_a = set(serp_string_a.split())
+            set_b = set(serp_string_b.split())
+            jaccard_similarity = len(set_a.intersection(set_b)) / len(set_a.union(set_b))
+            similarity_df.loc[keyword_a, keyword_b] = jaccard_similarity
+
+            # Melting the similarity matrix
+            melted_df = similarity_df.reset_index().melt(id_vars='Keyword', var_name='Keyword_B', value_name=['Similarity', 'clicks', 'impressions', 'Keyword Intent'])
+    
+    return melted_df
 
 def create_clusters_search_volume(similarity_df, data_df):
     clusters = {}
@@ -241,11 +256,8 @@ def create_clusters_search_volume(similarity_df, data_df):
     st.write(clusters)
     cluster_data = []
     for cluster, keywords in clusters.items():
-        keyword_data = data_df[data_df['Keyword'].isin(keywords)]
-        st.write(keyword_data)
-        total_volume = keyword_data['Search Volume'].sum()
-        st.write(total_volume)
-        avg_intent = keyword_data['Keyword Intent'].mean()
+        total_volume = similarity_df['Search Volume'].sum()
+        avg_intent = similarity_df['Keyword Intent'].mean()
         cluster_row = [cluster, total_volume, avg_intent]
         cluster_data.append(cluster_row)
 
@@ -419,20 +431,23 @@ def main():
 
     with st.expander("SERP Similarity"):
         if 'result_df' in st.session_state:
-            similarity_df = serps_similarity(st.session_state['result_df'])
-            st.write("SERP Similarity Matrix:")
-            st.dataframe(similarity_df.reset_index())  # Reset index to include 'Keyword' column
-            
-            if 'filtered_data' in st.session_state and 'result_df' in st.session_state:
-                st.write(st.session_state['filtered_data'])
-                st.write(st.session_state['result_df'])
+            selected_columns = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
+            merged_df = pd.merge(st.session_state['filtered_data'], selected_columns, on='Keyword', how='inner')
+            st.session_state['merged_df'] = merged_df
+
+            if 'merged_df' in st.session_state:
+                # st.write(st.session_state['filtered_data'])
+                # st.write(st.session_state['result_df'])
                 
-                selected_columns = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
-                merged_df = pd.merge(st.session_state['filtered_data'], selected_columns, on='Keyword', how='inner')
-                st.write(merged_df)
+                similarity_df = msv_serps_similarity(merged_df)
+                st.write("SERP Similarity Matrix:")
+                st.dataframe(similarity_df.reset_index())  # Reset index to include 'Keyword' column
+
                 if 'Search Volume' in merged_df.columns:
+                    similarity_df = msv_serps_similarity(merged_df)
                     cluster_df = create_clusters_search_volume(similarity_df, merged_df)
                 elif 'clicks' in merged_df.columns and 'impressions' in merged_df.columns:
+                    similarity_df = gsc_serps_similarity(merged_df)
                     cluster_df = create_clusters_clicks_impressions(similarity_df, merged_df)
                 else:
                     st.error("The data does not have the necessary columns for clustering.")
