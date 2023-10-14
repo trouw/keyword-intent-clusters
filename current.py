@@ -86,24 +86,30 @@ def to_csv_download_link(df, filename="data.csv"):
 #     return None
 
 # Function to preprocess data and apply filters
-def preprocess_data(data, exclude_dict, min_max_dict):
+def preprocess_data(data, exclude_keywords, include_keywords, exclude_urls, include_urls):
     if data is not None:
-        # Filtering by value ranges
-        for col, (min_value, max_value) in min_max_dict.items():
-            if pd.api.types.is_numeric_dtype(data[col]):
-                data = data[(data[col] >= min_value) & (data[col] <= max_value)]
+        # Filtering by keywords
+        if exclude_keywords or include_keywords:
+            def filter_keywords(row):
+                keyword = str(row.get('Keyword') or row.get('Query'))
+                if exclude_keywords and any(ex_kw in keyword for ex_kw in exclude_keywords):
+                    return False
+                if include_keywords and not any(inc_kw in keyword for inc_kw in include_keywords):
+                    return False
+                return True
+            data = data[data.apply(filter_keywords, axis=1)]
         
-        # Filter by excluded keywords
-        for col, keywords in exclude_dict.items():
-            if keywords:
-                excluded_keywords = [kw.strip() for kw in keywords.split(",")]
-
-                def exclude_keyword(row):
-                    keyword = str(row[col])
-                    return not any(excluded_keyword.casefold() in keyword.casefold() for excluded_keyword in excluded_keywords)
-
-                data = data[data.apply(exclude_keyword, axis=1)]
-    
+        # Filtering by URLs
+        if exclude_urls or include_urls:
+            def filter_urls(row):
+                url = str(row.get('URL') or row.get('Page'))
+                if exclude_urls and any(ex_url in url for ex_url in exclude_urls):
+                    return False
+                if include_urls and not any(inc_url in url for inc_url in include_urls):
+                    return False
+                return True
+            data = data[data.apply(filter_urls, axis=1)]
+        
     return data
 
 # Function to query DataForSEO SERP for multiple keywords
@@ -319,6 +325,7 @@ def create_bubble_chart(agg_data):
 def main():
     filtered_df = None
     cluster_df = None
+    filtered_data = None
     st.title("Data Preprocessor")
     
     uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
@@ -326,6 +333,28 @@ def main():
         data = pd.read_csv(uploaded_file, index_col=0)  # Use the first column as the index
         st.write("Uploaded Data:")
         st.write(data)
+        
+        # Keyword filtering
+        keyword_filter_toggle = st.checkbox('Enable Keyword Filtering')
+        exclude_keywords, include_keywords = None, None
+        if keyword_filter_toggle:
+            keyword_action = st.radio('Keyword Action', ['Include', 'Exclude'])
+            keywords_input = st.text_input('Keywords (comma separated)')
+            if keyword_action == 'Exclude':
+                exclude_keywords = [kw.strip() for kw in keywords_input.split(",")]
+            else:
+                include_keywords = [kw.strip() for kw in keywords_input.split(",")]
+        
+        # URL filtering
+        url_filter_toggle = st.checkbox('Enable URL Filtering')
+        exclude_urls, include_urls = None, None
+        if url_filter_toggle:
+            url_action = st.radio('URL Action', ['Include', 'Exclude'], key='url_action')
+            urls_input = st.text_input('URLs (comma separated)', key='urls_input')
+            if url_action == 'Exclude':
+                exclude_urls = [url.strip() for url in urls_input.split(",")]
+            else:
+                include_urls = [url.strip() for url in urls_input.split(",")]
         
         exclude_dict = {}
         min_max_dict = {}
@@ -338,9 +367,10 @@ def main():
                 min_max_dict[col] = (min_value, max_value)
         
         if st.button("Filter Data"):
-            filtered_data = preprocess_data(data, exclude_dict, min_max_dict)
+            filtered_data = preprocess_data(data, exclude_keywords, include_keywords, exclude_urls, include_urls)
             st.write("Filtered Data:")
             st.write(filtered_data)
+
             
             # Download link for filtered data
             csv = filtered_data.to_csv(index=False)  # Do not write index to CSV
