@@ -429,7 +429,7 @@ def main():
                 
                 selected_columns = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
                 merged_df = pd.merge(st.session_state['filtered_data'], selected_columns, on='Keyword', how='inner')
-                
+                st.write(merged_df)
                 if 'Search Volume' in merged_df.columns:
                     cluster_df = create_clusters_search_volume(similarity_df, merged_df)
                 elif 'clicks' in merged_df.columns and 'impressions' in merged_df.columns:
