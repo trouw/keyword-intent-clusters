@@ -166,8 +166,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
     # Create a DataFrame from the combined data for all keywords
     df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
-    if 'Keyword' not in df.columns:
-        df.rename(columns={next((col for col in df.columns if col.lower() in ['keyword', 'query']), None): 'Keyword'}, inplace=True)
     
     return df
 
@@ -280,7 +278,7 @@ def main():
 
             # Identify the column name for keywords
         keyword_col_name = next((col for col in data.columns if col.lower() in ['keyword', 'query']), None)
-        if keyword_col_name and keyword_col_name != 'Keyword':
+        if keyword_col_name != 'Keyword':
             data.rename(columns={keyword_col_name: 'Keyword'}, inplace=True)
         else:
             st.warning("No column for keywords found. Expected column name to be 'keyword' or 'query'.")
