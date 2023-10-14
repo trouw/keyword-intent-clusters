@@ -86,30 +86,38 @@ def to_csv_download_link(df, filename="data.csv"):
 #     return None
 
 # Function to preprocess data and apply filters
-def preprocess_data(data, exclude_keywords, include_keywords, exclude_urls, include_urls):
+def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_urls=None, include_urls=None):
     if data is not None:
-        keyword_col = next((col for col in data.columns if col.lower() == 'keyword'), None)
-        url_col = next((col for col in data.columns if col.lower() == 'url'), None)
+        # Determine the column names for keywords and URLs
+        keyword_col = next((col for col in data.columns if col.lower() in ['keyword', 'query']), None)
+        url_col = next((col for col in data.columns if col.lower() in ['url', 'page']), None)
         
+        # Handle keyword filtering
         if exclude_keywords or include_keywords:
             if keyword_col:
                 if exclude_keywords:
-                    data = data[~data[keyword_col].str.contains('|'.join(exclude_keywords), case=False)]
+                    exclusion_mask = data[keyword_col].apply(lambda x: any(keyword.lower() in x.lower() for keyword in exclude_keywords))
+                    data = data[~exclusion_mask]
                 if include_keywords:
-                    data = data[data[keyword_col].str.contains('|'.join(include_keywords), case=False)]
+                    inclusion_mask = data[keyword_col].apply(lambda x: any(keyword.lower() in x.lower() for keyword in include_keywords))
+                    data = data[inclusion_mask]
             else:
-                print("No 'keyword' column found")
-        
+                print("No 'keyword' or 'query' column found")
+
+        # Handle URL filtering
         if exclude_urls or include_urls:
             if url_col:
                 if exclude_urls:
-                    data = data[~data[url_col].str.contains('|'.join(exclude_urls), case=False)]
+                    exclusion_mask = data[url_col].apply(lambda x: any(url.lower() in x.lower() for url in exclude_urls))
+                    data = data[~exclusion_mask]
                 if include_urls:
-                    data = data[data[url_col].str.contains('|'.join(include_urls), case=False)]
+                    inclusion_mask = data[url_col].apply(lambda x: any(url.lower() in x.lower() for url in include_urls))
+                    data = data[inclusion_mask]
             else:
-                print("No 'url' column found")
+                print("No 'url' or 'page' column found")
 
     return data
+
 
 # Function to query DataForSEO SERP for multiple keywords
 def query_dataforseo_serp(username, password, keywords, search_engine="google", search_type="organic", language_code="en", location_code=2840):
