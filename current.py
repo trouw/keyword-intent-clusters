@@ -258,7 +258,7 @@ def create_clusters_search_volume(similarity_df):
             if keyword_a not in clusters:
                 clusters.update({keyword_a: []})
             else:
-                clusters.update({keyword_a:keyword_b})
+                clusters[keyword_a].append(keyword_b)
     st.write(clusters)
     cluster_data = []
     for cluster, keywords in clusters.items():
