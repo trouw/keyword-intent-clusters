@@ -238,7 +238,7 @@ def create_clusters_search_volume(similarity_df, data_df):
                 clusters.update({keyword_a: []})
             else:
                 clusters.update({keyword_a:keyword_b})
-        st.write(clusters)
+    st.write(clusters)
     cluster_data = []
     for cluster, keywords in clusters.items():
         keyword_data = data_df[data_df['Keyword'].isin(keywords)]
