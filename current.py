@@ -266,6 +266,7 @@ def main():
     filtered_df = None
     cluster_df = None
     filtered_data = None
+    data = None
     st.title("Data Preprocessor")
     
     with st.expander("Upload Data"):
