@@ -444,10 +444,6 @@ def main():
             if 'merged_df' in st.session_state:
                 # st.write(st.session_state['filtered_data'])
                 # st.write(st.session_state['result_df'])
-                
-                similarity_df = msv_serps_similarity(merged_df)
-                st.write("SERP Similarity Matrix:")
-                st.dataframe(similarity_df.reset_index())  # Reset index to include 'Keyword' column
 
                 if 'Search Volume' in merged_df.columns:
                     similarity_df = msv_serps_similarity(merged_df)
