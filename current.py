@@ -226,21 +226,10 @@ def serps_similarity(df):
     return melted_df
 
 
-def create_clusters(similarity_df, data_df, volume_col=None, impressions_col=None, intent_col='Keyword Intent'):
+def create_clusters(similarity_df, data_df, intent_col='Keyword Intent'):
     # Determine available metrics in data_df
-    has_clicks = 'Clicks' in data_df.columns
-    has_impressions = 'Impressions' in data_df.columns
-    has_search_volume = 'Search Volume' in data_df.columns
+    metrics_available = [col for col in ['Clicks', 'Impressions', 'Search Volume'] if col in data_df.columns]
 
-    # Adjust the volume_col and impressions_col based on available metrics
-    if has_clicks:
-        volume_col = 'Clicks'
-    elif has_search_volume:
-        volume_col = 'Search Volume'
-
-    if has_impressions:
-        impressions_col = 'Impressions'
-    
     clusters = {}
     for index, row in similarity_df.iterrows():
         keyword_a = row['Keyword']
@@ -256,29 +245,15 @@ def create_clusters(similarity_df, data_df, volume_col=None, impressions_col=Non
     cluster_data = []
     for cluster, keywords in clusters.items():
         keyword_data = data_df[data_df['Keyword'].isin(keywords)]
-        total_volume = None
-        total_impressions = None
-        avg_intent = None
-        
-        # Calculate metrics based on availability
-        if volume_col:
-            total_volume = keyword_data[volume_col].sum()
-        if impressions_col:
-            total_impressions = keyword_data[impressions_col].sum()
-        if intent_col in data_df.columns:
-            avg_intent = keyword_data[intent_col].mean()
+        total_metrics = {metric: keyword_data[metric].sum() for metric in metrics_available}
+        avg_intent = keyword_data[intent_col].mean() if intent_col in data_df.columns else None
         
         # Append data to cluster_data
-        cluster_row = [cluster, total_volume, total_impressions, avg_intent]
+        cluster_row = [cluster] + [total_metrics.get(metric, None) for metric in ['Clicks', 'Impressions', 'Search Volume']] + [avg_intent]
         cluster_data.append(cluster_row)
     
     # Determine column names based on available metrics
-    columns = ['Cluster']
-    if volume_col:
-        columns.append('Total ' + volume_col)
-    if impressions_col:
-        columns.append('Total ' + impressions_col)
-    columns.append('Avg. Keyword Intent')
+    columns = ['Cluster'] + [f'Total {metric}' for metric in ['Clicks', 'Impressions', 'Search Volume'] if metric in metrics_available] + ['Avg. Keyword Intent']
     
     cluster_df = pd.DataFrame(cluster_data, columns=columns)
     return cluster_df
