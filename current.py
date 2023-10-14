@@ -419,7 +419,7 @@ def main():
                 st.write(merged_df)
                 if 'Search Volume' in merged_df.columns:
                     cluster_df = create_clusters_search_volume(similarity_df, merged_df)
-                elif 'Clicks' in merged_df.columns and 'Impressions' in merged_df.columns:
+                elif 'clicks' in merged_df.columns and 'impressions' in merged_df.columns:
                     cluster_df = create_clusters_clicks_impressions(similarity_df, merged_df)
                 else:
                     st.error("The data does not have the necessary columns for clustering.")
