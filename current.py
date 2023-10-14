@@ -241,9 +241,9 @@ def create_clusters(similarity_df, data_df, volume_col=None, impressions_col=Non
     cluster_data = []
     for cluster, keywords in clusters.items():
         keyword_data = data_df[data_df['Keyword'].isin(keywords)]
-        total_volume = keyword_data[volume_col].sum() if volume_col and volume_col in data_df.columns else 0
-        total_impressions = keyword_data[impressions_col].sum() if impressions_col and impressions_col in data_df.columns else 0
-        avg_intent = keyword_data[intent_col].mean() if intent_col and intent_col in data_df.columns else 0
+        total_volume = keyword_data[volume_col].sum() if volume_col and volume_col in data_df.columns else None
+        total_impressions = keyword_data[impressions_col].sum() if impressions_col and impressions_col in data_df.columns else None
+        avg_intent = keyword_data[intent_col].mean() if intent_col and intent_col in data_df.columns else None
         
         # Append data to cluster_data
         cluster_row = [cluster, total_volume, total_impressions, avg_intent]
@@ -257,7 +257,17 @@ def create_clusters(similarity_df, data_df, volume_col=None, impressions_col=Non
         columns.append('Total ' + impressions_col)
     columns.append('Avg. Keyword Intent')
     
-    cluster_df = pd.DataFrame(cluster_data, columns=columns)
+    # Remove None values and their corresponding columns
+    cleaned_cluster_data = []
+    cleaned_columns = []
+    for row in cluster_data:
+        cleaned_row = [value for value, col in zip(row, columns) if value is not None]
+        cleaned_cluster_data.append(cleaned_row)
+    for col in columns:
+        if any(row[columns.index(col)] is not None for row in cluster_data):
+            cleaned_columns.append(col)
+    
+    cluster_df = pd.DataFrame(cleaned_cluster_data, columns=cleaned_columns)
     return cluster_df
 
 def create_bubble_chart(agg_data):
