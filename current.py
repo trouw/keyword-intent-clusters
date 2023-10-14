@@ -286,6 +286,8 @@ def main():
             keyword_col_name = next((col for col in data.columns if col.lower() in ['keyword', 'query']), None)
             if keyword_col_name != 'Keyword':
                 data.rename(columns={keyword_col_name: 'Keyword'}, inplace=True)
+            elif keyword_col_name == 'Keyword':
+                None
             else:
                 st.warning("No column for keywords found. Expected column name to be 'keyword' or 'query'.")
             
