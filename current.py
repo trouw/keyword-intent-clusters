@@ -11,79 +11,6 @@ import base64
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# OAuth 2.0 client ID and scopes
-CLIENT_ID = 'your-client-id'
-CLIENT_SECRET = 'your-client-secret'
-SCOPES = ['https://www.googleapis.com/auth/webmasters.readonly']
-
-# GSC API Version & Service Name
-GSC_API_VERSION = 'v3'
-GSC_API_NAME = 'webmasters'
-
-keyword_data_df = pd.DataFrame(columns=['Keyword', 'Clicks', 'Impressions', 'CTR', 'Position'])
-
-# Global variables for OAuth2
-CLIENT_ID = ''
-CLIENT_SECRET = ''
-PROJECT_ID = ''
-
-# Function to convert the dataframe to a downloadable format
-def to_csv_download_link(df, filename="data.csv"):
-    csv = df.to_csv(index=False)
-    b64 = base64.b64encode(csv.encode()).decode()
-    href = f'<a href="data:file/csv;base64,{b64}" download="{filename}">Download CSV File</a>'
-    return href
-
-
-# Function to query for keywords through GSC API and convert to DataFrame
-@st.cache_data
-# def query_keyword_data(access_token, site_url, start_date, end_date):
-#     try:
-#         # Explicitly specify the credentials when creating the service
-#         credentials = google_credentials.Credentials(access_token)
-#         gsc_service = build(GSC_API_NAME, GSC_API_VERSION, credentials=credentials)
-
-#         # Convert date objects to strings
-#         start_date_str = start_date.strftime('%Y-%m-%d')
-#         end_date_str = end_date.strftime('%Y-%m-%d')
-
-#         # Prepare the initial query
-#         request = gsc_service.searchanalytics().query(
-#             siteUrl=site_url,
-#             body={
-#                 'startDate': start_date_str,
-#                 'endDate': end_date_str,
-#                 'dimensions': ['query'],
-#                 'rowLimit': 50  # Max row limit per request
-#             }
-#         )
-
-#         keyword_data = []
-
-#         # Function to recursively fetch all available data with pagination
-#         def fetch_data(request):
-#             response = request.execute()
-#             if 'rows' in response:
-#                 keyword_data.extend(response['rows'])
-
-#             next_page_token = response.get('nextPageToken')
-#             if next_page_token:
-#                 request['startRow'] = response['rows'][len(response['rows']) - 1]['position'] + 1
-#                 request['pageToken'] = next_page_token
-#                 fetch_data(request)
-
-#         fetch_data(request)
-
-#         # Convert the keyword data to a DataFrame
-#         if keyword_data:
-#             df = pd.DataFrame(keyword_data)
-#             df.columns = ['Keyword', 'Clicks', 'Impressions', 'CTR', 'Position']
-#             return df
-
-#     except Exception as e:
-#         st.error(f"Error fetching keyword data: {str(e)}")
-
-#     return None
 
 # Function to preprocess data and apply filters
 def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_urls=None, include_urls=None, min_max_dict=None):
@@ -348,6 +275,13 @@ def main():
             st.write("Uploaded Data:")
             st.write(data)
             st.write(f'Row count before filtering: {len(data)}')
+
+            # Identify the column name for keywords
+        keyword_col_name = next((col for col in data.columns if col.lower() in ['keyword', 'query']), None)
+        if keyword_col_name:
+            st.session_state['keyword_col_name'] = keyword_col_name
+        else:
+            st.warning("No column for keywords found. Expected column name to be 'keyword' or 'query'.")
     
     with st.expander("Filter Data"):
         # Keyword filtering
@@ -387,6 +321,7 @@ def main():
             st.write("Filtered Data:")
             st.write(filtered_data)
             st.write(f'Row count after filtering: {len(filtered_data)}')
+            st.session_state['filtered_data'] = filtered_data  
 
             
             # Download link for filtered data
@@ -413,8 +348,8 @@ def main():
                 st.error("Please provide DataForSEO credentials.")
             else:
                 # Get the list of keywords from the GSC DataFrame
-                if 'keyword_data_df_filtered' in st.session_state:
-                    keywords_to_query = st.session_state.keyword_data_df_filtered["Keyword"].tolist()
+                if 'filtered_data' in st.session_state and 'keyword_col_name' in st.session_state:
+                    keywords_to_query = st.session_state['filtered_data'][st.session_state['keyword_col_name']].tolist()
 
                     # Run DataForSEO API query for multiple keywords
                     result_df = query_dataforseo_serp(username, password, keywords_to_query)
