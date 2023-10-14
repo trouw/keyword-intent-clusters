@@ -225,7 +225,7 @@ def serps_similarity(df):
     
     return melted_df
 
-def create_clusters(similarity_df, data_df, clicks_col='Clicks', impressions_col='Impressions', intent_col='Keyword Intent'):
+def create_clusters(similarity_df, data_df, clicks_col='clicks', impressions_col='impressions', intent_col='Keyword Intent'):
     clusters = {}
     for index, row in similarity_df.iterrows():
         keyword_a = row['Keyword']
