@@ -336,7 +336,7 @@ def main():
                     file_name="filtered_data.csv",
                     mime="text/csv"
                 )
-    if 'filtered_data' in st.session_stateL
+    if 'filtered_data' in st.session_state:
         with st.expander("DataForSEO API Integration"):
             st.warning("Running this part of the script will cost money. Ensure you have enough funds in your DataForSEO account.")
 
