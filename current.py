@@ -216,7 +216,7 @@ def msv_serps_similarity(df):
             similarity_df.loc[keyword_a, keyword_b] = jaccard_similarity
 
             # Melting the similarity matrix
-            melted_df = similarity_df.reset_index().melt(id_vars='Keyword', var_name='Keyword_B', value_name=['Similarity'])
+            melted_df = similarity_df.reset_index().melt(id_vars='Keyword', var_name='Keyword_B', value_name='Similarity')
             selected_columns = df[['Keyword', 'Keyword Intent', "Search Volume"]]
             msv_merged_df = pd.merge(melted_df, selected_columns, on='Keyword', how='inner')
     
