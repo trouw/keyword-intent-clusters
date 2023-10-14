@@ -278,13 +278,24 @@ def create_clusters_clicks_impressions(similarity_df, data_df):
     return cluster_df
 
 def create_bubble_chart(agg_data):
-    # Check if 'size_metric' is in session state, otherwise set default to 'Clicks'
-    if 'size_metric' not in st.session_state:
-        st.session_state.size_metric = 'Clicks' or 'Search Volume'
+    # Determine available metrics for size
+    available_metrics = []
+    if 'Total Clicks' in agg_data.columns:
+        available_metrics.append('Total Clicks')
+    if 'Total Impressions' in agg_data.columns:
+        available_metrics.append('Total Impressions')
+    if 'Total Search Volume' in agg_data.columns:
+        available_metrics.append('Total Search Volume')
 
-    if st.session_state.size_metric == 'Clicks':
-        st.session_state.size_metric = st.selectbox('Choose size metric', ['Total Clicks', 'Total Impressions'])
+    # Check if 'size_metric' is in session state, otherwise set default
+    if 'size_metric' not in st.session_state or st.session_state.size_metric not in available_metrics:
+        st.session_state.size_metric = available_metrics[0]  # default to the first available metric
 
+    # Provide a dropdown toggle if there are multiple available metrics
+    if len(available_metrics) > 1:
+        st.session_state.size_metric = st.selectbox('Choose size metric', available_metrics)
+
+    # Now create the bubble chart
     sizes = agg_data[str(st.session_state.size_metric)]
     fig, ax = plt.subplots()
     ax.scatter([0] * len(agg_data), agg_data['Avg. Keyword Intent'], s=sizes, alpha=0.5)
