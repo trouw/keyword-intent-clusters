@@ -272,68 +272,70 @@ def main():
         uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
         if uploaded_file is not None:
             data = pd.read_csv(uploaded_file, index_col=0)  # Use the first column as the index
-            if data is not None:
-                st.write("Uploaded Data:")
-                st.write(data)
-                st.write(f'Row count before filtering: {len(data)}')
+            st.write("Uploaded Data:")
+            st.write(data)
+            st.write(f'Row count before filtering: {len(data)}')
 
-                # Identify the column name for keywords
-                keyword_col_name = next((col for col in data.columns if col.lower() in ['keyword', 'query']), None)
-                if keyword_col_name != 'Keyword':
-                    data.rename(columns={keyword_col_name: 'Keyword'}, inplace=True)
-                else:
-                    st.warning("No column for keywords found. Expected column name to be 'keyword' or 'query'.")
+            # Identify the column name for keywords
+            keyword_col_name = next((col for col in data.columns if col.lower() in ['keyword', 'query']), None)
+            if keyword_col_name != 'Keyword':
+                data.rename(columns={keyword_col_name: 'Keyword'}, inplace=True)
+            else:
+                st.warning("No column for keywords found. Expected column name to be 'keyword' or 'query'.")
     
-    with st.expander("Filter Data"):
-        # Keyword filtering
-        keyword_filter_toggle = st.checkbox('Enable Keyword Filtering')
-        exclude_keywords, include_keywords = None, None
-        if keyword_filter_toggle:
-            keyword_action = st.radio('Keyword Action', ['Include', 'Exclude'])
-            keywords_input = st.text_input('Keywords (comma separated)')
-            if keyword_action == 'Exclude':
-                exclude_keywords = [kw.strip() for kw in keywords_input.split(",")]
-            else:
-                include_keywords = [kw.strip() for kw in keywords_input.split(",")]
-        
-        # URL filtering
-        url_filter_toggle = st.checkbox('Enable URL Filtering')
-        exclude_urls, include_urls = None, None
-        if url_filter_toggle:
-            url_action = st.radio('URL Action', ['Include', 'Exclude'], key='url_action')
-            urls_input = st.text_input('URLs (comma separated)', key='urls_input')
-            if url_action == 'Exclude':
-                exclude_urls = [url.strip() for url in urls_input.split(",")]
-            else:
-                include_urls = [url.strip() for url in urls_input.split(",")]
-        
-        exclude_dict = {}
-        min_max_dict = {}
-        
-        for col in data.columns:
-            if col.lower() in ['keyword', 'url']:
-                exclude_dict[col] = st.text_input(f"Exclude values from {col} (comma-separated):")
-            elif pd.api.types.is_numeric_dtype(data[col]):
-                min_value, max_value = st.slider(f"{col} Range", float(data[col].min()), float(data[col].max()), (float(data[col].min()), float(data[col].max())))
-                min_max_dict[col] = (min_value, max_value)
-        
-        if st.button("Filter Data"):
-            filtered_data = preprocess_data(data, exclude_keywords, include_keywords, exclude_urls, include_urls, min_max_dict)
-            st.write("Filtered Data:")
-            st.write(filtered_data)
-            st.write(f'Row count after filtering: {len(filtered_data)}')
-            st.session_state['filtered_data'] = filtered_data  
-
+            st.session_state['data'] = data
+    
+    if 'data' in st.session_state: 
+        with st.expander("Filter Data"):
+            # Keyword filtering
+            keyword_filter_toggle = st.checkbox('Enable Keyword Filtering')
+            exclude_keywords, include_keywords = None, None
+            if keyword_filter_toggle:
+                keyword_action = st.radio('Keyword Action', ['Include', 'Exclude'])
+                keywords_input = st.text_input('Keywords (comma separated)')
+                if keyword_action == 'Exclude':
+                    exclude_keywords = [kw.strip() for kw in keywords_input.split(",")]
+                else:
+                    include_keywords = [kw.strip() for kw in keywords_input.split(",")]
             
-            # Download link for filtered data
-            csv = filtered_data.to_csv(index=False)  # Do not write index to CSV
-            csv_bytes = csv.encode()  # Convert string to bytes
-            st.download_button(
-                label="Download Filtered Data",
-                data=csv_bytes,
-                file_name="filtered_data.csv",
-                mime="text/csv"
-            )
+            # URL filtering
+            url_filter_toggle = st.checkbox('Enable URL Filtering')
+            exclude_urls, include_urls = None, None
+            if url_filter_toggle:
+                url_action = st.radio('URL Action', ['Include', 'Exclude'], key='url_action')
+                urls_input = st.text_input('URLs (comma separated)', key='urls_input')
+                if url_action == 'Exclude':
+                    exclude_urls = [url.strip() for url in urls_input.split(",")]
+                else:
+                    include_urls = [url.strip() for url in urls_input.split(",")]
+            
+            exclude_dict = {}
+            min_max_dict = {}
+            
+            for col in data.columns:
+                if col.lower() in ['keyword', 'url']:
+                    exclude_dict[col] = st.text_input(f"Exclude values from {col} (comma-separated):")
+                elif pd.api.types.is_numeric_dtype(data[col]):
+                    min_value, max_value = st.slider(f"{col} Range", float(data[col].min()), float(data[col].max()), (float(data[col].min()), float(data[col].max())))
+                    min_max_dict[col] = (min_value, max_value)
+            
+            if st.button("Filter Data"):
+                filtered_data = preprocess_data(data, exclude_keywords, include_keywords, exclude_urls, include_urls, min_max_dict)
+                st.write("Filtered Data:")
+                st.write(filtered_data)
+                st.write(f'Row count after filtering: {len(filtered_data)}')
+                st.session_state['filtered_data'] = filtered_data  
+
+                
+                # Download link for filtered data
+                csv = filtered_data.to_csv(index=False)  # Do not write index to CSV
+                csv_bytes = csv.encode()  # Convert string to bytes
+                st.download_button(
+                    label="Download Filtered Data",
+                    data=csv_bytes,
+                    file_name="filtered_data.csv",
+                    mime="text/csv"
+                )
 
     with st.expander("DataForSEO API Integration"):
         st.warning("Running this part of the script will cost money. Ensure you have enough funds in your DataForSEO account.")
