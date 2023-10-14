@@ -336,38 +336,38 @@ def main():
                     file_name="filtered_data.csv",
                     mime="text/csv"
                 )
+    if 'filtered_data' in st.session_stateL
+        with st.expander("DataForSEO API Integration"):
+            st.warning("Running this part of the script will cost money. Ensure you have enough funds in your DataForSEO account.")
 
-    with st.expander("DataForSEO API Integration"):
-        st.warning("Running this part of the script will cost money. Ensure you have enough funds in your DataForSEO account.")
+            # Input fields for DataForSEO API credentials
+            username = st.text_input("DataForSEO Username (Email):")
+            password = st.text_input("DataForSEO Password:", type="password")
+            client = RestClient(username, password)
 
-        # Input fields for DataForSEO API credentials
-        username = st.text_input("DataForSEO Username (Email):")
-        password = st.text_input("DataForSEO Password:", type="password")
-        client = RestClient(username, password)
-
-        # Button to query DataForSEO SERP
-        if st.button("Query DataForSEO SERP"):
-            if not username or not password:
-                st.error("Please provide DataForSEO credentials.")
-            else:
-                # Get the list of keywords from the GSC DataFrame
-                if 'filtered_data' in st.session_state and 'keyword_col_name' in st.session_state:
-                    keywords_to_query = st.session_state['filtered_data'][st.session_state['keyword_col_name']].tolist()
-
-                    # Run DataForSEO API query for multiple keywords
-                    result_df = query_dataforseo_serp(username, password, keywords_to_query)
-                    st.session_state['result_df'] = result_df
-
-                    if result_df is not None:
-                        # Display the DataFrame
-                        st.write("Data from DataForSEO API:")
-                        st.dataframe(result_df)
-
-                        # You can further process and save this DataFrame as needed
-                    else:
-                        st.error("Error querying DataForSEO API.")
+            # Button to query DataForSEO SERP
+            if st.button("Query DataForSEO SERP"):
+                if not username or not password:
+                    st.error("Please provide DataForSEO credentials.")
                 else:
-                    st.warning("No filtered keyword data available. Fetch and filter keyword data from GSC first.")
+                    # Get the list of keywords from the GSC DataFrame
+                    if 'filtered_data' in st.session_state and 'keyword_col_name' in st.session_state:
+                        keywords_to_query = st.session_state['filtered_data'][st.session_state['keyword_col_name']].tolist()
+
+                        # Run DataForSEO API query for multiple keywords
+                        result_df = query_dataforseo_serp(username, password, keywords_to_query)
+                        st.session_state['result_df'] = result_df
+
+                        if result_df is not None:
+                            # Display the DataFrame
+                            st.write("Data from DataForSEO API:")
+                            st.dataframe(result_df)
+
+                            # You can further process and save this DataFrame as needed
+                        else:
+                            st.error("Error querying DataForSEO API.")
+                    else:
+                        st.warning("No filtered keyword data available. Fetch and filter keyword data from GSC first.")
 
     with st.expander("SERP Similarity"):
         if 'result_df' in st.session_state:
