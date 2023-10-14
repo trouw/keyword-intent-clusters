@@ -256,8 +256,8 @@ def create_clusters_search_volume(similarity_df):
         
         if similarity_score >= 0.4:
             if keyword_a not in clusters:
-                clusters[keyword_a] = [keyword_b]
-            else:
+                clusters[keyword_a] = []  
+            if keyword_a != keyword_b:
                 clusters[keyword_a].append(keyword_b)
     st.write(clusters)
     cluster_data = []
