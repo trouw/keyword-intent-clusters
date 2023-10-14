@@ -249,12 +249,12 @@ def gsc_serps_similarity(df):
 
 def create_clusters_search_volume(similarity_df):
     clusters = {}
-    for row in similarity_df:
-        keyword_a = similarity_df['Keyword'][row]
-        keyword_b = similarity_df['Keyword_B'][row]
-        similarity_score = similarity_df['Similarity'][row]
+    for index, row in similarity_df.iterrows():
+        keyword_a = row['Keyword']
+        keyword_b = row['Keyword_B']
+        similarity_score = row['Similarity']
         
-        if similarity_score >= 0.4: 
+        if similarity_score >= 0.4:
             if keyword_a not in clusters:
                 clusters.update({keyword_a: []})
             else:
