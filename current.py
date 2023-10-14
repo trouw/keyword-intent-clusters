@@ -347,6 +347,7 @@ def main():
             data = pd.read_csv(uploaded_file, index_col=0)  # Use the first column as the index
             st.write("Uploaded Data:")
             st.write(data)
+            st.write(f'Row count before filtering: {len(data)}')
     
     with st.expander("Filter Data"):
         # Keyword filtering
@@ -385,6 +386,7 @@ def main():
             filtered_data = preprocess_data(data, exclude_keywords, include_keywords, exclude_urls, include_urls, min_max_dict)
             st.write("Filtered Data:")
             st.write(filtered_data)
+            st.write(f'Row count after filtering: {len(filtered_data)}')
 
             
             # Download link for filtered data
