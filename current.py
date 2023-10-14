@@ -358,7 +358,7 @@ def main():
                     st.error("Please provide DataForSEO credentials.")
                 else:
                     # Get the list of keywords from the GSC DataFrame
-                    if 'filtered_data' in st.session_state and 'keyword_col_name' in st.session_state:
+                    if 'filtered_keywords' in st.session_state:
                         keywords_to_query = st.session_state['filtered_keywords']
                         print(keywords_to_query)
                         # Run DataForSEO API query for multiple keywords
