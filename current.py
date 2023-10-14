@@ -272,16 +272,17 @@ def main():
         uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
         if uploaded_file is not None:
             data = pd.read_csv(uploaded_file, index_col=0)  # Use the first column as the index
-            st.write("Uploaded Data:")
-            st.write(data)
-            st.write(f'Row count before filtering: {len(data)}')
+            if data is not None:
+                st.write("Uploaded Data:")
+                st.write(data)
+                st.write(f'Row count before filtering: {len(data)}')
 
-            # Identify the column name for keywords
-            keyword_col_name = next((col for col in data.columns if col.lower() in ['keyword', 'query']), None)
-            if keyword_col_name != 'Keyword':
-                data.rename(columns={keyword_col_name: 'Keyword'}, inplace=True)
-            else:
-                st.warning("No column for keywords found. Expected column name to be 'keyword' or 'query'.")
+                # Identify the column name for keywords
+                keyword_col_name = next((col for col in data.columns if col.lower() in ['keyword', 'query']), None)
+                if keyword_col_name != 'Keyword':
+                    data.rename(columns={keyword_col_name: 'Keyword'}, inplace=True)
+                else:
+                    st.warning("No column for keywords found. Expected column name to be 'keyword' or 'query'.")
     
     with st.expander("Filter Data"):
         # Keyword filtering
