@@ -249,16 +249,28 @@ def gsc_serps_similarity(df):
 
 def create_clusters_search_volume(similarity_df):
     clusters = {}
+    clustered_keywords = set()  # Step 1: Create an empty set to keep track of clustered keywords
+    
     for index, row in similarity_df.iterrows():
         keyword_a = row['Keyword']
         keyword_b = row['Keyword_B']
         similarity_score = row['Similarity']
         
         if similarity_score >= 0.4:
+            # Step 2: Check if either keyword has already been clustered
+            if keyword_a in clustered_keywords or keyword_b in clustered_keywords:
+                continue  # Skip to the next iteration if either keyword has been clustered
+            
             if keyword_a not in clusters:
-                clusters[keyword_a] = []  
+                clusters[keyword_a] = []
             if keyword_a != keyword_b:
                 clusters[keyword_a].append(keyword_b)
+            
+            # Step 3: Add the keywords to the set of clustered keywords
+            clustered_keywords.add(keyword_a)
+            clustered_keywords.add(keyword_b)
+    
+    st.write(clusters)
     st.write(clusters)
     cluster_data = []
     for cluster, keywords in clusters.items():
