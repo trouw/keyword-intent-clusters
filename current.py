@@ -167,7 +167,8 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     # Create a DataFrame from the combined data for all keywords
     df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
     if 'Keyword' not in df.columns:
-    df.rename(columns={next((col for col in df.columns if col.lower() in ['keyword', 'query']), None): 'Keyword'}, inplace=True)
+        df.rename(columns={next((col for col in df.columns if col.lower() in ['keyword', 'query']), None): 'Keyword'}, inplace=True)
+    
     return df
 
 def extract_info_from_serp(data):
@@ -397,3 +398,4 @@ if 'oauth2_expander_state' not in st.session_state:
 
 if __name__ == "__main__":
     main()
+
