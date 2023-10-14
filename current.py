@@ -34,92 +34,56 @@ def to_csv_download_link(df, filename="data.csv"):
     href = f'<a href="data:file/csv;base64,{b64}" download="{filename}">Download CSV File</a>'
     return href
 
-# Function to get OAuth2 details from the user
-def get_oauth2_details():
-    global CLIENT_ID, CLIENT_SECRET, PROJECT_ID
-    
-    CLIENT_ID = st.text_input("Enter your Client ID:")
-    CLIENT_SECRET = st.text_input("Enter your Client Secret:", type="password")
-    PROJECT_ID = st.text_input("Enter your Project ID:")
-
-# Function to obtain an access token
-def obtain_access_token():
-    # Use global CLIENT_ID and CLIENT_SECRET
-    global CLIENT_ID, CLIENT_SECRET, PROJECT_ID
-    
-    # Prepare the client_config
-    client_config = {
-        "installed": {
-            "client_id": CLIENT_ID,
-            "client_secret": CLIENT_SECRET,
-            "project_id": PROJECT_ID,
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "redirect_uris": [
-        "https://keyword-intent-clusters.streamlit.app/"]
-        }
-    }
-
-    flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
-
-    credentials_obj = flow.run_local_server(port=0)
-
-    # Check if credentials have been obtained
-    if credentials_obj:
-        st.success("Access token obtained successfully!")
-        return credentials_obj.token
-    else:
-        return None
 
 # Function to query for keywords through GSC API and convert to DataFrame
 @st.cache_data
-def query_keyword_data(access_token, site_url, start_date, end_date):
-    try:
-        # Explicitly specify the credentials when creating the service
-        credentials = google_credentials.Credentials(access_token)
-        gsc_service = build(GSC_API_NAME, GSC_API_VERSION, credentials=credentials)
+# def query_keyword_data(access_token, site_url, start_date, end_date):
+#     try:
+#         # Explicitly specify the credentials when creating the service
+#         credentials = google_credentials.Credentials(access_token)
+#         gsc_service = build(GSC_API_NAME, GSC_API_VERSION, credentials=credentials)
 
-        # Convert date objects to strings
-        start_date_str = start_date.strftime('%Y-%m-%d')
-        end_date_str = end_date.strftime('%Y-%m-%d')
+#         # Convert date objects to strings
+#         start_date_str = start_date.strftime('%Y-%m-%d')
+#         end_date_str = end_date.strftime('%Y-%m-%d')
 
-        # Prepare the initial query
-        request = gsc_service.searchanalytics().query(
-            siteUrl=site_url,
-            body={
-                'startDate': start_date_str,
-                'endDate': end_date_str,
-                'dimensions': ['query'],
-                'rowLimit': 50  # Max row limit per request
-            }
-        )
+#         # Prepare the initial query
+#         request = gsc_service.searchanalytics().query(
+#             siteUrl=site_url,
+#             body={
+#                 'startDate': start_date_str,
+#                 'endDate': end_date_str,
+#                 'dimensions': ['query'],
+#                 'rowLimit': 50  # Max row limit per request
+#             }
+#         )
 
-        keyword_data = []
+#         keyword_data = []
 
-        # Function to recursively fetch all available data with pagination
-        def fetch_data(request):
-            response = request.execute()
-            if 'rows' in response:
-                keyword_data.extend(response['rows'])
+#         # Function to recursively fetch all available data with pagination
+#         def fetch_data(request):
+#             response = request.execute()
+#             if 'rows' in response:
+#                 keyword_data.extend(response['rows'])
 
-            next_page_token = response.get('nextPageToken')
-            if next_page_token:
-                request['startRow'] = response['rows'][len(response['rows']) - 1]['position'] + 1
-                request['pageToken'] = next_page_token
-                fetch_data(request)
+#             next_page_token = response.get('nextPageToken')
+#             if next_page_token:
+#                 request['startRow'] = response['rows'][len(response['rows']) - 1]['position'] + 1
+#                 request['pageToken'] = next_page_token
+#                 fetch_data(request)
 
-        fetch_data(request)
+#         fetch_data(request)
 
-        # Convert the keyword data to a DataFrame
-        if keyword_data:
-            df = pd.DataFrame(keyword_data)
-            df.columns = ['Keyword', 'Clicks', 'Impressions', 'CTR', 'Position']
-            return df
+#         # Convert the keyword data to a DataFrame
+#         if keyword_data:
+#             df = pd.DataFrame(keyword_data)
+#             df.columns = ['Keyword', 'Clicks', 'Impressions', 'CTR', 'Position']
+#             return df
 
-    except Exception as e:
-        st.error(f"Error fetching keyword data: {str(e)}")
+#     except Exception as e:
+#         st.error(f"Error fetching keyword data: {str(e)}")
 
-    return None
+#     return None
 
 # Function to preprocess data and apply filters
 def preprocess_data(data, exclude_keywords, min_values, max_values):
@@ -357,67 +321,31 @@ def create_bubble_chart(agg_data):
 def main():
     filtered_df = None
     cluster_df = None
-    st.title("Google Search Console API - Keyword Data")
-
-    # Access Token Input
-    access_token = st.text_input("Enter your Access Token:")
-
-    if not access_token:
-        st.warning("Please enter an Access Token.")
-        return  # Return early if the access token isn't provided
-
-    # Initially, only show Keyword Data Query section
-    with st.expander("Keyword Data Query", expanded=True):
-        site_url = st.text_input("Enter Site URL:", "https://example.com")
-        start_date = st.date_input("Start Date")
-        end_date = st.date_input("End Date")
-
-        # Button to fetch the keyword data
-        if st.button("Fetch Keyword Data"):
-            keyword_data_df = query_keyword_data(access_token, site_url, start_date, end_date)
-            if keyword_data_df is not None:
-                st.session_state.keyword_data_df = keyword_data_df
-
-    # Display the Filtering Options after data is fetched
-    if 'keyword_data_df' in st.session_state and st.session_state.keyword_data_df is not None:
-        with st.expander("Filtering Options", expanded=True):
-            # Filter by excluded keywords
-            exclude_keywords = st.text_input("Exclude Keywords (comma-separated):", key="exclude_keywords")
-            if exclude_keywords:  # Check if the user has entered any value
-                st.session_state.show_dataframe = False
-
-            # Filtering by value ranges
-            st.subheader("Filter by Value Ranges")
-            min_values = []
-            max_values = []
-            for col in st.session_state.keyword_data_df.columns[1:5]:
-                min_value, max_value = st.slider(f"{col} Range", float(min(st.session_state.keyword_data_df[col])), float(max(st.session_state.keyword_data_df[col])), (float(min(st.session_state.keyword_data_df[col])), float(max(st.session_state.keyword_data_df[col]))), key=f"{col}_slider")
-                min_values.append(min_value)
-                max_values.append(max_value)
-
-                # Check if any slider value has changed to hide the dataframe
-                if (min_value != float(min(st.session_state.keyword_data_df[col]))) or (max_value != float(max(st.session_state.keyword_data_df[col]))):
-                    st.session_state.show_dataframe = False
-
-            if 'keyword_data_df_filtered' in st.session_state:
-                st.session_state.keyword_data_df_filtered['Keyword'] = st.session_state.keyword_data_df_filtered['Keyword'].apply(lambda x: x[0] if isinstance(x, list) and len(x) > 0 else x)
-
-            if st.button("Generate Dataframe"):
-                filtered_df = preprocess_data(st.session_state.keyword_data_df, exclude_keywords, min_values, max_values)
-                st.session_state.keyword_data_df_filtered = filtered_df
-                st.session_state.show_dataframe = True  # Show the dataframe once it's generated
-
-            # Display the dataframe if show_dataframe is True
-            if st.session_state.show_dataframe:
-                st.write("Filtered Keyword Data:")
-                st.dataframe(st.session_state.keyword_data_df_filtered)
-
-            # File download section
-            filename = st.text_input("Filename for Download (without extension):", value="data", key="filename")
-            filename += ".csv"
-            if st.button("Download Data"):
-                download_link = to_csv_download_link(st.session_state.keyword_data_df_filtered, filename)
-                st.markdown(download_link, unsafe_allow_html=True)  
+    st.title("Data Preprocessor")
+    
+    uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+    if uploaded_file is not None:
+        data = pd.read_csv(uploaded_file)
+        st.write("Uploaded Data:")
+        st.write(data)
+        
+        # Select columns to filter
+        filter_columns = st.multiselect("Select columns to filter:", data.columns)
+        min_values = [st.number_input(f'Min value for {col}:') for col in filter_columns]
+        max_values = [st.number_input(f'Max value for {col}:') for col in filter_columns]
+        
+        exclude_keywords = st.text_input("Exclude Keywords (comma-separated):")
+        
+        if st.button("Filter Data"):
+            filtered_data = preprocess_data(data, exclude_keywords, filter_columns, min_values, max_values)
+            st.write("Filtered Data:")
+            st.write(filtered_data)
+            
+            # Download link for filtered data
+            csv = filtered_data.to_csv(index=False)
+            b64 = base64.b64encode(csv.encode()).decode()
+            href = f'<a href="data:file/csv;base64,{b64}" download="filtered_data.csv">Download Filtered Data</a>'
+            st.markdown(href, unsafe_allow_html=True)
 
     with st.expander("DataForSEO API Integration"):
         st.warning("Running this part of the script will cost money. Ensure you have enough funds in your DataForSEO account.")
