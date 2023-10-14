@@ -244,13 +244,23 @@ def create_clusters(similarity_df, data_df, volume_col=None, impressions_col=Non
         total_volume = keyword_data[volume_col].sum() if volume_col and volume_col in data_df.columns else None
         total_impressions = keyword_data[impressions_col].sum() if impressions_col and impressions_col in data_df.columns else None
         avg_intent = keyword_data[intent_col].mean() if intent_col and intent_col in data_df.columns else None
-        cluster_data.append([cluster, total_volume, total_impressions, avg_intent])
+        
+        # Only include data for columns that will actually be in cluster_df
+        cluster_row = [cluster]
+        if total_volume is not None:
+            cluster_row.append(total_volume)
+        if total_impressions is not None:
+            cluster_row.append(total_impressions)
+        if avg_intent is not None:
+            cluster_row.append(avg_intent)
+        
+        cluster_data.append(cluster_row)
     
-    # Determine column names based on provided parameters
+    # Determine column names based on provided parameters and data
     columns = ['Cluster']
-    if volume_col:
+    if total_volume is not None:
         columns.append('Total ' + volume_col)
-    if impressions_col:
+    if total_impressions is not None:
         columns.append('Total ' + impressions_col)
     columns.append('Avg. Keyword Intent')
     
