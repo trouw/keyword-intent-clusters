@@ -248,23 +248,34 @@ def gsc_serps_similarity(df):
     return msv_merged_df
 
 def create_clusters_search_volume(similarity_df):
-    clusters = {}
-    assigned_keywords = set()
-    
+    keyword_relationships = {}
     for index, row in similarity_df.iterrows():
         keyword_a = row['Keyword']
         keyword_b = row['Keyword_B']
         similarity_score = row['Similarity']
-        
         if similarity_score >= 0.4:
-            if keyword_a not in assigned_keywords:
-                if keyword_a not in clusters:
-                    clusters[keyword_a] = [] 
-                if keyword_a != keyword_b:
-                    clusters[keyword_a].append(keyword_b)
-                assigned_keywords.add(keyword_a)
-                assigned_keywords.add(keyword_b)
-
+            if keyword_a not in keyword_relationships:
+                keyword_relationships[keyword_a] = set()
+            if keyword_b not in keyword_relationships:
+                keyword_relationships[keyword_b] = set()
+            keyword_relationships[keyword_a].add(keyword_b)
+            keyword_relationships[keyword_b].add(keyword_a)
+    
+    clusters = {}
+    visited_keywords = set()
+    for keyword, related_keywords in keyword_relationships.items():
+        if keyword not in visited_keywords:
+            cluster = set([keyword])
+            to_visit = list(related_keywords)
+            while to_visit:
+                current_keyword = to_visit.pop()
+                if current_keyword not in visited_keywords:
+                    visited_keywords.add(current_keyword)
+                    cluster.add(current_keyword)
+                    to_visit.extend(keyword_relationships[current_keyword])
+            cluster_key = min(cluster)  # Use the lexicographically smallest keyword as the cluster key
+            clusters[cluster_key] = list(cluster)
+    
     st.write(clusters)
     cluster_data = []
     for cluster, keywords in clusters.items():
