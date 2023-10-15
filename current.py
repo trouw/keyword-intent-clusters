@@ -229,7 +229,7 @@ def gsc_serps_similarity(df):
     
     # Create a DataFrame to store similarity scores
     similarity_df = pd.DataFrame(index=serp_strings.index, columns=serp_strings.index)
-    
+    st.write(similarity_df)
     # Compare SERP similarity
     for keyword_a, serp_string_a in serp_strings.items():
         for keyword_b, serp_string_b in serp_strings.items():
