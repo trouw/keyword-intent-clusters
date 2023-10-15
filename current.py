@@ -279,9 +279,9 @@ def create_clusters_search_volume(similarity_df):
     st.write(clusters)
     cluster_data = []
     for cluster, keywords in clusters.items():
+        st.write(cluster)
         keywords.append(cluster)
         keyword_data = similarity_df[similarity_df['Keyword'].isin(keywords) | similarity_df['Keyword_B'].isin(keywords)]
-        st.write('Hellow' + keyword_data['Search Volume'])
         total_volume = keyword_data['Search Volume'].sum()
         avg_intent = keyword_data['Keyword Intent'].mean()
 
