@@ -292,6 +292,7 @@ def create_clusters_search_volume(similarity_df):
     return cluster_df
 
 def create_clusters_clicks_impressions(similarity_df):
+    similarity_df = similarity_df.drop_duplicates()
     keyword_relationships = {}
     for index, row in similarity_df.iterrows():
         keyword_a = row['Keyword']
