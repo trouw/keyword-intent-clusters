@@ -292,25 +292,44 @@ def create_clusters_search_volume(similarity_df):
     return cluster_df
 
 def create_clusters_clicks_impressions(similarity_df, data_df):
-    clusters = {}
+    keyword_relationships = {}
     for index, row in similarity_df.iterrows():
         keyword_a = row['Keyword']
         keyword_b = row['Keyword_B']
         similarity_score = row['Similarity']
-        
-        if similarity_score >= 0.4:  # Assuming similarity is in range [0, 1]
-            if keyword_a not in clusters:
-                clusters[keyword_a] = [keyword_b]
-            else:
-                clusters[keyword_a].append(keyword_b)
-        
+        if similarity_score >= 0.4:
+            if keyword_a not in keyword_relationships:
+                keyword_relationships[keyword_a] = set()
+            if keyword_b not in keyword_relationships:
+                keyword_relationships[keyword_b] = set()
+            keyword_relationships[keyword_a].add(keyword_b)
+            keyword_relationships[keyword_b].add(keyword_a)
+    
+    clusters = {}
+    visited_keywords = set()
+    for keyword, related_keywords in keyword_relationships.items():
+        if keyword not in visited_keywords:
+            cluster = set([keyword])
+            to_visit = list(related_keywords)
+            while to_visit:
+                current_keyword = to_visit.pop()
+                if current_keyword not in visited_keywords:
+                    visited_keywords.add(current_keyword)
+                    cluster.add(current_keyword)
+                    to_visit.extend(keyword_relationships[current_keyword])
+            cluster_key = min(cluster) 
+            clusters[cluster_key] = list(cluster)
+    
+    st.write(clusters)
     cluster_data = []
     for cluster, keywords in clusters.items():
-        keyword_data = data_df[data_df['Keyword'].isin(keywords)]
-        total_clicks = keyword_data['clicks'].sum()
-        total_impressions = keyword_data['impressions'].sum()
+        keywords.append(cluster)
+        keyword_data = similarity_df[similarity_df['Keyword'].isin(keywords) | similarity_df['Keyword_B'].isin(keywords)]
+        total_volume = keyword_data['clicks'].sum()
+        total_imps = keyword_data['impressions'].sum()
         avg_intent = keyword_data['Keyword Intent'].mean()
-        cluster_row = [cluster, total_clicks, total_impressions, avg_intent]
+
+        cluster_row = [cluster, total_volume, total_imps, avg_intent]
         cluster_data.append(cluster_row)
 
     columns = ['Cluster', 'Total Clicks', 'Total Impressions', 'Avg. Keyword Intent']
