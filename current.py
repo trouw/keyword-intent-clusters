@@ -248,6 +248,7 @@ def gsc_serps_similarity(df):
     return msv_merged_df
 
 def create_clusters_search_volume(similarity_df):
+    st.write(similarity_df)
     keyword_relationships = {}
     for index, row in similarity_df.iterrows():
         keyword_a = row['Keyword']
@@ -489,7 +490,6 @@ def main():
 
                 if 'Search Volume' in merged_df.columns:
                     similarity_df = msv_serps_similarity(merged_df)
-                    st.write(similarity_df)
                     cluster_df = create_clusters_search_volume(similarity_df)
                 elif 'clicks' in merged_df.columns and 'impressions' in merged_df.columns:
                     similarity_df = gsc_serps_similarity(merged_df)
