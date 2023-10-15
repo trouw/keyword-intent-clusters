@@ -321,10 +321,9 @@ def create_clusters_clicks_impressions(similarity_df):
             clusters[cluster_key] = list(cluster)
     
     cluster_data = []
-    st.write(cluster[0])
     for cluster, keywords in clusters.items():
         keyword_data = pd.DataFrame()
-        st.write(cluster)
+        st.write(keywords)
         keyword_filter = similarity_df['Keyword'].isin(keywords) | similarity_df['Keyword_B'].isin(keywords)
         keyword_data = similarity_df[keyword_filter]
         # st.write(keyword_data)
