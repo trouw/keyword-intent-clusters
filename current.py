@@ -248,26 +248,22 @@ def gsc_serps_similarity(df):
     return msv_merged_df
 
 def create_clusters_search_volume(similarity_df):
-    keyword_mapping = {}
+    clusters = {}
+    assigned_keywords = set()
+    
     for index, row in similarity_df.iterrows():
         keyword_a = row['Keyword']
         keyword_b = row['Keyword_B']
         similarity_score = row['Similarity']
         
         if similarity_score >= 0.4:
-            if keyword_a not in keyword_mapping:
-                keyword_mapping[keyword_a] = (keyword_b, similarity_score)
-            elif similarity_score > keyword_mapping[keyword_a][1]:
-                # Update the mapping if the current pair has a higher similarity score
-                keyword_mapping[keyword_a] = (keyword_b, similarity_score)
-
-    # Step 2: Build clusters based on the mapping
-    clusters = {}
-    for keyword_a, (keyword_b, _) in keyword_mapping.items():
-        if keyword_a not in clusters:
-            clusters[keyword_a] = [keyword_b]
-        else:
-            clusters[keyword_a].append(keyword_b)
+            if keyword_a not in assigned_keywords:
+                if keyword_a not in clusters:
+                    clusters[keyword_a] = [] 
+                if keyword_a != keyword_b:
+                    clusters[keyword_a].append(keyword_b)
+                assigned_keywords.add(keyword_a)
+                assigned_keywords.add(keyword_b)
 
     st.write(clusters)
     cluster_data = []
