@@ -326,7 +326,7 @@ def create_clusters_clicks_impressions(similarity_df):
         st.write(keywords)
         st.write('////////////')
         keyword_filter = similarity_df['Keyword_B'].isin(keywords) & similarity_df['Keyword_B'].isin(keywords)
-        keyword_data = similarity_df[keyword_filter]
+        keyword_data = similarity_df[keyword_filter].isin(keywords)
         st.write(len(keyword_data))
         total_volume = keyword_data['clicks'].sum()
         total_imps = keyword_data['impressions'].sum()
