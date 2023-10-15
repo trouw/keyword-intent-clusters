@@ -225,7 +225,7 @@ def msv_serps_similarity(df):
 
 def gsc_serps_similarity(df):
     # Group by keyword and join URLs into a single string
-    serp_strings = df.groupby('Keyword').apply(lambda group: ' '.join(map(str, group['URL'])))
+    serp_strings = df.groupby('Keyword').apply(lambda group: ' '.join(map(str, group['page'])))
     
     # Create a DataFrame to store similarity scores
     similarity_df = pd.DataFrame(index=serp_strings.index, columns=serp_strings.index)
@@ -291,7 +291,7 @@ def create_clusters_search_volume(similarity_df):
     cluster_df = pd.DataFrame(cluster_data, columns=columns)
     return cluster_df
 
-def create_clusters_clicks_impressions(similarity_df, data_df):
+def create_clusters_clicks_impressions(similarity_df):
     keyword_relationships = {}
     for index, row in similarity_df.iterrows():
         keyword_a = row['Keyword']
@@ -489,7 +489,6 @@ def main():
                     st.write(similarity_df)
                     cluster_df = create_clusters_search_volume(similarity_df)
                 elif 'clicks' in merged_df.columns and 'impressions' in merged_df.columns:
-                    st.write(merged_df)
                     similarity_df = gsc_serps_similarity(merged_df)
                     cluster_df = create_clusters_clicks_impressions(similarity_df)
                 else:
