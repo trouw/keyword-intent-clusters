@@ -244,7 +244,8 @@ def gsc_serps_similarity(df):
             selected_columns = df[['Keyword', 'Keyword Intent', "clicks", "impressions"]]
             msv_merged_df = pd.merge(melted_df, selected_columns, on='Keyword', how='inner')
             msv_merged_df = msv_merged_df.drop_duplicates()
-            st.write(msv_merged_df)
+    
+    st.write(msv_merged_df)
     return msv_merged_df
 
 def create_clusters_search_volume(similarity_df):
