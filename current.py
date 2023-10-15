@@ -273,7 +273,7 @@ def create_clusters_search_volume(similarity_df):
                     visited_keywords.add(current_keyword)
                     cluster.add(current_keyword)
                     to_visit.extend(keyword_relationships[current_keyword])
-            cluster_key = min(cluster)  # Use the lexicographically smallest keyword as the cluster key
+            cluster_key = min(cluster) 
             clusters[cluster_key] = list(cluster)
     
     st.write(clusters)
@@ -283,6 +283,9 @@ def create_clusters_search_volume(similarity_df):
         keyword_data = similarity_df[similarity_df['Keyword'].isin(keywords) | similarity_df['Keyword_B'].isin(keywords)]
         total_volume = keyword_data['Search Volume'].sum()
         avg_intent = keyword_data['Keyword Intent'].mean()
+
+        cluster_row = [cluster, total_volume, avg_intent]
+        cluster_data.append(cluster_row)
 
     columns = ['Cluster', 'Total Search Volume', 'Avg. Keyword Intent']
     cluster_df = pd.DataFrame(cluster_data, columns=columns)
