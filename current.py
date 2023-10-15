@@ -248,7 +248,6 @@ def gsc_serps_similarity(df):
             msv_merged_df = pd.merge(melted_df, selected_columns, on='Keyword', how='inner')
             msv_merged_df = msv_merged_df.drop_duplicates()
     
-    st.write(msv_merged_df)
     return msv_merged_df
 
 def create_clusters_search_volume(similarity_df):
@@ -296,7 +295,6 @@ def create_clusters_search_volume(similarity_df):
     return cluster_df
 
 def create_clusters_clicks_impressions(similarity_df):
-    st.write(similarity_df)
     keyword_relationships = {}
     for index, row in similarity_df.iterrows():
         keyword_a = row['Keyword']
@@ -327,11 +325,8 @@ def create_clusters_clicks_impressions(similarity_df):
     
     cluster_data = []
     for cluster, keywords in clusters.items():
-        st.write(keywords)
-        st.write('////////////')
         keyword_filter = similarity_df['Keyword_B'].isin(keywords) & similarity_df['Keyword_B'].isin(keywords)
         keyword_data = similarity_df[keyword_filter]
-        st.write(keyword_data)
         total_volume = keyword_data['clicks'].sum()
         total_imps = keyword_data['impressions'].sum()
         avg_intent = keyword_data['Keyword Intent'].mean()
@@ -483,7 +478,7 @@ def main():
 
     with st.expander("SERP Similarity"):
         if 'result_df' in st.session_state:
-            selected_columns = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
+            selected_columns = st.session_state['result_df'][['Keyword', 'Keyword Intent', 'URL']]
             merged_df = pd.merge(st.session_state['filtered_data'], selected_columns, on='Keyword', how='inner')
             st.session_state['merged_df'] = merged_df
 
