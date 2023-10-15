@@ -235,8 +235,11 @@ def gsc_serps_similarity(df):
         for keyword_b, serp_string_b in serp_strings.items():
             # Simple similarity measure - Jaccard similarity
             set_a = set(serp_string_a.split())
+            st.write(set_a)
             set_b = set(serp_string_b.split())
+            st.write(set_b)
             jaccard_similarity = len(set_a.intersection(set_b)) / len(set_a.union(set_b))
+            st.write(jaccard_similarity)
             similarity_df.loc[keyword_a, keyword_b] = jaccard_similarity
 
             # Melting the similarity matrix
