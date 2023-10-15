@@ -318,11 +318,11 @@ def create_clusters_clicks_impressions(similarity_df):
                     to_visit.extend(keyword_relationships[current_keyword])
             cluster_key = min(cluster) 
             clusters[cluster_key] = list(cluster)
-    
+    st.write(cluster)
     cluster_data = []
     for cluster, keywords in clusters.items():
-        st.write(cluster)
         keywords.append(cluster)
+        st.write(keywords)
         keyword_data = similarity_df[similarity_df['Keyword'].isin(keywords) | similarity_df['Keyword_B'].isin(keywords)]
         total_volume = keyword_data['clicks'].sum()
         total_imps = keyword_data['impressions'].sum()
