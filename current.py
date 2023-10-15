@@ -276,7 +276,6 @@ def create_clusters_search_volume(similarity_df):
             cluster_key = min(cluster) 
             clusters[cluster_key] = list(cluster)
     
-    st.write(clusters)
     cluster_data = []
     for cluster, keywords in clusters.items():
         st.write(cluster)
