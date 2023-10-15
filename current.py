@@ -489,6 +489,7 @@ def main():
                     st.write(similarity_df)
                     cluster_df = create_clusters_search_volume(similarity_df)
                 elif 'clicks' in merged_df.columns and 'impressions' in merged_df.columns:
+                    st.write(merged_df)
                     similarity_df = gsc_serps_similarity(merged_df)
                     cluster_df = create_clusters_clicks_impressions(similarity_df)
                 else:
