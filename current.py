@@ -320,14 +320,14 @@ def create_clusters_clicks_impressions(similarity_df):
             cluster_key = min(cluster) 
             clusters[cluster_key] = list(cluster)
     
-    st.write(clusters)
+    st.write(clusters[1])
     cluster_data = []
     for cluster, keywords in clusters.items():
         keyword_data = pd.DataFrame()
 
         keyword_filter = similarity_df['Keyword'].isin(keywords) | similarity_df['Keyword_B'].isin(keywords)
         keyword_data = similarity_df[keyword_filter]
-        
+
         total_volume = keyword_data['clicks'].sum()
         total_imps = keyword_data['impressions'].sum()
         avg_intent = keyword_data['Keyword Intent'].mean()
