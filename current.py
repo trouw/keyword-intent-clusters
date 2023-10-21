@@ -294,7 +294,7 @@ def gsc_serps_similarity(data):
 
     st.session_state['Clusters'] = clusters
 
-    return matrix, similar_pairs_df, clusters
+    return clusters
 
 def aggregate_clusters(cluster_data, keyword_df):
     # Create an empty DataFrame to store cluster-level data
@@ -562,21 +562,12 @@ def main():
             selected_columns = st.session_state['result_df'][['Keyword', 'Keyword Intent', 'URL']]
             merged_df = pd.merge(st.session_state['filtered_data'], selected_columns, on='Keyword', how='inner')
             st.session_state['merged_df'] = merged_df
-
+            print(merged_df)
             if 'merged_df' in st.session_state:
-                # st.write(st.session_state['filtered_data'])
-                # st.write(st.session_state['result_df'])
+                clusters = gsc_serps_similarity(merged_df)
+                aggregate_clusters(clusters)
 
-                if 'Search Volume' in merged_df.columns:
-                    similarity_df = msv_serps_similarity(merged_df)
-                    cluster_df = create_clusters_search_volume(similarity_df)
-                elif 'clicks' in merged_df.columns and 'impressions' in merged_df.columns:
-                    similarity_df = gsc_serps_similarity(merged_df)
-                    cluster_df = create_clusters_clicks_impressions(similarity_df)
-                else:
-                    st.error("The data does not have the necessary columns for clustering.")
 
-                st.write(cluster_df)
             # Adding a download button for the SERP similarity matrix
             csv1 = similarity_df.reset_index().to_csv(index=False)  # Reset index to include 'Keyword' column
             b64 = base64.b64encode(csv1.encode()).decode()
