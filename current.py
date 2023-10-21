@@ -202,7 +202,6 @@ def extract_info_from_serp(data):
 
     return extracted_info
 
-def msv_serps_similarity(df):
     # Group by keyword and join URLs into a single string
     serp_strings = df.groupby('Keyword').apply(lambda group: ' '.join(map(str, group['URL'])))
     
@@ -258,7 +257,7 @@ def remove_subsets(cluster_df):
 
     return filtered_clusters
 
-def gsc_serps_similarity(data):
+def serps_similarity(data):
     # Group by keyword and get lists of URLs
     url_lists = data.groupby('Keyword')['URL'].apply(list).reset_index()
 
@@ -309,7 +308,6 @@ def aggregate_clusters(cluster_data, keyword_df):
             # If both Clicks and Impressions columns are present in keyword data, choose the keyword with the highest Impressions
             cluster_keyword_data = keyword_df[keyword_df['Keyword'].isin(cluster_keywords)]
             cluster_name_keyword = keyword_df.loc[cluster_keyword_data['impressions'].idxmax()]['Keyword']
-            st.write(cluster_keyword_data)
             
             # Aggregate data within the cluster
             cluster_agg = {
@@ -325,9 +323,8 @@ def aggregate_clusters(cluster_data, keyword_df):
 
         elif 'Search Volume' in keyword_df.columns:
             # If only Search Volume is present in keyword data, choose the keyword with the highest Search Volume
-            cluster_name_keyword = keyword_df.loc[keyword_df['Search Volume'].idxmax()]['Keyword']
-
             cluster_keyword_data = keyword_df[keyword_df['Keyword'].isin(cluster_keywords)]
+            cluster_name_keyword = keyword_df.loc[keyword_df['Search Volume'].idxmax()]['Keyword']
             
             # Aggregate data within the cluster
             cluster_agg = {
@@ -342,102 +339,14 @@ def aggregate_clusters(cluster_data, keyword_df):
 
     return cluster_agg_df
 
-def create_clusters_search_volume(similarity_df):
-    keyword_relationships = {}
-    for index, row in similarity_df.iterrows():
-        keyword_a = row['Keyword']
-        keyword_b = row['Keyword_B']
-        similarity_score = row['Similarity']
-        if similarity_score >= 0.4:
-            if keyword_a not in keyword_relationships:
-                keyword_relationships[keyword_a] = set()
-            if keyword_b not in keyword_relationships:
-                keyword_relationships[keyword_b] = set()
-            keyword_relationships[keyword_a].add(keyword_b)
-            keyword_relationships[keyword_b].add(keyword_a)
-    
-    clusters = {}
-    visited_keywords = set()
-    for keyword, related_keywords in keyword_relationships.items():
-        if keyword not in visited_keywords:
-            cluster = set([keyword])
-            to_visit = list(related_keywords)
-            while to_visit:
-                current_keyword = to_visit.pop()
-                if current_keyword not in visited_keywords:
-                    visited_keywords.add(current_keyword)
-                    cluster.add(current_keyword)
-                    to_visit.extend(keyword_relationships[current_keyword])
-            cluster_key = min(cluster) 
-            clusters[cluster_key] = list(cluster)
-    
-    cluster_data = []
-    for cluster, keywords in clusters.items():
-        keywords.append(cluster)
-        st.write(keyword)
-        keyword_data = similarity_df[similarity_df['Keyword'].isin(keywords) | similarity_df['Keyword_B'].isin(keywords)]
-        total_volume = keyword_data['Search Volume'].sum()
-        avg_intent = keyword_data['Keyword Intent'].mean()
-
-        cluster_row = [cluster, total_volume, avg_intent]
-        cluster_data.append(cluster_row)
-
-    columns = ['Cluster', 'Total Search Volume', 'Avg. Keyword Intent']
-    cluster_df = pd.DataFrame(cluster_data, columns=columns)
-    return cluster_df
-
-def create_clusters_clicks_impressions(similarity_df):
-    keyword_relationships = {}
-    for index, row in similarity_df.iterrows():
-        keyword_a = row['Keyword']
-        keyword_b = row['Keyword_B']
-        similarity_score = row['Similarity']
-        if similarity_score >= 0.4:
-            if keyword_a not in keyword_relationships:
-                keyword_relationships[keyword_a] = set()
-            if keyword_b not in keyword_relationships:
-                keyword_relationships[keyword_b] = set()
-            keyword_relationships[keyword_a].add(keyword_b)
-            keyword_relationships[keyword_b].add(keyword_a)
-    
-    clusters = {}
-    visited_keywords = set()
-    for keyword, related_keywords in keyword_relationships.items():
-        if keyword not in visited_keywords:
-            cluster = set([keyword])
-            to_visit = list(related_keywords)
-            while to_visit:
-                current_keyword = to_visit.pop()
-                if current_keyword not in visited_keywords:
-                    visited_keywords.add(current_keyword)
-                    cluster.add(current_keyword)
-                    to_visit.extend(keyword_relationships[current_keyword])
-            cluster_key = min(cluster) 
-            clusters[cluster_key] = list(cluster)
-    
-    cluster_data = []
-    for cluster, keywords in clusters.items():
-        keyword_filter = similarity_df['Keyword_B'].isin(keywords) & similarity_df['Keyword_B'].isin(keywords)
-        keyword_data = similarity_df[keyword_filter]
-        total_volume = keyword_data['clicks'].sum()
-        total_imps = keyword_data['impressions'].sum()
-        avg_intent = keyword_data['Keyword Intent'].mean()
-
-        cluster_row = [cluster, total_volume, total_imps, avg_intent]
-        cluster_data.append(cluster_row)
-
-    columns = ['Cluster', 'Total Clicks', 'Total Impressions', 'Avg. Keyword Intent']
-    cluster_df = pd.DataFrame(cluster_data, columns=columns)
-    return cluster_df
-
 def create_bubble_chart(agg_data):
     # Determine available metrics for size
     available_metrics = []
-    if 'Total Clicks' in agg_data.columns:
+    if 'Clicks' in agg_data.columns:
         available_metrics.append('Total Clicks')
-    if 'Total Impressions' in agg_data.columns:
+    if 'Impressions' in agg_data.columns:
         available_metrics.append('Total Impressions')
-    if 'Total Search Volume' in agg_data.columns:
+    if 'Search Volume' in agg_data.columns:
         available_metrics.append('Total Search Volume')
 
     # Check if 'size_metric' is in session state, otherwise set default
@@ -575,7 +484,7 @@ def main():
             st.session_state['merged_df'] = merged_df
             st.write(merged_df)
         if 'merged_df' in st.session_state:
-            clusters = gsc_serps_similarity(merged_df)
+            clusters = serps_similarity(merged_df)
             st.session_state['cluster_sim'] = clusters
 
         if 'cluster_sim' in st.session_state:
@@ -601,8 +510,8 @@ def main():
             # st.dataframe(cluster_df)
 
     with st.expander("Viz"):
-        if cluster_df is not None:
-            create_bubble_chart(cluster_df)
+        if agg_clusters is not None:
+            create_bubble_chart(agg_clusters)
 
 if 'oauth2_expander_state' not in st.session_state:
     st.session_state.oauth2_expander_state = False
