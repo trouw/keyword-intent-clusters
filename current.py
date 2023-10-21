@@ -334,8 +334,8 @@ def aggregate_clusters(cluster_data, keyword_df):
             }
 
    
-        # Append the cluster-level data to the cluster_agg_df DataFrame
-        cluster_agg_df = cluster_agg_df.append(cluster_agg, ignore_index=True)
+    # Append the cluster-level data to the cluster_agg_df DataFrame
+    cluster_agg_df = cluster_agg_df.append(cluster_agg, ignore_index=True)
 
     return cluster_agg_df
 
@@ -579,7 +579,7 @@ def main():
             selected_columns1 = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
             selected_columns2 = st.session_state['filtered_data'][['Keyword', 'clicks', 'impressions', 'ctr', 'position']]
             merged_df2 = pd.merge(selected_columns2, selected_columns1, on='Keyword', how='inner')
-            
+            st.write(merged_df2)
             agg_clusters = aggregate_clusters(clusters, merged_df2)
             st.write(agg_clusters)
 
