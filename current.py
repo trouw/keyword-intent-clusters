@@ -227,6 +227,8 @@ def msv_serps_similarity(df):
     return msv_merged_df
 
 def jaccard_similarity(set1, set2):
+    set1 = set(set1)
+    set2 = set(set2)
     intersection = len(set1.intersection(set2))
     union = len(set1.union(set2))
     return intersection / union if union != 0 else 0.0
@@ -244,10 +246,13 @@ def gsc_serps_similarity(df):
 
     # Calculate Jaccard similarity for all pairs of keywords
     for i, j in combinations(range(len(keywords)), 2):
-        sim = jaccard_similarity(similarity_df['serp_strings'][i], similarity_df['serp_strings'][j])
-        matrix.loc[keywords[i], keywords[j]] = sim
-        matrix.loc[keywords[j], keywords[i]] = sim
-
+        set1 = serp_strings2[i]
+        set2 = serp_strings2[j]
+        
+        if set1 is not None and set2 is not None:
+            sim = jaccard_similarity(set1, set2)
+            matrix.loc[keywords[i], keywords[j]] = sim
+            matrix.loc[keywords[j], keywords[i]] = sim
     # Fill diagonal with 1's since similarity with itself is 1
     matrix.values[[range(len(keywords))]*2] = 1
 
