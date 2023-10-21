@@ -507,12 +507,23 @@ def main():
             st.session_state['cluster_sim'] = clusters
 
         if 'cluster_sim' in st.session_state:
-            selected_columns1 = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
-            selected_columns2 = st.session_state['filtered_data'][['Keyword', 'clicks', 'impressions', 'ctr', 'position']]
-            merged_df2 = pd.merge(selected_columns2, selected_columns1, on='Keyword', how='inner').drop_duplicates()
-            st.write(merged_df2)
-            agg_clusters = aggregate_clusters(clusters, merged_df2)
-            st.write(agg_clusters)
+            if 'clicks' in st.session_state['filtered_data'].columns and 'impressions' in st.session_state['filtered_data'].columns:
+                selected_columns1 = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
+                selected_columns2 = st.session_state['filtered_data'][['Keyword', 'clicks', 'impressions', 'ctr', 'position']]
+                merged_df2 = pd.merge(selected_columns2, selected_columns1, on='Keyword', how='inner').drop_duplicates()
+                st.write(merged_df2)
+                agg_clusters = aggregate_clusters(clusters, merged_df2)
+                st.write(agg_clusters)
+
+            elif 'Search Volume' in st.session_state['filtered_data'].columns:
+                selected_columns1 = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
+                selected_columns2 = st.session_state['filtered_data'][['Keyword', 'Search Volume']]
+                merged_df2 = pd.merge(selected_columns2, selected_columns1, on='Keyword', how='inner').drop_duplicates()
+                st.write(merged_df2)
+                agg_clusters = aggregate_clusters(clusters, merged_df2)
+                st.write(agg_clusters)
+
+            
 
                 
 
