@@ -360,7 +360,20 @@ def create_bubble_chart(agg_data):
     # Now create the bubble chart
     sizes = agg_data[str(st.session_state.size_metric)]
     fig, ax = plt.subplots()
-    ax.scatter([0] * len(agg_data), agg_data['Keyword Intent'], s=sizes, alpha=0.5)
+
+    # Set the y-axis limits
+    ax.set_ylim([-2, 12])
+
+    ax.scatter([0] * len(agg_data), agg_data['Cluster Name'], s=sizes, alpha=0.5)
+    
+    # Enable auto-sizing
+    ax.autoscale(enable=True, axis='y', tight=True)
+
+    # Add a background image (replace 'image_url' with your image URL)
+    image_url = 'your_background_image_url.jpg'
+    ax.imshow(plt.imread(image_url), extent=[-1, 1, -2, 12], alpha=0.5)  # Adjust extent and alpha as needed
+
+    # Show the chart
     st.pyplot(fig)
 
 # Streamlit app
