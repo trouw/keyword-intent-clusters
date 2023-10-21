@@ -226,6 +226,8 @@ def msv_serps_similarity(df):
     return msv_merged_df
 
 def jaccard_similarity(set1, set2):
+    if set1 is None or set2 is None:
+        return 0.0  # Handle None values gracefully
     set1 = set(set1)
     set2 = set(set2)
     intersection = len(set1.intersection(set2))
