@@ -569,15 +569,15 @@ def main():
 
 
             # Adding a download button for the SERP similarity matrix
-            csv1 = similarity_df.reset_index().to_csv(index=False)  # Reset index to include 'Keyword' column
-            b64 = base64.b64encode(csv1.encode()).decode()
-            st.download_button(
-                label="Download SERP Similarity Matrix",
-                data=b64,
-                file_name="serp_similarity_matrix.csv",
-                mime="text/csv"
-            )
-            st.dataframe(cluster_df)
+            # csv1 = similarity_df.reset_index().to_csv(index=False)  # Reset index to include 'Keyword' column
+            # b64 = base64.b64encode(csv1.encode()).decode()
+            # st.download_button(
+            #     label="Download SERP Similarity Matrix",
+            #     data=b64,
+            #     file_name="serp_similarity_matrix.csv",
+            #     mime="text/csv"
+            # )
+            # st.dataframe(cluster_df)
 
     with st.expander("Viz"):
         if cluster_df is not None:
