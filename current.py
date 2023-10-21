@@ -377,6 +377,8 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
     image = Image.open(BytesIO(response.content))
     ax.imshow(image, extent=[-10, 10, 0, 10], alpha=0.5)
 
+    ax.set_aspect('auto')
+
     # Show the chart
     st.pyplot(fig)
 
