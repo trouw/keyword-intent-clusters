@@ -565,7 +565,7 @@ def main():
             print(merged_df)
             if 'merged_df' in st.session_state:
                 clusters = gsc_serps_similarity(merged_df)
-                aggregate_clusters(clusters)
+                print(clusters)
 
 
             # Adding a download button for the SERP similarity matrix
