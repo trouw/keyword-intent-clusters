@@ -361,22 +361,28 @@ def create_bubble_chart(agg_data):
 
     # Now create the bubble chart
     sizes = agg_data[str(st.session_state.size_metric)]
-    cluster_names = agg_data['Cluster']  # Extract cluster names
+    cluster_names = agg_data['Cluster Name']  # Extract cluster names
     fig, ax = plt.subplots()
 
     # Set the y-axis limits
-    ax.set_ylim([-2, 12])
-    ax.set_yticks(range(len(cluster_names)))
-    ax.set_yticklabels(cluster_names)
+    ax.set_ylim(-2, len(cluster_names) + 1)
+    
+    # Scatter plot with numeric y-axis values and labels at the center of bubbles
+    y_values = np.arange(len(cluster_names))
+    ax.scatter([0] * len(agg_data), y_values, s=sizes, alpha=0.5)
+
+    # Annotate each bubble with its cluster name at the center
+    for i, name in enumerate(cluster_names):
+        ax.annotate(name, (0, i), ha='center', va='center', fontsize=8)
+
+    # Enable auto-sizing
+    ax.autoscale(enable=True, axis='y', tight=True)
 
     # Add a background image (replace 'image_url' with your image URL)
     image_url = 'https://static.semrush.com/blog/uploads/media/9a/51/9a51504510308d6515f6f858c396e8be/original.png'
     response = requests.get(image_url)
     image = Image.open(BytesIO(response.content))
-    ax.imshow(image, extent=[-10, 10, -2, 12], alpha=.5)  # Adjust extent and alpha as needed
-
-    for i, size in enumerate(sizes):
-        ax.text(1.1, i, cluster_names[i], va='center', fontsize=8)  # Adjust the position and fontsize as needed
+    ax.imshow(image, extent=[-10, 10, -2, len(cluster_names) + 1], alpha=0.5)  # Adjust extent and alpha as needed
 
     # Show the chart
     st.pyplot(fig)
