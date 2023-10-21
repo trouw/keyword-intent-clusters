@@ -234,28 +234,29 @@ def jaccard_similarity(set1, set2):
     return intersection / union if union != 0 else 0.0
 
 def gsc_serps_similarity(df):
-    # Group by keyword and join URLs into a single string
-    serp_strings = df.groupby('Keyword').apply(lambda group: ' '.join(map(str, group['URL'])))
-    similarity_df = pd.DataFrame({'Keyword': serp_strings.index, 'serp_strings': serp_strings.values})
-    
-    keywords = similarity_df['Keyword'].tolist()
-    serp_strings2 = similarity_df['serp_strings'].tolist()
+    # Group by keyword and get lists of URLs
+    url_lists = df.groupby('Keyword')['URL'].apply(list).reset_index()
+
+    keywords = url_lists['Keyword'].tolist()
+    url_lists = url_lists['URL'].tolist()
 
     # Initialize an empty matrix
     matrix = pd.DataFrame(0, index=keywords, columns=keywords)
 
-    # Calculate Jaccard similarity for all pairs of keywords
+    # Calculate URL similarity for all pairs of keywords
     for i, j in combinations(range(len(keywords)), 2):
-        set1 = [item for item in serp_strings2[i] if item is not None]
-        set2 = [item for item in serp_strings2[j] if item is not None]
-        
-        if set1 and set2:  # Check if both sets are not empty
-            sim = jaccard_similarity(set1, set2)
-            matrix.loc[keywords[i], keywords[j]] = sim
-            matrix.loc[keywords[j], keywords[i]] = sim
-    # Fill diagonal with 1's since similarity with itself is 1
-    matrix.values[[range(len(keywords))]*2] = 1
+        set1 = url_lists[i]
+        set2 = url_lists[j]
 
+        if set1 is not None and set2 is not None:
+            common_urls = len(set(set1) & set(set2))  # Count common URLs
+            matrix.loc[keywords[i], keywords[j]] = common_urls
+            matrix.loc[keywords[j], keywords[i]] = common_urls
+
+    # Fill diagonal with the count of URLs in each keyword's URL list
+    for i in range(len(keywords)):
+        matrix.loc[keywords[i], keywords[i]] = len(url_lists[i])
+        
     st.write(matrix)
 
 def create_clusters_search_volume(similarity_df):
