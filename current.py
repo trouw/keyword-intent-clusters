@@ -310,19 +310,17 @@ def aggregate_clusters(cluster_data, keyword_df):
             cluster_name_keyword = keyword_df.loc[keyword_df['Impressions'].idxmax()]['Keyword']
             cluster_keyword_data = keyword_df[keyword_df['Keyword'].isin(cluster_keywords)]
             
-            # Initialize cluster_agg
+            # Aggregate data within the cluster
             cluster_agg = {
                 'Cluster': ', '.join(cluster_keywords),
                 'Cluster Name': cluster_name_keyword,
-                'Keyword Intent': None,  # Initialize Keyword Intent to None
-                'Clicks': None,  # Initialize Clicks to None
-                'Impressions': None  # Initialize Impressions to None
+                'Keyword Intent': cluster_keyword_data['Keyword Intent'].mean(),
+                'Clicks': cluster_keyword_data['Clicks'].sum(),
+                'Impressions': cluster_keyword_data['Impressions'].sum()
             }
 
-            # Update cluster_agg based on condition
-            cluster_agg['Keyword Intent'] = cluster_keyword_data['Keyword Intent'].mean()
-            cluster_agg['Clicks'] = cluster_keyword_data['Clicks'].sum()
-            cluster_agg['Impressions'] = cluster_keyword_data['Impressions'].sum()
+            # Append the cluster-level data to the cluster_agg_df DataFrame
+            cluster_agg_df = cluster_agg_df.append(cluster_agg, ignore_index=True)
 
         elif 'Search Volume' in keyword_df.columns:
             # If only Search Volume is present in keyword data, choose the keyword with the highest Search Volume
@@ -330,20 +328,16 @@ def aggregate_clusters(cluster_data, keyword_df):
 
             cluster_keyword_data = keyword_df[keyword_df['Keyword'].isin(cluster_keywords)]
             
-            # Initialize cluster_agg
+            # Aggregate data within the cluster
             cluster_agg = {
                 'Cluster': ', '.join(cluster_keywords),
                 'Cluster Name': cluster_name_keyword,
-                'Keyword Intent': None,  # Initialize Keyword Intent to None
-                'Search Volume': None  # Initialize Search Volume to None
+                'Keyword Intent': cluster_keyword_data['Keyword Intent'].mean(),
+                'Search Volume': cluster_keyword_data['Search Volume'].sum()
             }
 
-            # Update cluster_agg based on condition
-            cluster_agg['Keyword Intent'] = cluster_keyword_data['Keyword Intent'].mean()
-            cluster_agg['Search Volume'] = cluster_keyword_data['Search Volume'].sum()
-
-        # Append the cluster-level data to the cluster_agg_df DataFrame
-        cluster_agg_df = cluster_agg_df.append(cluster_agg, ignore_index=True)
+            # Append the cluster-level data to the cluster_agg_df DataFrame
+            cluster_agg_df = cluster_agg_df.append(cluster_agg, ignore_index=True)
 
     return cluster_agg_df
 
