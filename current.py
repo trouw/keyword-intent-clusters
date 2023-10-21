@@ -243,6 +243,7 @@ def gsc_serps_similarity(df):
     # Initialize an empty matrix
     matrix = pd.DataFrame(0, index=keywords, columns=keywords)
 
+    similar_keyword_pairs = []
     # Calculate URL similarity for all pairs of keywords
     for i, j in combinations(range(len(keywords)), 2):
         set1 = url_lists[i]
@@ -253,11 +254,20 @@ def gsc_serps_similarity(df):
             matrix.loc[keywords[i], keywords[j]] = common_urls
             matrix.loc[keywords[j], keywords[i]] = common_urls
 
-    # Fill diagonal with the count of URLs in each keyword's URL list
-    for i in range(len(keywords)):
-        matrix.loc[keywords[i], keywords[i]] = len(url_lists[i])
-        
-    st.write(matrix)
+        if common_urls >= 4:
+                similar_keyword_pairs.append({
+                    'Keyword_A': keywords[i],
+                    'Keyword_B': keywords[j],
+                    'Similar_URLs': common_urls
+                })
+
+    # Create a DataFrame from the extracted similar keyword pairs
+    similar_pairs_df = pd.DataFrame(similar_keyword_pairs)
+
+    st.write(similar_pairs_df)
+
+    return matrix, similar_pairs_df
+
 
 def create_clusters_search_volume(similarity_df):
     keyword_relationships = {}
