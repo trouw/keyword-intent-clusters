@@ -559,14 +559,23 @@ def main():
 
     with st.expander("SERP Similarity"):
         if 'result_df' in st.session_state:
-            selected_columns1 = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
-            selected_columns2 = st.session_state['filtered_data'][['Keyword', 'clicks', 'impressions', 'ctr', 'position']]
-            merged_df = pd.merge(selected_columns2, selected_columns1, on='Keyword', how='inner')
+            selected_columns = st.session_state['result_df'][['Keyword', 'Keyword Intent', 'URL']]
+            merged_df = pd.merge(st.session_state['filtered_data'], selected_columns, on='Keyword', how='inner')
             st.session_state['merged_df'] = merged_df
             st.write(merged_df)
-            if 'merged_df' in st.session_state:
-                clusters = gsc_serps_similarity(merged_df)
-                st.write(clusters)
+        if 'merged_df' in st.session_state:
+            clusters = gsc_serps_similarity(merged_df)
+            st.session_state['cluster_sim'] = clusters
+
+        if 'cluster_sim' in st.session_state:
+            selected_columns1 = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
+            selected_columns2 = st.session_state['filtered_data'][['Keyword', 'clicks', 'impressions', 'ctr', 'position']]
+            merged_df2 = pd.merge(selected_columns2, selected_columns1, on='Keyword', how='inner')
+            
+            agg_clusters = aggregate_clusters(clusters, merged_df2)
+            st.write(agg_clusters)
+
+                
 
 
             # Adding a download button for the SERP similarity matrix
