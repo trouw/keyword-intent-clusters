@@ -343,11 +343,11 @@ def create_bubble_chart(agg_data):
     # Determine available metrics for size
     available_metrics = []
     if 'Clicks' in agg_data.columns:
-        available_metrics.append('Total Clicks')
+        available_metrics.append('Clicks')
     if 'Impressions' in agg_data.columns:
-        available_metrics.append('Total Impressions')
+        available_metrics.append('Impressions')
     if 'Search Volume' in agg_data.columns:
-        available_metrics.append('Total Search Volume')
+        available_metrics.append('Search Volume')
 
     # Check if 'size_metric' is in session state, otherwise set default
     if 'size_metric' not in st.session_state or st.session_state.size_metric not in available_metrics:
@@ -360,7 +360,7 @@ def create_bubble_chart(agg_data):
     # Now create the bubble chart
     sizes = agg_data[str(st.session_state.size_metric)]
     fig, ax = plt.subplots()
-    ax.scatter([0] * len(agg_data), agg_data['Avg. Keyword Intent'], s=sizes, alpha=0.5)
+    ax.scatter([0] * len(agg_data), agg_data['Keyword Intent'], s=sizes, alpha=0.5)
     st.pyplot(fig)
 
 # Streamlit app
