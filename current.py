@@ -166,7 +166,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
     # Create a DataFrame from the combined data for all keywords
     df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
-    
+    print(df)
     return df
 
 def extract_info_from_serp(data):
