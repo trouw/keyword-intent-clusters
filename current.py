@@ -225,7 +225,7 @@ def msv_serps_similarity(df):
 
 def gsc_serps_similarity(df):
     # Group by keyword and join URLs into a single string
-    serp_strings = df.groupby('Keyword').apply(lambda group: ' '.join(map(str, group['page'])))
+    serp_strings = df.groupby('Keyword').apply(lambda group: ' '.join(map(str, group['URL'])))
     print(serp_strings)
     # Create a DataFrame to store similarity scores
     similarity_df = pd.DataFrame(index=serp_strings.index, columns=serp_strings.index)
