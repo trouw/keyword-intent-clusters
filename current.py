@@ -356,7 +356,7 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
     fig, ax = plt.subplots()
 
     # Set the y-axis limits
-    ax.set_ylim(-2, y_limit)
+    ax.set_ylim(0, y_limit)
 
     # Set the x-axis limits
     ax.set_xlim(-x_limit, x_limit)
