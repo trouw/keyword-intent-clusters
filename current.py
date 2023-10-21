@@ -361,21 +361,22 @@ def create_bubble_chart(agg_data):
 
     # Now create the bubble chart
     sizes = agg_data[str(st.session_state.size_metric)]
+    cluster_names = agg_data['Cluster']  # Extract cluster names
     fig, ax = plt.subplots()
 
     # Set the y-axis limits
     ax.set_ylim([-2, 12])
-
-    ax.scatter([0] * len(agg_data), agg_data['Cluster Name'], s=sizes, alpha=0.5)
-    
-    # Enable auto-sizing
-    ax.autoscale(enable=True, axis='y', tight=True)
+    ax.set_yticks(range(len(cluster_names)))
+    ax.set_yticklabels(cluster_names)
 
     # Add a background image (replace 'image_url' with your image URL)
     image_url = 'https://static.semrush.com/blog/uploads/media/9a/51/9a51504510308d6515f6f858c396e8be/original.png'
     response = requests.get(image_url)
     image = Image.open(BytesIO(response.content))
     ax.imshow(image, extent=[-10, 10, -2, 12], alpha=.5)  # Adjust extent and alpha as needed
+
+    for i, size in enumerate(sizes):
+        ax.text(1.1, i, cluster_names[i], va='center', fontsize=8)  # Adjust the position and fontsize as needed
 
     # Show the chart
     st.pyplot(fig)
