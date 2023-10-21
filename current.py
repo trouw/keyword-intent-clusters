@@ -12,6 +12,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import jaccard_score
 from itertools import combinations
+from PIL import Image
 
 
 
@@ -370,7 +371,8 @@ def create_bubble_chart(agg_data):
     ax.autoscale(enable=True, axis='y', tight=True)
 
     # Add a background image (replace 'image_url' with your image URL)
-    image_url = 'https://static.semrush.com/blog/uploads/media/9a/51/9a51504510308d6515f6f858c396e8be/original.png'
+    img = Image.open('https://static.semrush.com/blog/uploads/media/9a/51/9a51504510308d6515f6f858c396e8be/original.png')
+    image_url = img
     ax.imshow(plt.imread(image_url), extent=[-1, 1, -2, 12], alpha=0.5)  # Adjust extent and alpha as needed
 
     # Show the chart
