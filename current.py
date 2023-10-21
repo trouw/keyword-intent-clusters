@@ -359,22 +359,28 @@ def create_bubble_chart(agg_data):
     if len(available_metrics) > 1:
         st.session_state.size_metric = st.selectbox('Choose size metric', available_metrics)
 
+    # Slider for font size
+    font_size = st.slider('Font Size', min_value=8, max_value=20, value=12)
+
     # Now create the bubble chart
     sizes = agg_data[str(st.session_state.size_metric)]
     fig, ax = plt.subplots()
 
-    # Set the y-axis limits
-    ax.set_ylim([-2, 12])
+    # Set the y-axis limits (keyword intent from -2 to 12)
+    ax.set_ylim(-2, 12)
 
-    # Generate numeric y-axis values
-    y_values = list(range(len(agg_data)))
+    # Set the x-axis limits (-10 to 10)
+    ax.set_xlim(-10, 10)
 
-    # Scatter plot with y-axis as numeric values
+    # Generate numeric y-axis values based on keyword intent
+    y_values = agg_data['Keyword Intent']
+
+    # Scatter plot with y-axis as keyword intent values and x-axis as 0 (centered)
     ax.scatter([0] * len(agg_data), y_values, s=sizes, alpha=0.5)
 
-    # Add cluster names to the center of bubbles
+    # Add cluster names to the center of bubbles with the specified font size
     for i, label in enumerate(agg_data['Cluster Name']):
-        ax.text(0, y_values[i], label, ha='center', va='center')
+        ax.text(0, y_values.iloc[i], label, ha='center', va='center', fontsize=font_size)
 
     # Enable auto-sizing
     ax.autoscale(enable=True, axis='y', tight=True)
