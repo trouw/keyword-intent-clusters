@@ -371,9 +371,11 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
     for i, label in enumerate(agg_data['Cluster Name']):
         ax.text(0, y_values.iloc[i], label, ha='center', va='center', fontsize=font_size)
 
-    # Create a custom background image matching the x and y limits
-    background = Image.new('RGBA', (800, 600), (255, 255, 255, 0))
-    ax.imshow(background, extent=[-x_limit, x_limit, -y_limit, y_limit], alpha=0.5)
+    # Add a static background image using the specified x and y limits
+    image_url = 'https://static.semrush.com/blog/uploads/media/9a/51/9a51504510308d6515f6f858c396e8be/original.png'
+    response = requests.get(image_url)
+    image = Image.open(BytesIO(response.content))
+    ax.imshow(image, extent=[-x_limit, x_limit, -y_limit, y_limit], alpha=0.5)
 
     # Show the chart
     st.pyplot(fig)
