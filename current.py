@@ -342,27 +342,14 @@ def aggregate_clusters(cluster_data, keyword_df):
     return cluster_agg_df
 
 def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
-    # Determine available metrics for size
-    available_metrics = []
-    if 'Clicks' in agg_data.columns:
-        available_metrics.append('Clicks')
-    if 'Impressions' in agg_data.columns:
-        available_metrics.append('Impressions')
-    if 'Search Volume' in agg_data.columns:
-        available_metrics.append('Search Volume')
-
-    # Check if 'size_metric' is in session state, otherwise set default
-    if 'size_metric' not in st.session_state or st.session_state.size_metric not in available_metrics:
-        st.session_state.size_metric = available_metrics[0]  # default to the first available metric
-
     # Slider for font size
-    font_size = st.slider('Font Size', min_value=8, max_value=20, value=font_size)
+    font_size = st.slider('Font Size', min_value=2, max_value=16, value=font_size)
 
     # Slider for x-axis limit
-    x_limit = st.slider('X-axis Limit', min_value=-20, max_value=20, value=x_limit)
+    x_limit = st.slider('X-axis Limit', min_value=5, max_value=20, value=x_limit)
 
     # Slider for y-axis limit
-    y_limit = st.slider('Y-axis Limit', min_value=-20, max_value=20, value=y_limit)
+    y_limit = st.slider('Y-axis Limit', min_value=-2, max_value=20, value=y_limit)
 
     # Now create the bubble chart
     sizes = agg_data[str(st.session_state.size_metric)]
