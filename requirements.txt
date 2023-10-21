@@ -4,4 +4,4 @@ google-auth-oauthlib==1.0.0
 google-api-python-client==2.77.0
 pandas==1.5.2
 matplotlib==3.6.3
-scikit-learn
+scikit_learn
