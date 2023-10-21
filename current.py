@@ -10,6 +10,9 @@ import io
 import base64
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.metrics import jaccard_score
+from itertools import combinations
+
 
 
 # Function to preprocess data and apply filters
@@ -228,26 +231,22 @@ def gsc_serps_similarity(df):
     serp_strings = df.groupby('Keyword').apply(lambda group: ' '.join(map(str, group['URL'])))
     similarity_df = pd.DataFrame({'Keyword': serp_strings.index, 'serp_strings': serp_strings.values})
     
-    st.dataframe(similarity_df)
-    # Compare SERP similarity
-    for keyword_a, serp_string_a in serp_strings.items():
-        for keyword_b, serp_string_b in serp_strings.items():
-            # Simple similarity measure - Jaccard similarity
-            set_a = set(serp_string_a.split())
-            st.write(set_a)
-            set_b = set(serp_string_b.split())
-            st.write(set_b)
-            jaccard_similarity = len(set_a.intersection(set_b)) / len(set_a.union(set_b))
-            st.write(jaccard_similarity)
-            similarity_df.loc[keyword_a, keyword_b] = jaccard_similarity
+    keywords = similarity_df['Keyword'].tolist()
+    serp_strings2 = similarity_df['serp_strings'].tolist()
 
-            # Melting the similarity matrix
-            melted_df = similarity_df.reset_index().melt(id_vars='Keyword', var_name='Keyword_B', value_name='Similarity')
-            selected_columns = df[['Keyword', 'Keyword Intent', "clicks", "impressions"]]
-            msv_merged_df = pd.merge(melted_df, selected_columns, on='Keyword', how='inner')
-            msv_merged_df = msv_merged_df.drop_duplicates()
-    
-    return msv_merged_df
+    # Initialize an empty matrix
+    matrix = pd.DataFrame(0, index=keywords, columns=keywords)
+
+    # Calculate Jaccard similarity for all pairs of keywords
+    for i, j in combinations(range(len(keywords)), 2):
+        sim = jaccard_score(serp_strings2[i], serp_strings2[j])
+        matrix.loc[keywords[i], keywords[j]] = sim
+        matrix.loc[keywords[j], keywords[i]] = sim
+
+    # Fill diagonal with 1's since similarity with itself is 1
+    matrix.values[[range(len(keywords))]*2] = 1
+
+    st.write(matrix)
 
 def create_clusters_search_volume(similarity_df):
     keyword_relationships = {}
