@@ -356,7 +356,7 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
     fig, ax = plt.subplots()
 
     # Set the y-axis limits
-    ax.set_ylim(-y_limit, y_limit)
+    ax.set_ylim(-2, y_limit)
 
     # Set the x-axis limits
     ax.set_xlim(-x_limit, x_limit)
@@ -375,7 +375,7 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
     image_url = 'https://static.semrush.com/blog/uploads/media/9a/51/9a51504510308d6515f6f858c396e8be/original.png'
     response = requests.get(image_url)
     image = Image.open(BytesIO(response.content))
-    ax.imshow(image, extent=[-x_limit, x_limit, 0, 10], alpha=0.5)
+    ax.imshow(image, extent=[-10, 10, 0, 10], alpha=0.5)
 
     # Show the chart
     st.pyplot(fig)
