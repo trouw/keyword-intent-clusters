@@ -315,7 +315,7 @@ def aggregate_clusters(cluster_data, keyword_df):
         if cluster_name_keyword:
             # Filter keyword data for keywords in the current cluster
             cluster_keyword_data = keyword_df[keyword_df['Keyword'].isin(cluster_keywords)]
-
+            st.write(cluster_keyword_data)
             # Aggregate data within the cluster
             cluster_agg = {
                 'Cluster': ', '.join(cluster_keywords),
