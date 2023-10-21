@@ -559,7 +559,7 @@ def main():
 
     with st.expander("SERP Similarity"):
         if 'result_df' in st.session_state:
-            selected_columns = st.session_state['result_df'][['Keyword', 'Keyword Intent', 'URL']]
+            selected_columns = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
             merged_df = pd.merge(st.session_state['filtered_data'], selected_columns, on='Keyword', how='inner')
             st.session_state['merged_df'] = merged_df
             st.write(merged_df)
