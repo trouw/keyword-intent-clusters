@@ -308,26 +308,34 @@ def aggregate_clusters(cluster_data, keyword_df):
         if 'Clicks' in keyword_df.columns and 'Impressions' in keyword_df.columns:
             # If both Clicks and Impressions columns are present in keyword data, choose the keyword with the highest Impressions
             cluster_name_keyword = keyword_df.loc[keyword_df['Impressions'].idxmax()]['Keyword']
-        elif 'Search Volume' in keyword_df.columns:
-            # If only Search Volume is present in keyword data, choose the keyword with the highest Search Volume
-            cluster_name_keyword = keyword_df.loc[keyword_df['Search Volume'].idxmax()]['Keyword']
-
-        if cluster_name_keyword:
-            # Filter keyword data for keywords in the current cluster
             cluster_keyword_data = keyword_df[keyword_df['Keyword'].isin(cluster_keywords)]
-            st.write(cluster_keyword_data)
+            
             # Aggregate data within the cluster
             cluster_agg = {
                 'Cluster': ', '.join(cluster_keywords),
                 'Cluster Name': cluster_name_keyword,
                 'Keyword Intent': cluster_keyword_data['Keyword Intent'].mean(),
-                'Search Volume': cluster_keyword_data['Search Volume'].sum() if 'Search Volume' in keyword_df.columns else None,
-                'Clicks': cluster_keyword_data['Clicks'].sum() if 'Clicks' in keyword_df.columns else None,
-                'Impressions': cluster_keyword_data['Impressions'].sum() if 'Impressions' in keyword_df.columns else None
+                'Clicks': cluster_keyword_data['Clicks'].sum(),
+                'Impressions': cluster_keyword_data['Impressions'].sum()
             }
 
-            # Append the cluster-level data to the cluster_agg_df DataFrame
-            cluster_agg_df = cluster_agg_df.append(cluster_agg, ignore_index=True)
+        elif 'Search Volume' in keyword_df.columns:
+            # If only Search Volume is present in keyword data, choose the keyword with the highest Search Volume
+            cluster_name_keyword = keyword_df.loc[keyword_df['Search Volume'].idxmax()]['Keyword']
+
+            cluster_keyword_data = keyword_df[keyword_df['Keyword'].isin(cluster_keywords)]
+            
+            # Aggregate data within the cluster
+            cluster_agg = {
+                'Cluster': ', '.join(cluster_keywords),
+                'Cluster Name': cluster_name_keyword,
+                'Keyword Intent': cluster_keyword_data['Keyword Intent'].mean(),
+                'Search Volume': cluster_keyword_data['Search Volume'].sum()
+            }
+
+   
+        # Append the cluster-level data to the cluster_agg_df DataFrame
+        cluster_agg_df = cluster_agg_df.append(cluster_agg, ignore_index=True)
 
     return cluster_agg_df
 
