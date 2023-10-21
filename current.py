@@ -297,8 +297,8 @@ def gsc_serps_similarity(data):
     return clusters
 
 def aggregate_clusters(cluster_data, keyword_df):
-    # Create an empty DataFrame to store cluster-level data
-    cluster_agg_df = pd.DataFrame(columns=['Cluster', 'Cluster Name', 'Keyword Intent', 'Search Volume', 'Clicks', 'Impressions'])
+    # # Create an empty DataFrame to store cluster-level data
+    # cluster_agg_df = pd.DataFrame(columns=['Cluster', 'Cluster Name', 'Keyword Intent', 'Search Volume', 'Clicks', 'Impressions'])
 
     # Iterate through the list of clusters
     for cluster_keywords in cluster_data:
@@ -578,7 +578,7 @@ def main():
         if 'cluster_sim' in st.session_state:
             selected_columns1 = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
             selected_columns2 = st.session_state['filtered_data'][['Keyword', 'clicks', 'impressions', 'ctr', 'position']]
-            merged_df2 = pd.merge(selected_columns2, selected_columns1, on='Keyword', how='inner')
+            merged_df2 = pd.merge(selected_columns2, selected_columns1, on='Keyword', how='inner').drop_duplicates()
             st.write(merged_df2)
             agg_clusters = aggregate_clusters(clusters, merged_df2)
             st.write(agg_clusters)
