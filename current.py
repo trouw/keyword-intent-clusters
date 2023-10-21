@@ -375,7 +375,7 @@ def create_bubble_chart(agg_data):
     image_url = 'https://static.semrush.com/blog/uploads/media/9a/51/9a51504510308d6515f6f858c396e8be/original.png'
     response = requests.get(image_url)
     image = Image.open(BytesIO(response.content))
-    ax.imshow(image, extent=[-1, 1, -2, 12], alpha=0.5)  # Adjust extent and alpha as needed
+    ax.imshow(image, extent=[-1, 1, -2, 12], alpha=2)  # Adjust extent and alpha as needed
 
     # Show the chart
     st.pyplot(fig)
