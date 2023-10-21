@@ -258,9 +258,9 @@ def remove_subsets(cluster_df):
 
     return filtered_clusters
 
-def gsc_serps_similarity(df):
+def gsc_serps_similarity(data):
     # Group by keyword and get lists of URLs
-    url_lists = df.groupby('Keyword')['URL'].apply(list).reset_index()
+    url_lists = data.groupby('Keyword')['URL'].apply(list).reset_index()
 
     keywords = url_lists['Keyword'].tolist()
     url_lists = url_lists['URL'].tolist()
@@ -292,10 +292,44 @@ def gsc_serps_similarity(df):
     # Remove subsets from clusters
     clusters = remove_subsets(similar_pairs_df)
 
-    st.write(clusters)
+    st.session_state['Clusters'] = clusters
 
     return matrix, similar_pairs_df, clusters
 
+def aggregate_clusters(cluster_data, keyword_df):
+    # Create an empty DataFrame to store cluster-level data
+    cluster_agg_df = pd.DataFrame(columns=['Cluster', 'Cluster Name', 'Keyword Intent', 'Search Volume', 'Clicks', 'Impressions'])
+
+    # Iterate through the list of clusters
+    for cluster_keywords in cluster_data:
+        # Determine the cluster name (keyword with highest Search Volume or Impressions)
+        cluster_name_keyword = None
+
+        if 'Clicks' in keyword_df.columns and 'Impressions' in keyword_df.columns:
+            # If both Clicks and Impressions columns are present in keyword data, choose the keyword with the highest Impressions
+            cluster_name_keyword = keyword_df.loc[keyword_df['Impressions'].idxmax()]['Keyword']
+        elif 'Search Volume' in keyword_df.columns:
+            # If only Search Volume is present in keyword data, choose the keyword with the highest Search Volume
+            cluster_name_keyword = keyword_df.loc[keyword_df['Search Volume'].idxmax()]['Keyword']
+
+        if cluster_name_keyword:
+            # Filter keyword data for keywords in the current cluster
+            cluster_keyword_data = keyword_df[keyword_df['Keyword'].isin(cluster_keywords)]
+
+            # Aggregate data within the cluster
+            cluster_agg = {
+                'Cluster': ', '.join(cluster_keywords),
+                'Cluster Name': cluster_name_keyword,
+                'Keyword Intent': cluster_keyword_data['Keyword Intent'].mean(),
+                'Search Volume': cluster_keyword_data['Search Volume'].sum() if 'Search Volume' in keyword_df.columns else None,
+                'Clicks': cluster_keyword_data['Clicks'].sum() if 'Clicks' in keyword_df.columns else None,
+                'Impressions': cluster_keyword_data['Impressions'].sum() if 'Impressions' in keyword_df.columns else None
+            }
+
+            # Append the cluster-level data to the cluster_agg_df DataFrame
+            cluster_agg_df = cluster_agg_df.append(cluster_agg, ignore_index=True)
+
+    return cluster_agg_df
 
 def create_clusters_search_volume(similarity_df):
     keyword_relationships = {}
