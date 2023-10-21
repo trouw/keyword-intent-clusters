@@ -226,29 +226,28 @@ def msv_serps_similarity(df):
     return msv_merged_df
 
 def jaccard_similarity(set1, set2):
+    set1 = set(set1)
+    set2 = set(set2)
     intersection = len(set1.intersection(set2))
     union = len(set1.union(set2))
     return intersection / union if union != 0 else 0.0
 
 def gsc_serps_similarity(df):
-    # Group by keyword and join URLs into a single string
-    serp_strings = df.groupby('Keyword').apply(lambda group: ' '.join(map(str, group['URL'])))
-    similarity_df = pd.DataFrame({'Keyword': serp_strings.index, 'serp_strings': serp_strings.values})
-    
-    keywords = similarity_df['Keyword'].tolist()
-    serp_strings2 = similarity_df['serp_strings'].tolist()
+    keywords = df['Keyword'].tolist()
+    serp_strings = df['URL'].tolist()
 
     # Initialize an empty matrix
     matrix = pd.DataFrame(0, index=keywords, columns=keywords)
 
     # Calculate Jaccard similarity for all pairs of keywords
     for i, j in combinations(range(len(keywords)), 2):
-        sim = jaccard_similarity(serp_strings2[i], serp_strings2[j])
+        sim = jaccard_similarity(serp_strings[i], serp_strings[j])
         matrix.loc[keywords[i], keywords[j]] = sim
         matrix.loc[keywords[j], keywords[i]] = sim
 
     # Fill diagonal with 1's since similarity with itself is 1
     matrix.values[[range(len(keywords))]*2] = 1
+
 
     st.write(matrix)
 
