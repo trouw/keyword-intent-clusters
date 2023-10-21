@@ -233,6 +233,31 @@ def jaccard_similarity(set1, set2):
     union = len(set1.union(set2))
     return intersection / union if union != 0 else 0.0
 
+def remove_subsets(cluster_df):
+    clusters = []
+
+    # Iterate through each row in the DataFrame
+    for _, row in cluster_df.iterrows():
+        cluster_added = False  # Flag to track if the row was added to an existing cluster
+
+        # Check if the row's keywords are subsets of any existing cluster
+        for i, existing_cluster in enumerate(clusters):
+            if any(keyword in existing_cluster for keyword in [row['Keyword_A'], row['Keyword_B']]):
+                # Add the row's keywords to the existing cluster
+                clusters[i].add(row['Keyword_A'])
+                clusters[i].add(row['Keyword_B'])
+                cluster_added = True
+                break
+
+        if not cluster_added:
+            # If the row's keywords are not subsets of any existing cluster, create a new cluster
+            clusters.append({row['Keyword_A'], row['Keyword_B']})
+
+    # Filter out duplicate keywords within clusters
+    filtered_clusters = [set(unique_keywords) for cluster in clusters for unique_keywords in [list(cluster)]]
+
+    return filtered_clusters
+
 def gsc_serps_similarity(df):
     # Group by keyword and get lists of URLs
     url_lists = df.groupby('Keyword')['URL'].apply(list).reset_index()
@@ -263,14 +288,6 @@ def gsc_serps_similarity(df):
 
     # Create a DataFrame from the extracted similar keyword pairs
     similar_pairs_df = pd.DataFrame(similar_keyword_pairs)
-
-    # Function to remove subsets from clusters
-    def remove_subsets(cluster_df):
-        clusters = []
-        for _, row in cluster_df.iterrows():
-            if all(row['Keyword_A'] not in cluster and row['Keyword_B'] not in cluster for cluster in clusters):
-                clusters.append({row['Keyword_A'], row['Keyword_B']})
-        return clusters
 
     # Remove subsets from clusters
     clusters = remove_subsets(similar_pairs_df)
