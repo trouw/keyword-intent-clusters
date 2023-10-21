@@ -326,7 +326,7 @@ def aggregate_clusters(cluster_data, keyword_df):
         elif 'Search Volume' in keyword_df.columns:
             # If only Search Volume is present in keyword data, choose the keyword with the highest Search Volume
             cluster_keyword_data = keyword_df[keyword_df['Keyword'].isin(cluster_keywords)]
-            cluster_name_keyword = keyword_df.loc[keyword_df['Search Volume'].idxmax()]['Keyword']
+            cluster_name_keyword = keyword_df.loc[cluster_keyword_data['Search Volume'].idxmax()]['Keyword']
             
             # Aggregate data within the cluster
             cluster_agg = {
