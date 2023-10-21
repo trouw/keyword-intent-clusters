@@ -244,7 +244,7 @@ def gsc_serps_similarity(df):
 
     # Calculate Jaccard similarity for all pairs of keywords
     for i, j in combinations(range(len(keywords)), 2):
-        sim = jaccard_similarity(serp_strings2[i], serp_strings2[j])
+        sim = jaccard_similarity(similarity_df['serp_strings'][i], similarity_df['serp_strings'][j])
         matrix.loc[keywords[i], keywords[j]] = sim
         matrix.loc[keywords[j], keywords[i]] = sim
 
