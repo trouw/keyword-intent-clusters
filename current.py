@@ -264,9 +264,20 @@ def gsc_serps_similarity(df):
     # Create a DataFrame from the extracted similar keyword pairs
     similar_pairs_df = pd.DataFrame(similar_keyword_pairs)
 
-    st.write(similar_pairs_df)
+    # Function to remove subsets from clusters
+    def remove_subsets(cluster_df):
+        clusters = []
+        for _, row in cluster_df.iterrows():
+            if all(row['Keyword_A'] not in cluster and row['Keyword_B'] not in cluster for cluster in clusters):
+                clusters.append({row['Keyword_A'], row['Keyword_B']})
+        return clusters
 
-    return matrix, similar_pairs_df
+    # Remove subsets from clusters
+    clusters = remove_subsets(similar_pairs_df)
+
+    st.write(clusters)
+
+    return matrix, similar_pairs_df, clusters
 
 
 def create_clusters_search_volume(similarity_df):
