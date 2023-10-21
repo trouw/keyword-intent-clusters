@@ -246,10 +246,10 @@ def gsc_serps_similarity(df):
 
     # Calculate Jaccard similarity for all pairs of keywords
     for i, j in combinations(range(len(keywords)), 2):
-        set1 = serp_strings2[i]
-        set2 = serp_strings2[j]
+        set1 = [item for item in serp_strings2[i] if item is not None]
+        set2 = [item for item in serp_strings2[j] if item is not None]
         
-        if set1 is not None and set2 is not None:
+        if set1 and set2:  # Check if both sets are not empty
             sim = jaccard_similarity(set1, set2)
             matrix.loc[keywords[i], keywords[j]] = sim
             matrix.loc[keywords[j], keywords[i]] = sim
