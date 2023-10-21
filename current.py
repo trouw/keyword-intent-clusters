@@ -305,7 +305,7 @@ def aggregate_clusters(cluster_data, keyword_df):
         # Determine the cluster name (keyword with highest Search Volume or Impressions)
         cluster_name_keyword = None
 
-        if 'Clicks' in keyword_df.columns and 'Impressions' in keyword_df.columns:
+        if 'clicks' in keyword_df.columns and 'impressions' in keyword_df.columns:
             # If both Clicks and Impressions columns are present in keyword data, choose the keyword with the highest Impressions
             cluster_name_keyword = keyword_df.loc[keyword_df['Impressions'].idxmax()]['Keyword']
             cluster_keyword_data = keyword_df[keyword_df['Keyword'].isin(cluster_keywords)]
