@@ -341,7 +341,7 @@ def aggregate_clusters(cluster_data, keyword_df):
 
     return cluster_agg_df
 
-def create_bubble_chart(agg_data):
+def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
     # Determine available metrics for size
     available_metrics = []
     if 'Clicks' in agg_data.columns:
@@ -355,22 +355,24 @@ def create_bubble_chart(agg_data):
     if 'size_metric' not in st.session_state or st.session_state.size_metric not in available_metrics:
         st.session_state.size_metric = available_metrics[0]  # default to the first available metric
 
-    # Provide a dropdown toggle if there are multiple available metrics
-    if len(available_metrics) > 1:
-        st.session_state.size_metric = st.selectbox('Choose size metric', available_metrics)
-
     # Slider for font size
-    font_size = st.slider('Font Size', min_value=8, max_value=20, value=12)
+    font_size = st.slider('Font Size', min_value=8, max_value=20, value=font_size)
+
+    # Slider for x-axis limit
+    x_limit = st.slider('X-axis Limit', min_value=-20, max_value=20, value=x_limit)
+
+    # Slider for y-axis limit
+    y_limit = st.slider('Y-axis Limit', min_value=-20, max_value=20, value=y_limit)
 
     # Now create the bubble chart
     sizes = agg_data[str(st.session_state.size_metric)]
     fig, ax = plt.subplots()
 
-    # Set the y-axis limits (keyword intent from -2 to 12)
-    ax.set_ylim(-2, 12)
+    # Set the y-axis limits
+    ax.set_ylim(-y_limit, y_limit)
 
-    # Set the x-axis limits (-10 to 10)
-    ax.set_xlim(-10, 10)
+    # Set the x-axis limits
+    ax.set_xlim(-x_limit, x_limit)
 
     # Generate numeric y-axis values based on keyword intent
     y_values = agg_data['Keyword Intent']
@@ -382,14 +384,11 @@ def create_bubble_chart(agg_data):
     for i, label in enumerate(agg_data['Cluster Name']):
         ax.text(0, y_values.iloc[i], label, ha='center', va='center', fontsize=font_size)
 
-    # Enable auto-sizing
-    ax.autoscale(enable=True, axis='y', tight=True)
-
     # Add a background image (replace 'image_url' with your image URL)
     image_url = 'https://static.semrush.com/blog/uploads/media/9a/51/9a51504510308d6515f6f858c396e8be/original.png'
     response = requests.get(image_url)
     image = Image.open(BytesIO(response.content))
-    ax.imshow(image, extent=[-10, 10, -2, 12], alpha=0.5)  # Adjust extent and alpha as needed
+    ax.imshow(image, extent=[-x_limit, x_limit, -y_limit, y_limit], alpha=0.5)  # Static background image
 
     # Show the chart
     st.pyplot(fig)
