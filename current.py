@@ -316,8 +316,8 @@ def aggregate_clusters(cluster_data, keyword_df):
                 'Cluster': ', '.join(cluster_keywords),
                 'Cluster Name': cluster_name_keyword,
                 'Keyword Intent': cluster_keyword_data['Keyword Intent'].mean(),
-                'Clicks': cluster_keyword_data['Clicks'].sum(),
-                'Impressions': cluster_keyword_data['Impressions'].sum()
+                'Clicks': cluster_keyword_data['clicks'].sum(),
+                'Impressions': cluster_keyword_data['impressions'].sum()
             }
 
             # Append the cluster-level data to the cluster_agg_df DataFrame
