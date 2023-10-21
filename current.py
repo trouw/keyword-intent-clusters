@@ -541,7 +541,7 @@ def main():
 
     with st.expander("Viz"):
         if agg_clusters is not None:
-            create_bubble_chart(agg_clusters)
+            create_bubble_chart(agg_clusters, x_limit=10, y_limit=12, font_size=8)
 
 if 'oauth2_expander_state' not in st.session_state:
     st.session_state.oauth2_expander_state = False
