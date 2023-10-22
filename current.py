@@ -327,7 +327,7 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
         ax.text(0, y_values.iloc[i], label, ha='center', va='center', fontsize=font_size)
 
     # Add a static background image using the specified x and y limits
-    image_url = 'https://github.com/trouw/keyword-intent-clusters/blob/main/marketing-funnel.PNG'
+    image_url = 'https://raw.githubusercontent.com/trouw/keyword-intent-clusters/main/marketing-funnel.PNG'
     response = requests.get(image_url)
     image = Image.open(BytesIO(response.content))
     ax.imshow(image, extent=[-10, 10, 0, 12], alpha=0.5)
