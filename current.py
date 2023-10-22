@@ -253,8 +253,8 @@ def aggregate_clusters(cluster_data, keyword_df):
             
             # Aggregate data within the cluster
             cluster_agg = {
-                'Cluster': ', '.join(cluster_keywords),
                 'Cluster Name': cluster_name_keyword,
+                'Cluster': ', '.join(cluster_keywords),
                 'Keyword Intent': cluster_keyword_data['Keyword Intent'].mean(),
                 'Clicks': cluster_keyword_data['clicks'].sum(),
                 'Impressions': cluster_keyword_data['impressions'].sum()
@@ -270,8 +270,8 @@ def aggregate_clusters(cluster_data, keyword_df):
             
             # Aggregate data within the cluster
             cluster_agg = {
-                'Cluster': ', '.join(cluster_keywords),
                 'Cluster Name': cluster_name_keyword,
+                'Cluster': ', '.join(cluster_keywords),
                 'Keyword Intent': cluster_keyword_data['Keyword Intent'].mean(),
                 'Search Volume': cluster_keyword_data['Search Volume'].sum()
             }
