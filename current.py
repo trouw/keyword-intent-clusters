@@ -330,12 +330,13 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
     image_url = 'https://static.semrush.com/blog/uploads/media/9a/51/9a51504510308d6515f6f858c396e8be/original.png'
     response = requests.get(image_url)
     image = Image.open(BytesIO(response.content))
-    ax.imshow(image, extent=[-10, 10, y_limit_lower, y_limit_upper], alpha=0.5)
+    ax.imshow(image, extent=[-10, 10, 0, 10], alpha=0.5)
 
     ax.set_aspect('auto')
 
     # Show the chart
     st.pyplot(fig)
+
 
 # Streamlit app
 def main():
