@@ -1,19 +1,13 @@
-import streamlit as st
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from google.oauth2 import credentials as google_credentials
 from client import RestClient
-import requests
-import time
-import datetime
-import io
-import base64
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.metrics import jaccard_score
+from io import BytesIO 
 from itertools import combinations
 from PIL import Image
-from io import BytesIO 
+import matplotlib.pyplot as plt
+import pandas as pd
+import streamlit as st
+import base64
+import requests
+
 
 
 
@@ -55,7 +49,6 @@ def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_
                 data = data[(data[col] >= min_value) & (data[col] <= max_value)]
                 print(data)
     return data
-
 
 # Function to query DataForSEO SERP for multiple keywords
 def query_dataforseo_serp(username, password, keywords, search_engine="google", search_type="organic", language_code="en", location_code=2840):
@@ -174,67 +167,14 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     print(df)
     return df
 
-def extract_info_from_serp(data):
-    extracted_info = []
-
-    # Define a recursive function to go through the nested structure
-    def extract_from_item(item):
-        if not isinstance(item, dict):
-            return
-
-        # Base information to extract
-        info = {
-            'type': item.get('type'),
-            'title': item.get('title'),
-            'url': item.get('url')
-        }
-
-        # Filter out entries without a title or URL
-        if info['title'] or info['url']:
-            extracted_info.append(info)
-
-        # Check for nested items and recurse if found
-        if 'items' in item:
-            for subitem in item['items']:
-                extract_from_item(subitem)
-
-    # Iterate over the main data and start extraction
-    for element in data:
-        extract_from_item(element)
-
-    return extracted_info
-
-    # Group by keyword and join URLs into a single string
-    serp_strings = df.groupby('Keyword').apply(lambda group: ' '.join(map(str, group['URL'])))
-    
-    # Create a DataFrame to store similarity scores
-    similarity_df = pd.DataFrame(index=serp_strings.index, columns=serp_strings.index)
-    
-    # Compare SERP similarity
-    for keyword_a, serp_string_a in serp_strings.items():
-        for keyword_b, serp_string_b in serp_strings.items():
-            # Simple similarity measure - Jaccard similarity
-            set_a = set(serp_string_a.split())
-            set_b = set(serp_string_b.split())
-            jaccard_similarity = len(set_a.intersection(set_b)) / len(set_a.union(set_b))
-            similarity_df.loc[keyword_a, keyword_b] = jaccard_similarity
-
-            # Melting the similarity matrix
-            melted_df = similarity_df.reset_index().melt(id_vars='Keyword', var_name='Keyword_B', value_name='Similarity')
-            selected_columns = df[['Keyword', 'Keyword Intent', "Search Volume"]]
-            msv_merged_df = pd.merge(melted_df, selected_columns, on='Keyword', how='inner')
-            msv_merged_df = msv_merged_df.drop_duplicates()
-
-    return msv_merged_df
-
-def jaccard_similarity(set1, set2):
+def jaccard_similarity(set1, set2):  #serp_sim dependency
     set1 = set(set1)
     set2 = set(set2)
     intersection = len(set1.intersection(set2))
     union = len(set1.union(set2))
     return intersection / union if union != 0 else 0.0
 
-def remove_subsets(cluster_df):
+def remove_subsets(cluster_df): #serp_sim dependency
     clusters = []
 
     # Iterate through each row in the DataFrame
@@ -396,10 +336,8 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
 
 # Streamlit app
 def main():
-    filtered_df = None
-    cluster_df = None
     filtered_data = None
-    st.title("Data Preprocessor")
+    st.title("Keyword Intent Cluster Tool")
     
     with st.expander("Upload Data"):
         uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
@@ -450,7 +388,6 @@ def main():
                 else:
                     include_urls = [url.strip() for url in urls_input.split(",")]
             
-            exclude_dict = {}
             min_max_dict = {}
             
             for col in data.columns:
@@ -466,16 +403,16 @@ def main():
                 st.session_state['filtered_data'] = filtered_data  
                 st.session_state['filtered_keywords'] = filtered_data['Keyword']
 
-                
                 # Download link for filtered data
-                csv = filtered_data.to_csv(index=False)  # Do not write index to CSV
-                csv_bytes = csv.encode()  # Convert string to bytes
+                filtered_csv = filtered_data.to_csv(index=False) 
+                csv_bytes = base64.b64encode(filtered_csv.encode()).decode()
                 st.download_button(
                     label="Download Filtered Data",
                     data=csv_bytes,
                     file_name="filtered_data.csv",
                     mime="text/csv"
                 )
+
     if 'filtered_data' in st.session_state:
         with st.expander("DataForSEO API Integration"):
             st.warning("Running this part of the script will cost money. Ensure you have enough funds in your DataForSEO account.")
@@ -498,15 +435,23 @@ def main():
                         st.session_state['result_df'] = result_df
 
                         if result_df is not None:
-                            # Display the DataFrame
                             st.write("Data from DataForSEO API:")
                             st.dataframe(result_df)
 
-                            # You can further process and save this DataFrame as needed
+                            #Adding a download button for the SERP similarity matrix
+                            result_csv = agg_clusters.to_csv(index=False)  
+                            results_b64 = base64.b64encode(result_csv.encode()).decode()
+                            st.download_button(
+                                label="Download SERP Similarity Matrix",
+                                data=results_b64,
+                                file_name="Keyword-SERP-Data.csv",
+                                mime="text/csv"
+                            )
+
                         else:
                             st.error("Error querying DataForSEO API.")
                     else:
-                        st.warning("No filtered keyword data available. Fetch and filter keyword data from GSC first.")
+                        st.warning("No filtered keyword data available. Fetch keyword data from GSC first.")
 
     with st.expander("SERP Similarity"):
         if 'result_df' in st.session_state:
@@ -535,28 +480,19 @@ def main():
                 agg_clusters = aggregate_clusters(clusters, merged_df2)
                 st.write(agg_clusters)
 
-            
-
-                
-
-
-            # Adding a download button for the SERP similarity matrix
-            # csv1 = similarity_df.reset_index().to_csv(index=False)  # Reset index to include 'Keyword' column
-            # b64 = base64.b64encode(csv1.encode()).decode()
-            # st.download_button(
-            #     label="Download SERP Similarity Matrix",
-            #     data=b64,
-            #     file_name="serp_similarity_matrix.csv",
-            #     mime="text/csv"
-            # )
-            # st.dataframe(cluster_df)
+            #Adding a download button for the SERP similarity matrix
+            cluster_csv = agg_clusters.to_csv(index=False)  
+            cluster_b64 = base64.b64encode(cluster_csv.encode()).decode()
+            st.download_button(
+                label="Download SERP Similarity Matrix",
+                data=cluster_b64,
+                file_name="keyword-clusters.csv",
+                mime="text/csv"
+            )
 
     with st.expander("Viz"):
         if agg_clusters is not None:
             create_bubble_chart(agg_clusters, x_limit=10, y_limit=12, font_size=8)
-
-if 'oauth2_expander_state' not in st.session_state:
-    st.session_state.oauth2_expander_state = False
 
 if __name__ == "__main__":
     main()
