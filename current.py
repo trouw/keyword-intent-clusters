@@ -511,7 +511,7 @@ st.markdown('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap
 
 st.markdown("""
 <nav class="navbar fixed-top navbar-expand-lg style=background-color: #c73c3c;">
-    <a class="navbar-brand" href="https://tombras.com/"><img src="https://tombras.com/images/og.png" /></img></a>
+    <a class="navbar-brand" href="https://tombras.com/"><img src="https://tombras.com/images/og.png" height=20% width=20% /></img></a>
 </nav>
 """, unsafe_allow_html=True)
 
