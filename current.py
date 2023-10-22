@@ -442,7 +442,7 @@ def main():
                             result_csv = agg_clusters.to_csv(index=False)  
                             results_b64 = base64.b64encode(result_csv.encode()).decode()
                             st.download_button(
-                                label="Download SERP Similarity Matrix",
+                                label="Download SERP Data",
                                 data=results_b64,
                                 file_name="Keyword-SERP-Data.csv",
                                 mime="text/csv"
@@ -458,7 +458,7 @@ def main():
             selected_columns = st.session_state['result_df'][['Keyword', 'Keyword Intent', 'URL']]
             merged_df = pd.merge(st.session_state['filtered_data'], selected_columns, on='Keyword', how='inner')
             st.session_state['merged_df'] = merged_df
-            st.write(merged_df)
+
         if 'merged_df' in st.session_state:
             clusters = serps_similarity(merged_df)
             st.session_state['cluster_sim'] = clusters
@@ -468,7 +468,6 @@ def main():
                 selected_columns1 = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
                 selected_columns2 = st.session_state['filtered_data'][['Keyword', 'clicks', 'impressions', 'ctr', 'position']]
                 merged_df2 = pd.merge(selected_columns2, selected_columns1, on='Keyword', how='inner').drop_duplicates()
-                st.write(merged_df2)
                 agg_clusters = aggregate_clusters(clusters, merged_df2)
                 st.write(agg_clusters)
 
@@ -476,7 +475,6 @@ def main():
                 selected_columns1 = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
                 selected_columns2 = st.session_state['filtered_data'][['Keyword', 'Search Volume']]
                 merged_df2 = pd.merge(selected_columns2, selected_columns1, on='Keyword', how='inner').drop_duplicates()
-                st.write(merged_df2)
                 agg_clusters = aggregate_clusters(clusters, merged_df2)
                 st.write(agg_clusters)
 
@@ -484,7 +482,7 @@ def main():
             cluster_csv = agg_clusters.to_csv(index=False)  
             cluster_b64 = base64.b64encode(cluster_csv.encode()).decode()
             st.download_button(
-                label="Download SERP Similarity Matrix",
+                label="Download Keyword Clusters",
                 data=cluster_b64,
                 file_name="keyword-clusters.csv",
                 mime="text/csv"
