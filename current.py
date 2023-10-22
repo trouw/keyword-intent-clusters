@@ -8,9 +8,6 @@ import streamlit as st
 import base64
 import requests
 
-
-
-
 # Function to preprocess data and apply filters
 def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_urls=None, include_urls=None, min_max_dict=None):
     if data is not None:
@@ -302,7 +299,7 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
     x_limit = st.slider('X-axis Limit', min_value=5, max_value=20, value=x_limit)
 
     # Slider for y-axis limit
-    y_limit = st.slider('Y-axis Limit', min_value=-2, max_value=20, value=y_limit)
+    y_limit = st.slider('Y-axis Limit', min_value=-2, max_value=20, value=[-2,20])
 
     circle_size = st.slider('Circle Size', min_value=1, max_value=10)
 
@@ -327,7 +324,7 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
         ax.text(0, y_values.iloc[i], label, ha='center', va='center', fontsize=font_size)
 
     # Add a static background image using the specified x and y limits
-    image_url = 'https://raw.githubusercontent.com/trouw/keyword-intent-clusters/main/marketing-funnel.PNG'
+    image_url = 'https://static.semrush.com/blog/uploads/media/9a/51/9a51504510308d6515f6f858c396e8be/original.png'
     response = requests.get(image_url)
     image = Image.open(BytesIO(response.content))
     ax.imshow(image, extent=[-10, 10, 0, 12], alpha=0.5)
