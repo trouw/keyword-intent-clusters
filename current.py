@@ -351,10 +351,10 @@ def main():
         if uploaded_file is not None:
             try:
                 data = pd.read_csv(uploaded_file, header=0, encoding='utf-8')  # Try UTF-8 first
-            except UnicodeDecodeError:
+            except:
                 try:
                     data = pd.read_csv(uploaded_file, header=0, encoding='iso-8859-1')  # Try ISO-8859-1 next
-                except UnicodeDecodeError:
+                except:
                     data = pd.read_csv(uploaded_file, header=0, encoding='windows-1252') 
             st.write("Uploaded Data:")
             st.dataframe(data)
