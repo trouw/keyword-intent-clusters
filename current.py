@@ -63,21 +63,23 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     for index, keyword in enumerate(keywords):
         
         # Defining SERP features 
-        zero = ["answer_box","featured_snippet"]
-        one = ["people_also_ask","scholarly_articles", "questions_and_answers", "short_videos"]
-        one_half = ["google_posts", "knowledge_graph"]
-        two = ["carousel", "top_stories", "video"]
-        two_half = ["google_flights", "images", "related_searches", "people_also_search", "recipes", "find_results_on","found_on_the_web", "refine_products"]
-        three = ["app", "multi_carousel", "math_solver", "visual_stories"]
-        three_half = ["jobs"]
-        four = ["events", "mention_carousel", "podcasts"]
+        zero = ["shopping"]
+        one = ["commercial_units"]
+        two = ["paid", "popular_products", "local_services", "google_hotels"]
+        two_half = ["google_reviews", "stocks_box"]
+        four = ["local_pack", "hotels_pack", "top_sights", "google_flights"]
         five = ["map", "twitter", "currency_box", "explore_brands"]
-        six = ["local_pack", "hotels_pack", "top_sights"]
-        seven_half = ["google_reviews", "stocks_box"]
-        eight = ["paid", "popular_products", "local_services", "google_hotels",]
-        nine = ["commercial_units"]
-        ten = ["shopping"]
-        
+        six = ["events", "mention_carousel", "podcasts"]
+        six_half = ["jobs"]
+        seven = ["app", "multi_carousel", "math_solver", "visual_stories"]
+        seven_half = ["images", "related_searches", "people_also_search", "recipes", "find_results_on","found_on_the_web", "refine_products"]
+        eight = ["carousel", "top_stories", "video"]
+        eight_half = ["google_posts", "knowledge_graph"]
+        nine = ["people_also_ask","scholarly_articles", "questions_and_answers", "short_videos"]
+        ten = ["answer_box","featured_snippet"]
+
+
+
         keyword_intent = []
         # Update progress bar
         progress_bar.progress((index + 1) / total_keywords)
@@ -104,26 +106,26 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                     keyword_intent.append(0)
                 if i in one:
                     keyword_intent.append(1)
-                if i in one_half:
-                    keyword_intent.append(1.5)
                 if i in two:
                     keyword_intent.append(2)
                 if i in two_half:
                     keyword_intent.append(2.5)
-                if i in three:
-                    keyword_intent.append(3)
-                if i in three_half:
-                    keyword_intent.append(3.5)
                 if i in four:
                     keyword_intent.append(4)
                 if i in five:
                     keyword_intent.append(5)
                 if i in six:
                     keyword_intent.append(6)
+                if i in six_half:
+                    keyword_intent.append(6.5)
+                if i in seven:
+                    keyword_intent.append(7)
                 if i in seven_half:
                     keyword_intent.append(7.5)
                 if i in eight:
                     keyword_intent.append(8)
+                if i in eight_half:
+                    keyword_intent.append(8.5)
                 if i in nine:
                     keyword_intent.append(9)
                 if i in ten:
