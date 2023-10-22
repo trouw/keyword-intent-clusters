@@ -127,7 +127,10 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                 if i in ten:
                     keyword_intent.append(10)
             
-            intent_avg = (sum(keyword_intent)/len(keyword_intent))
+            if len(keyword_intent) != 0:
+                intent_avg = (sum(keyword_intent)/len(keyword_intent))
+            else:
+                intent_avg = 0 
 
             # Find the organic results & verify SERP features within the list
             organic_results = []
