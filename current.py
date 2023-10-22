@@ -347,10 +347,10 @@ def main():
     st.title("Keyword Intent Cluster Tool")
     
     with st.expander("Upload Data"):
-        uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+        uploaded_file = st.file_uploader("Choose a Excel file", type="xlsx")
         if uploaded_file is not None:
             try:
-                data = pd.read_csv(uploaded_file, header=0, encoding='utf-8')  # Try UTF-8 first
+                data = pd.read_excel(uploaded_file, index_col=None)  # Try UTF-8 first
             except:
                 try:
                     data = pd.read_csv(uploaded_file, header=0, encoding='iso-8859-1')  # Try ISO-8859-1 next
