@@ -40,14 +40,14 @@ def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_
                     inclusion_mask = data[url_col].apply(lambda x: any(url.lower() in x.lower() for url in include_urls))
                     data = data[inclusion_mask]
             else:
-                print("No 'url' or 'page' column found")
+                st.warning("No 'url' or 'page' column found")
 
         # Handle value range filtering
         if min_max_dict:
             for col, (min_value, max_value) in min_max_dict.items():
-                print(f"Filtering {col}: min_value = {min_value}, max_value = {max_value}")  # Debugging statement
+                st.write(f"Filtering {col}: min_value = {min_value}, max_value = {max_value}") 
                 data = data[(data[col] >= min_value) & (data[col] <= max_value)]
-                print(data)
+
     return data
 
 # Function to query DataForSEO SERP for multiple keywords
@@ -164,7 +164,9 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
     # Create a DataFrame from the combined data for all keywords
     df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
-    print(df)
+    
+    st.dataframe(df)
+
     return df
 
 def jaccard_similarity(set1, set2):  #serp_sim dependency
