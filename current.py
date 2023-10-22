@@ -304,8 +304,10 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
     # Slider for y-axis limit
     y_limit = st.slider('Y-axis Limit', min_value=-2, max_value=20, value=y_limit)
 
+    circle_size = st.slider('Circle Size', min_value=1, max_value=10)
+
     # Now create the bubble chart
-    sizes = (agg_data[str(st.session_state.size_metric)]/2)
+    sizes = (agg_data[str(st.session_state.size_metric)]/circle_size)
     fig, ax = plt.subplots()
 
     # Set the y-axis limits
