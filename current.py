@@ -45,7 +45,6 @@ def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_
         # Handle value range filtering
         if min_max_dict:
             for col, (min_value, max_value) in min_max_dict.items():
-                st.write(f"Filtering {col}: min_value = {min_value}, max_value = {max_value}") 
                 data = data[(data[col] >= min_value) & (data[col] <= max_value)]
 
     return data
