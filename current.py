@@ -499,5 +499,21 @@ def main():
         if 'agg_clusters' in st.session_state:
             create_bubble_chart(agg_clusters, x_limit=10, y_limit=12, font_size=8)
 
+st.markdown('''
+<style>
+.stApp header {
+    left: 200px;
+}
+</style>
+''', unsafe_allow_html=True)
+
+st.markdown('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">', unsafe_allow_html=True)
+
+st.markdown("""
+<nav class="navbar fixed-top navbar-expand-lg style=background-color: #c73c3c;">
+    <a class="navbar-brand" href="https://tombras.com/"><img src="https://tombras.com/images/og.png" height=97 width=130 /></img></a>
+</nav>
+""", unsafe_allow_html=True)
+
 if __name__ == "__main__":
     main()
