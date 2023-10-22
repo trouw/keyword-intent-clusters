@@ -502,7 +502,7 @@ def main():
 st.markdown('''
 <style>
 .stApp header {
-    left: 1000px;
+    left: 100%;
 }
 </style>
 ''', unsafe_allow_html=True)
