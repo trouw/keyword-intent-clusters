@@ -510,7 +510,7 @@ st.markdown('''
 st.markdown('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">', unsafe_allow_html=True)
 
 st.markdown("""
-<nav class="navbar fixed-top navbar-expand-lg style=background-color: #c73c3c;">
+<nav class="navbar fixed-top navbar-expand-lg" style="background-color: #c73c3c;">
     <a class="navbar-brand" href="https://tombras.com/"><img src="https://tombras.com/images/og.png" height=20% width=20% /></img></a>
 </nav>
 """, unsafe_allow_html=True)
