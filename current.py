@@ -327,7 +327,7 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
         ax.text(0, y_values.iloc[i], label, ha='center', va='center', fontsize=font_size)
 
     # Add a static background image using the specified x and y limits
-    image_url = 'https://static.semrush.com/blog/uploads/media/9a/51/9a51504510308d6515f6f858c396e8be/original.png'
+    image_url = 'https://drive.google.com/file/d/1WAKpXUQiZlTI-Fa3jbFKU9QPlA0Kwyjx/view?usp=share_link'
     response = requests.get(image_url)
     image = Image.open(BytesIO(response.content))
     ax.imshow(image, extent=[-10, 10, 0, 12], alpha=0.5)
