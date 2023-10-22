@@ -496,7 +496,7 @@ def main():
             )
 
     with st.expander("Viz"):
-        if agg_clusters is not None:
+        if 'agg_clusters' in st.session_state:
             create_bubble_chart(agg_clusters, x_limit=10, y_limit=12, font_size=8)
 
 if __name__ == "__main__":
