@@ -299,7 +299,10 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
     x_limit = st.slider('X-axis Limit', min_value=5, max_value=20, value=x_limit)
 
     # Slider for y-axis limit
-    y_limit = st.slider('Y-axis Limit', min_value=-2, max_value=20, value=[-2,20])
+    y_limit_range = st.slider('Y-axis Limit', min_value=0, max_value=20, value=(0, y_limit))
+
+    # Extract the lower and upper bounds of the y-axis limit from the tuple
+    y_limit_lower, y_limit_upper = y_limit_range
 
     circle_size = st.slider('Circle Size', min_value=1, max_value=10)
 
@@ -307,8 +310,8 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
     sizes = (agg_data[str(st.session_state.size_metric)]/circle_size)
     fig, ax = plt.subplots()
 
-    # Set the y-axis limits
-    ax.set_ylim(0, y_limit)
+    # Set the y-axis limits based on the range selected
+    ax.set_ylim(y_limit_lower, y_limit_upper)
 
     # Set the x-axis limits
     ax.set_xlim(-x_limit, x_limit)
@@ -327,7 +330,7 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
     image_url = 'https://static.semrush.com/blog/uploads/media/9a/51/9a51504510308d6515f6f858c396e8be/original.png'
     response = requests.get(image_url)
     image = Image.open(BytesIO(response.content))
-    ax.imshow(image, extent=[-10, 10, 0, 12], alpha=0.5)
+    ax.imshow(image, extent=[-10, 10, y_limit_lower, y_limit_upper], alpha=0.5)
 
     ax.set_aspect('auto')
 
