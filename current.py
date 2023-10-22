@@ -165,8 +165,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
     # Create a DataFrame from the combined data for all keywords
     df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
-    
-    st.dataframe(df)
 
     return df
 
@@ -442,7 +440,7 @@ def main():
                             st.dataframe(result_df)
 
                             #Adding a download button for the SERP similarity matrix
-                            result_csv = agg_clusters.to_csv(index=False)  
+                            result_csv = result_df.to_csv(index=False)  
                             results_b64 = base64.b64encode(result_csv.encode()).decode()
                             st.download_button(
                                 label="Download SERP Data",
