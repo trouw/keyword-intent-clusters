@@ -480,7 +480,10 @@ def main():
                 selected_columns2 = st.session_state['filtered_data'][['Keyword', 'Search Volume']]
                 merged_df2 = pd.merge(selected_columns2, selected_columns1, on='Keyword', how='inner').drop_duplicates()
                 agg_clusters = aggregate_clusters(clusters, merged_df2)
+                st.session_state['agg_clusters'] = agg_clusters
                 st.write(agg_clusters)
+
+        if 'agg_clusters' in st.session_state:
 
             #Adding a download button for the SERP similarity matrix
             cluster_csv = agg_clusters.to_csv(index=False)  
