@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
 import base64
-import concurrent.futures
 import requests
 
 # Function to preprocess data and apply filters
@@ -57,10 +56,8 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     total_keywords = len(keywords)
     progress_bar = st.progress(0)  # Initialize progress bar
 
-    def fetch_keyword_data(keyword):
-        nonlocal all_data
-        nonlocal keyword_intents
-
+    for index, keyword in enumerate(keywords):
+        
         # Defining SERP features 
         zero = ["shopping"]
         one = ["commercial_units"]
@@ -77,7 +74,13 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         nine = ["people_also_ask","scholarly_articles", "questions_and_answers", "short_videos"]
         ten = ["answer_box","featured_snippet"]
 
+
+
+        keyword_intent = []
+        # Update progress bar
+        progress_bar.progress((index + 1) / total_keywords)
         post_data = dict()
+
         post_data[len(post_data)] = {
             "language_code": language_code,
             "location_code": location_code,
@@ -93,8 +96,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             # Extracting organic results
             all_results = response['tasks'][0]['result']
 
-            # Determining Intent
-            keyword_intent = []
+            #Determining Intent
             for i in response['tasks'][0]['result'][0]['item_types']:
                 if i in zero:
                     keyword_intent.append(0)
@@ -160,20 +162,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         
         else:
             print(f"Error for keyword '{keyword}': Code: {response['status_code']} Message: {response['status_message']}")
-
-     # Update progress bar
-        progress_bar.progress(len(all_data) / total_keywords)
-
-    # Use ThreadPoolExecutor for parallel execution of API requests
-    max_workers = 5  # Adjust the number of parallel requests as needed
-    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {executor.submit(fetch_keyword_data, keyword): keyword for keyword in keywords}
-        for future in concurrent.futures.as_completed(futures):
-            keyword = futures[future]
-            try:
-                future.result()  # Wait for the API request to complete
-            except Exception as exc:
-                print(f"Keyword '{keyword}' generated an exception: {exc}")
 
     # Create a DataFrame from the combined data for all keywords
     df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
