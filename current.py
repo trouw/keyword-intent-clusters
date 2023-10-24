@@ -83,26 +83,22 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     endpoint = "/v3/serp/google/organic/task_post"
     response = client.post(endpoint, task_params)
 
-    
     results = []
     if response["status_code"] == 20000:
-        # Check if tasks are ready
+    # Check if tasks are ready initially
         response_ready = client.get("/v3/serp/google/organic/tasks_ready")
         if response_ready["status_code"] == 20000:
-            control = True
-            while control == True:
-                response_ready = client.get("/v3/serp/google/organic/tasks_ready")
-                rep = len(response_ready['tasks'])
-                st.write(f'{rep} response list')
-                if len(response_ready['tasks']) == 0:
-                    control = False
+            while len(response_ready['tasks']) > 0:
                 for task in response_ready['tasks']:
                     if (task['result'] and (len(task['result']) > 0)):
                         for resultTaskInfo in task['result']:
                             if resultTaskInfo['endpoint_advanced']:
                                 result = client.get(resultTaskInfo['endpoint_advanced'])
                                 results.append(result)
-                                st.write(len(f'{len(results)} results'))
+                
+                # Check tasks readiness in the next iteration
+                response_ready = client.get("/v3/serp/google/organic/tasks_ready")
+
         st.write(len(results))
         all_data = []
         for serp in results:
@@ -164,7 +160,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                 position = result.get('rank_absolute')
                 title = result.get('title')
                 description = result.get('description')
-                st.write()
 
                 all_data.append([keyword, url, position, title, description, intent_avg])
 
