@@ -85,17 +85,18 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
     
 
-    while response["status_code"] == 20000 and True:
+    if response["status_code"] == 20000:
         # Check if tasks are ready
         response_ready = client.get("/v3/serp/google/organic/tasks_ready")
         if response_ready["status_code"] == 20000:
             results = []
-            for task in response_ready['tasks']:
-                if (task['result'] and (len(task['result']) > 0)):
-                    for resultTaskInfo in task['result']:
-                        if resultTaskInfo['endpoint_advanced']:
-                            result = client.get(resultTaskInfo['endpoint_advanced'])
-                            results.append(result)
+            while len(response_ready['tasks']) != 0:
+                for task in response_ready['tasks']:
+                    if (task['result'] and (len(task['result']) > 0)):
+                        for resultTaskInfo in task['result']:
+                            if resultTaskInfo['endpoint_advanced']:
+                                result = client.get(resultTaskInfo['endpoint_advanced'])
+                                results.append(result)
         st.write(len(results))
         all_data = []
         for serp in results:
@@ -157,16 +158,16 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                 position = result.get('rank_absolute')
                 title = result.get('title')
                 description = result.get('description')
-                st.write([keyword, url, position, title, description, intent_avg])
+                st.write()
 
                 all_data.append([keyword, url, position, title, description, intent_avg])
 
         st.write(all_data)
         if len(response_ready['tasks']) == 0  and all_data:
+            st.write(all_data)
             df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
             df
             return df
-            break
         
         else:
             print("No data available.")
