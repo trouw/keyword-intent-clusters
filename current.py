@@ -79,7 +79,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     ]
 
     # Send a single API request to create tasks for all keywords
-    endpoint = f"/v3/serp/{search_engine}/{search_type}/task_post"
+    endpoint = "/v3/serp/google/organic/task_post"
     response = client.post(endpoint, task_params)
     print(response)
     # if response["status_code"] == 20000:
@@ -160,7 +160,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     #     df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
 
         # Retrieve the list of completed tasks
-    response_ready = client.get(f"/v3/serp/{search_engine}/{search_type}/tasks_ready")
+    response_ready = client.get("/v3/serp/google/organic/tasks_ready")
     print(response_ready)
     if response_ready["status_code"] == 20000:
         results = []
