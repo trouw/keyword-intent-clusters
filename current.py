@@ -166,8 +166,11 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
             df
             return df
-        break
+            break
         
+        else:
+            print("No data available.")
+            return None
     #     # Now 'results' contains the data for each completed task that you can process further.
     #     for x in results:
     #         # Do something with each result
