@@ -82,82 +82,82 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     endpoint = f"/v3/serp/{search_engine}/{search_type}/task_post"
     response = client.post(endpoint, task_params)
 
-    if response["status_code"] == 20000:
-        all_data = []
-        total_keywords = len(keywords)
-        progress_bar = st.progress(0)  # Initialize progress bar
+    # if response["status_code"] == 20000:
+    #     all_data = []
+    #     total_keywords = len(keywords)
+    #     progress_bar = st.progress(0)  # Initialize progress bar
 
-        # Iterate through the response to extract data for each keyword
-        for index, keyword in enumerate(keywords):
-            keyword_results = response['tasks'][index]['result'][0]
+    #     # Iterate through the response to extract data for each keyword
+    #     for index, keyword in enumerate(keywords):
+    #         keyword_results = response['tasks'][index]['result'][0]
 
-            keyword_intent = []
-            # Update progress bar
-            progress_bar.progress((index + 1) / total_keywords)
+    #         keyword_intent = []
+    #         # Update progress bar
+    #         progress_bar.progress((index + 1) / total_keywords)
 
-            # Extract SERP features
-            for i in keyword_results['item_types']:
-                if i in zero:
-                    keyword_intent.append(0)
-                if i in one:
-                    keyword_intent.append(1)
-                if i in two:
-                    keyword_intent.append(2)
-                if i in two_half:
-                    keyword_intent.append(2.5)
-                if i in four:
-                    keyword_intent.append(4)
-                if i in five:
-                    keyword_intent.append(5)
-                if i in six:
-                    keyword_intent.append(6)
-                if i in six_half:
-                    keyword_intent.append(6.5)
-                if i in seven:
-                    keyword_intent.append(7)
-                if i in seven_half:
-                    keyword_intent.append(7.5)
-                if i in eight:
-                    keyword_intent.append(8)
-                if i in eight_half:
-                    keyword_intent.append(8.5)
-                if i in nine:
-                    keyword_intent.append(9)
-                if i in ten:
-                    keyword_intent.append(10)
+    #         # Extract SERP features
+    #         for i in keyword_results['item_types']:
+    #             if i in zero:
+    #                 keyword_intent.append(0)
+    #             if i in one:
+    #                 keyword_intent.append(1)
+    #             if i in two:
+    #                 keyword_intent.append(2)
+    #             if i in two_half:
+    #                 keyword_intent.append(2.5)
+    #             if i in four:
+    #                 keyword_intent.append(4)
+    #             if i in five:
+    #                 keyword_intent.append(5)
+    #             if i in six:
+    #                 keyword_intent.append(6)
+    #             if i in six_half:
+    #                 keyword_intent.append(6.5)
+    #             if i in seven:
+    #                 keyword_intent.append(7)
+    #             if i in seven_half:
+    #                 keyword_intent.append(7.5)
+    #             if i in eight:
+    #                 keyword_intent.append(8)
+    #             if i in eight_half:
+    #                 keyword_intent.append(8.5)
+    #             if i in nine:
+    #                 keyword_intent.append(9)
+    #             if i in ten:
+    #                 keyword_intent.append(10)
 
-            if len(keyword_intent) != 0:
-                intent_avg = (sum(keyword_intent) / len(keyword_intent))
-            else:
-                intent_avg = 0
+    #         if len(keyword_intent) != 0:
+    #             intent_avg = (sum(keyword_intent) / len(keyword_intent))
+    #         else:
+    #             intent_avg = 0
 
-            # Find the organic results & verify SERP features within the list
-            organic_results = []
-            for res in keyword_results['items']:
-                if res.get('type') == 'organic':
-                    organic_results.append(res)
+    #         # Find the organic results & verify SERP features within the list
+    #         organic_results = []
+    #         for res in keyword_results['items']:
+    #             if res.get('type') == 'organic':
+    #                 organic_results.append(res)
 
-            # Limit to 15 results
-            organic_results = organic_results[:15]
+    #         # Limit to 15 results
+    #         organic_results = organic_results[:15]
 
-            # Create a list to store the extracted data for this keyword
-            data_list = []
+    #         # Create a list to store the extracted data for this keyword
+    #         data_list = []
 
-            # Iterate through the organic results and extract relevant information
-            for result in organic_results:
-                url = result.get('url')
-                position = result.get('rank_absolute')
-                title = result.get('title')
-                description = result.get('description')
+    #         # Iterate through the organic results and extract relevant information
+    #         for result in organic_results:
+    #             url = result.get('url')
+    #             position = result.get('rank_absolute')
+    #             title = result.get('title')
+    #             description = result.get('description')
 
-                # Append the extracted data to the list
-                data_list.append([keyword, url, position, title, description, intent_avg])
+    #             # Append the extracted data to the list
+    #             data_list.append([keyword, url, position, title, description, intent_avg])
 
-            # Add the data for this keyword to the list of all data
-            all_data.extend(data_list)
+    #         # Add the data for this keyword to the list of all data
+    #         all_data.extend(data_list)
 
-        # Create a DataFrame from the combined data for all keywords
-        df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
+    #     # Create a DataFrame from the combined data for all keywords
+    #     df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
 
         # Retrieve the list of completed tasks
         response_ready = client.get(f"/v3/serp/{search_engine}/{search_type}/tasks_ready")
