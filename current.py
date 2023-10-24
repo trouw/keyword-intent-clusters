@@ -49,25 +49,28 @@ def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_
 
 # Function to query DataForSEO SERP for multiple keywords
 def query_dataforseo_serp(username, password, keywords, search_engine="google", search_type="organic", language_code="en", location_code=2840):
-    # Defining SERP features 
-    zero = ["shopping"]
-    one = ["commercial_units"]
-    two = ["paid", "popular_products", "local_services", "google_hotels"]
-    two_half = ["google_reviews", "stocks_box"]
-    four = ["local_pack", "hotels_pack", "top_sights", "google_flights"]
-    five = ["map", "twitter", "currency_box", "explore_brands"]
-    six = ["events", "mention_carousel", "podcasts"]
-    six_half = ["jobs"]
-    seven = ["app", "multi_carousel", "math_solver", "visual_stories"]
-    seven_half = ["images", "related_searches", "people_also_search", "recipes", "find_results_on","found_on_the_web", "refine_products"]
-    eight = ["carousel", "top_stories", "video"]
-    eight_half = ["google_posts", "knowledge_graph"]
-    nine = ["people_also_ask","scholarly_articles", "questions_and_answers", "short_videos"]
-    ten = ["answer_box","featured_snippet"]
+    # Define SERP features 
+    feature_mapping = {
+        "zero": ["shopping"],
+        "one": ["commercial_units"],
+        "two": ["paid", "popular_products", "local_services", "google_hotels"],
+        "two_half": ["google_reviews", "stocks_box"],
+        "four": ["local_pack", "hotels_pack", "top_sights", "google_flights"],
+        "five": ["map", "twitter", "currency_box", "explore_brands"],
+        "six": ["events", "mention_carousel", "podcasts"],
+        "six_half": ["jobs"],
+        "seven": ["app", "multi_carousel", "math_solver", "visual_stories"],
+        "seven_half": ["images", "related_searches", "people_also_search", "recipes", "find_results_on",
+                       "found_on_the_web", "refine_products"],
+        "eight": ["carousel", "top_stories", "video"],
+        "eight_half": ["google_posts", "knowledge_graph"],
+        "nine": ["people_also_ask","scholarly_articles", "questions_and_answers", "short_videos"],
+        "ten": ["answer_box","featured_snippet"]
+    }
     
+    # Create a RestClient instance
     client = RestClient(username, password)
     all_data = []
-    keyword_intents = []  # Create a list to store the intent for each keyword
 
     total_keywords = len(keywords)
     progress_bar = st.progress(0)  # Initialize progress bar
@@ -89,47 +92,22 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     response = client.post(endpoint, task_params)
 
     if response["status_code"] == 20000:
-        all_results = response['tasks'][0]['result']
-        for i, keyword in enumerate(keywords):
-            keyword_results = all_results[i]
+        # Iterate through the response to extract data for each keyword
+        for index, keyword in enumerate(keywords):
+            keyword_results = response['tasks'][index]['result'][0]
 
             keyword_intent = []
             # Update progress bar
-            progress_bar.progress((i + 1) / total_keywords)
+            progress_bar.progress((index + 1) / total_keywords)
 
             # Extract SERP features
             for i in keyword_results['item_types']:
-                if i in zero:
-                    keyword_intent.append(0)
-                if i in one:
-                    keyword_intent.append(1)
-                if i in two:
-                    keyword_intent.append(2)
-                if i in two_half:
-                    keyword_intent.append(2.5)
-                if i in four:
-                    keyword_intent.append(4)
-                if i in five:
-                    keyword_intent.append(5)
-                if i in six:
-                    keyword_intent.append(6)
-                if i in six_half:
-                    keyword_intent.append(6.5)
-                if i in seven:
-                    keyword_intent.append(7)
-                if i in seven_half:
-                    keyword_intent.append(7.5)
-                if i in eight:
-                    keyword_intent.append(8)
-                if i in eight_half:
-                    keyword_intent.append(8.5)
-                if i in nine:
-                    keyword_intent.append(9)
-                if i in ten:
-                    keyword_intent.append(10)
+                for intent, features in feature_mapping.items():
+                    if i in features:
+                        keyword_intent.append(intent)
             
             if len(keyword_intent) != 0:
-                intent_avg = (sum(keyword_intent) / len(keyword_intent))
+                intent_avg = (sum([int(intent) for intent in keyword_intent]) / len(keyword_intent))
             else:
                 intent_avg = 0
 
