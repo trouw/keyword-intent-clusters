@@ -81,7 +81,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     # Send a single API request to create tasks for all keywords
     endpoint = f"/v3/serp/{search_engine}/{search_type}/task_post"
     response = client.post(endpoint, task_params)
-
+    print(response)
     # if response["status_code"] == 20000:
     #     all_data = []
     #     total_keywords = len(keywords)
