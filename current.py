@@ -90,6 +90,8 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     # Check if tasks are ready initially
         response_ready = client.get("/v3/serp/google/organic/tasks_ready")
         if response_ready["status_code"] == 20000:
+            st.write(len(results))
+            st.write(len(task_params))
             while len(results) != len(task_params):
                 for task in response_ready['tasks']:
                     if (task['result'] and (len(task['result']) > 0)):
