@@ -161,6 +161,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
         # Retrieve the list of completed tasks
         response_ready = client.get(f"/v3/serp/{search_engine}/{search_type}/tasks_ready")
+        print(response_ready)
         if response_ready["status_code"] == 20000:
             results = []
             for task in response_ready['tasks']:
