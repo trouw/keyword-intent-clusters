@@ -80,7 +80,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             }
             for keyword in keywords_batch
         ]
-
+        st.write(task_params)
         endpoint = f"/v3/serp/google/organic/task_post"
         return client.post(endpoint, task_params)
 
