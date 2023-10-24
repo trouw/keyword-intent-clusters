@@ -103,15 +103,15 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     progress_bar = st.progress(0)  # Initialize progress bar
 
     # Prepare the task parameters for multiple keywords
-    task_params = [
-        {
-            "language_code": language_code,
-            "location_code": location_code,
-            "keyword": keyword,
-            "calculate_rectangles": True
-        }
-        for keyword in keywords
-    ]
+    for keyword in keywords:
+        task_params = [
+            {
+                "language_code": language_code,
+                "location_code": location_code,
+                "keyword": keyword,
+                "calculate_rectangles": True
+            }
+        ]
 
     endpoint = f"/v3/serp/{search_engine}/{search_type}/live/advanced"
 
