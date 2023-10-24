@@ -83,7 +83,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     response = client.post(endpoint, task_params)
     
     response_ready = client.get("/v3/serp/google/organic/tasks_ready")
-    response_ready
+    
     if response_ready["status_code"] == 20000:
         results = []
         for task in response_ready['tasks']:
@@ -92,7 +92,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                     if resultTaskInfo['endpoint_advanced']:
                         task_id = resultTaskInfo['id']
                         result = client.get(resultTaskInfo['endpoint_advanced'])
-
+                        result
                         # Append the result to the list of results
                         results.append(result)
 
