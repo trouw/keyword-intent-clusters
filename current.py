@@ -81,7 +81,30 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     # Send a single API request to create tasks for all keywords
     endpoint = "/v3/serp/google/organic/task_post"
     response = client.post(endpoint, task_params)
-    print(response)
+    response
+    response_ready = client.get("/v3/serp/google/organic/tasks_ready")
+    
+    if response_ready["status_code"] == 20000:
+        results = []
+        for task in response_ready['tasks']:
+            if (task['result'] and (len(task['result']) > 0)):
+                for resultTaskInfo in task['result']:
+                    if resultTaskInfo['endpoint_advanced']:
+                        task_id = resultTaskInfo['id']
+                        result = client.get(resultTaskInfo['endpoint_advanced'])
+
+                        # Append the result to the list of results
+                        results.append(result)
+
+        # Now 'results' contains the data for each completed task that you can process further.
+        for result in results:
+            # Do something with each result
+            print(result)
+    else:
+        print("Error getting completed tasks. Code: %d Message: %s" % (response_ready["status_code"], response_ready["status_message"]))
+
+
+    
     # if response["status_code"] == 20000:
     #     all_data = []
     #     total_keywords = len(keywords)
@@ -160,28 +183,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     #     df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
 
         # Retrieve the list of completed tasks
-    response_ready = client.get("/v3/serp/google/organic/tasks_ready")
-    print(response_ready)
-    if response_ready["status_code"] == 20000:
-        results = []
-        for task in response_ready['tasks']:
-            if (task['result'] and (len(task['result']) > 0)):
-                for resultTaskInfo in task['result']:
-                    # Using this method you can get results of each completed task
-                    # GET /v3/serp/{search_engine}/{search_type}/advanced/$id
-                    if resultTaskInfo['endpoint_advanced']:
-                        task_id = resultTaskInfo['id']
-                        result = client.get(resultTaskInfo['endpoint_advanced'])
-
-                        # Append the result to the list of results
-                        results.append(result)
-
-        # Now 'results' contains the data for each completed task that you can process further.
-        for result in results:
-            # Do something with each result
-            print(result)
-    else:
-        print("Error getting completed tasks. Code: %d Message: %s" % (response_ready["status_code"], response_ready["status_message"]))
 
     # return df
     # else:
