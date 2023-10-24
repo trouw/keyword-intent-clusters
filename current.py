@@ -49,81 +49,49 @@ def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_
 
 # Function to query DataForSEO SERP for multiple keywords
 def query_dataforseo_serp(username, password, keywords, search_engine="google", search_type="organic", language_code="en", location_code=2840):
-    # Define SERP features and their corresponding intent values
-    feature_mapping = {
-        "shopping": 0,
-        "commercial_units": 1,
-        "paid": 2,
-        "popular_products": 2,
-        "local_services": 2,
-        "google_hotels": 2,
-        "google_reviews": 2.5,
-        "stocks_box": 2.5,
-        "local_pack": 4,
-        "hotels_pack": 4,
-        "top_sights": 4,
-        "google_flights": 4,
-        "map": 5,
-        "twitter": 5,
-        "currency_box": 5,
-        "explore_brands": 5,
-        "events": 6,
-        "mention_carousel": 6,
-        "podcasts": 6,
-        "jobs": 6.5,
-        "app": 7,
-        "multi_carousel": 7,
-        "math_solver": 7,
-        "visual_stories": 7,
-        "images": 7.5,
-        "related_searches": 7.5,
-        "people_also_search": 7.5,
-        "recipes": 7.5,
-        "find_results_on": 7.5,
-        "found_on_the_web": 7.5,
-        "refine_products": 7.5,
-        "carousel": 8,
-        "top_stories": 8,
-        "video": 8,
-        "google_posts": 8.5,
-        "knowledge_graph": 8.5,
-        "people_also_ask": 9,
-        "scholarly_articles": 9,
-        "questions_and_answers": 9,
-        "short_videos": 9,
-        "answer_box": 10,
-        "featured_snippet": 10
-    }
-
-    # Create a RestClient instance
+    # Defining SERP features 
+    zero = ["shopping"]
+    one = ["commercial_units"]
+    two = ["paid", "popular_products", "local_services", "google_hotels"]
+    two_half = ["google_reviews", "stocks_box"]
+    four = ["local_pack", "hotels_pack", "top_sights", "google_flights"]
+    five = ["map", "twitter", "currency_box", "explore_brands"]
+    six = ["events", "mention_carousel", "podcasts"]
+    six_half = ["jobs"]
+    seven = ["app", "multi_carousel", "math_solver", "visual_stories"]
+    seven_half = ["images", "related_searches", "people_also_search", "recipes", "find_results_on","found_on_the_web", "refine_products"]
+    eight = ["carousel", "top_stories", "video"]
+    eight_half = ["google_posts", "knowledge_graph"]
+    nine = ["people_also_ask","scholarly_articles", "questions_and_answers", "short_videos"]
+    ten = ["answer_box","featured_snippet"]
+    
     client = RestClient(username, password)
     all_data = []
+    keyword_intents = []  # Create a list to store the intent for each keyword
 
     total_keywords = len(keywords)
     progress_bar = st.progress(0)  # Initialize progress bar
 
     # Prepare the task parameters for multiple keywords
-    task_params = []
-    for keyword in keywords:
-        task_params1 = [
-            {
-                "language_code": language_code,
-                "location_code": location_code,
-                "keyword": keyword,
-                "calculate_rectangles": True
-            }
-        ]
-        task_params.append(task_params1)
+    task_params = [
+        {
+            "language_code": language_code,
+            "location_code": location_code,
+            "keyword": keyword,
+            "calculate_rectangles": True
+        }
+        for keyword in keywords
+    ]
 
-    endpoint = "https://api.dataforseo.com/v3/serp/google/organic/task_post"
+    endpoint = f"/v3/serp/{search_engine}/{search_type}/live/advanced"
 
     # Send a single API request for all keywords
     response = client.post(endpoint, task_params)
     print(response)
     if response["status_code"] == 20000:
-        print(response)
+        # Iterate through the response to extract data for each keyword
         for index, keyword in enumerate(keywords):
-            keyword_results = response['tasks'][index]['result'][0]
+            keyword_results = response['tasks'][0]['result'][0]
 
             keyword_intent = []
             # Update progress bar
@@ -131,9 +99,35 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
             # Extract SERP features
             for i in keyword_results['item_types']:
-                if i in feature_mapping:
-                    keyword_intent.append(feature_mapping[i])
-
+                if i in zero:
+                    keyword_intent.append(0)
+                if i in one:
+                    keyword_intent.append(1)
+                if i in two:
+                    keyword_intent.append(2)
+                if i in two_half:
+                    keyword_intent.append(2.5)
+                if i in four:
+                    keyword_intent.append(4)
+                if i in five:
+                    keyword_intent.append(5)
+                if i in six:
+                    keyword_intent.append(6)
+                if i in six_half:
+                    keyword_intent.append(6.5)
+                if i in seven:
+                    keyword_intent.append(7)
+                if i in seven_half:
+                    keyword_intent.append(7.5)
+                if i in eight:
+                    keyword_intent.append(8)
+                if i in eight_half:
+                    keyword_intent.append(8.5)
+                if i in nine:
+                    keyword_intent.append(9)
+                if i in ten:
+                    keyword_intent.append(10)
+            
             if len(keyword_intent) != 0:
                 intent_avg = (sum(keyword_intent) / len(keyword_intent))
             else:
