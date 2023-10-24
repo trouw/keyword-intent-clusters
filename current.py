@@ -108,6 +108,10 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
                                 progress = len(results) / len(keywords)
                                 progress_bar.progress(progress)
+                                if progress_bar > 1:
+                                    progress_bar = 1
+                                else: 
+                                    progress_bar = progress_bar
                 
                 # Check tasks readiness in the next iteration
                 response_ready = client.get("/v3/serp/google/organic/tasks_ready")
@@ -118,8 +122,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             keyword_results = serp['tasks'][0]['result'][0]
 
             keyword_intent = []
-            # Update progress bar
-            # progress_bar.progress((index + 1) / total_keywords)
 
             # Extract SERP features
             for i in keyword_results['item_types']:
