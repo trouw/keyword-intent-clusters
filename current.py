@@ -173,10 +173,9 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                 all_data.append([keyword, url, position, title, description, intent_avg])
 
         st.write(all_data)
-        if len(response_ready['tasks']) == 0  and all_data:
-            st.write(all_data)
+        if len(results) == len(keywords):
             df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
-            df
+            st.dataframe(df)
             return df
         
         else:
