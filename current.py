@@ -119,7 +119,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
     # Send a single API request for all keywords
     response = client.post(endpoint, task_params)
-
+    print(response)
     if response["status_code"] == 20000:
         print(response)
         for index, keyword in enumerate(keywords):
