@@ -90,14 +90,11 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         results = []
         for task in response_ready['tasks']:
             if (task['result'] and (len(task['result']) > 0)):
-                keyword = task['data'][0]['keyword']
                 for resultTaskInfo in task['result']:
                     if resultTaskInfo['endpoint_advanced']:
                         task_id = resultTaskInfo['id']
                         result = client.get(resultTaskInfo['endpoint_advanced'])
-                        result
-                        # Append the result to the list of results
-                        results.append(result)
+                        keyword = result['tasks'][0]['data'][0]['keyword']
                         keyword_results = result['tasks'][0]['result'][0]
 
                         keyword_intent = []
