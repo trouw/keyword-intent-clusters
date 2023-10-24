@@ -83,7 +83,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     # Send a single API request to create tasks for all keywords
     endpoint = "/v3/serp/google/organic/task_post"
     response = client.post(endpoint, task_params)
-    time.sleep(10)
+    time.sleep(60)
 
     results = []
     if response["status_code"] == 20000:
@@ -101,7 +101,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                 
                 # Check tasks readiness in the next iteration
                 response_ready = client.get("/v3/serp/google/organic/tasks_ready")
-                time.sleep(10)
+                time.sleep(60)
                 st.write('refrsh)')
                 
 
@@ -180,6 +180,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         else:
             print("No data available.")
             return None
+    
     #     # Now 'results' contains the data for each completed task that you can process further.
     #     for x in results:
     #         # Do something with each result
