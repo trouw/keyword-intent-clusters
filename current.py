@@ -83,7 +83,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     # Send a single API request to create tasks for all keywords
     endpoint = "/v3/serp/google/organic/task_post"
     response = client.post(endpoint, task_params)
-    time.sleep(60)
 
     results = []
     if response["status_code"] == 20000:
