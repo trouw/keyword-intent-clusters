@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
 import base64
+import concurrent.futures
 import requests
 
 # Function to preprocess data and apply filters
@@ -48,56 +49,55 @@ def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_
 
 # Function to query DataForSEO SERP for multiple keywords
 def query_dataforseo_serp(username, password, keywords, search_engine="google", search_type="organic", language_code="en", location_code=2840):
-    # Create a RestClient instance
+    # Defining SERP features 
+    zero = ["shopping"]
+    one = ["commercial_units"]
+    two = ["paid", "popular_products", "local_services", "google_hotels"]
+    two_half = ["google_reviews", "stocks_box"]
+    four = ["local_pack", "hotels_pack", "top_sights", "google_flights"]
+    five = ["map", "twitter", "currency_box", "explore_brands"]
+    six = ["events", "mention_carousel", "podcasts"]
+    six_half = ["jobs"]
+    seven = ["app", "multi_carousel", "math_solver", "visual_stories"]
+    seven_half = ["images", "related_searches", "people_also_search", "recipes", "find_results_on","found_on_the_web", "refine_products"]
+    eight = ["carousel", "top_stories", "video"]
+    eight_half = ["google_posts", "knowledge_graph"]
+    nine = ["people_also_ask","scholarly_articles", "questions_and_answers", "short_videos"]
+    ten = ["answer_box","featured_snippet"]
+    
     client = RestClient(username, password)
     all_data = []
-    keyword_intents = []  # Create a list to store the intent for each keyword
 
     total_keywords = len(keywords)
     progress_bar = st.progress(0)  # Initialize progress bar
 
+    endpoint = f"/v3/serp/{search_engine}/{search_type}/live/advanced"
+
+    # Create a list to store the extracted data for all keywords
+    all_data = []
+
     for index, keyword in enumerate(keywords):
-        
-        # Defining SERP features 
-        zero = ["shopping"]
-        one = ["commercial_units"]
-        two = ["paid", "popular_products", "local_services", "google_hotels"]
-        two_half = ["google_reviews", "stocks_box"]
-        four = ["local_pack", "hotels_pack", "top_sights", "google_flights"]
-        five = ["map", "twitter", "currency_box", "explore_brands"]
-        six = ["events", "mention_carousel", "podcasts"]
-        six_half = ["jobs"]
-        seven = ["app", "multi_carousel", "math_solver", "visual_stories"]
-        seven_half = ["images", "related_searches", "people_also_search", "recipes", "find_results_on","found_on_the_web", "refine_products"]
-        eight = ["carousel", "top_stories", "video"]
-        eight_half = ["google_posts", "knowledge_graph"]
-        nine = ["people_also_ask","scholarly_articles", "questions_and_answers", "short_videos"]
-        ten = ["answer_box","featured_snippet"]
-
-
-
-        keyword_intent = []
-        # Update progress bar
-        progress_bar.progress((index + 1) / total_keywords)
-        post_data = dict()
-
-        post_data[len(post_data)] = {
+        # Create task parameters for the current keyword
+        task_params = {
             "language_code": language_code,
             "location_code": location_code,
             "keyword": keyword,
             "calculate_rectangles": True
         }
 
-        endpoint = f"/v3/serp/{search_engine}/{search_type}/live/advanced"
-        
-        response = client.post(endpoint, post_data)
+        # Send an API request for the current keyword
+        response = client.post(endpoint, [task_params])
 
         if response["status_code"] == 20000:
-            # Extracting organic results
-            all_results = response['tasks'][0]['result']
+            # Extracting organic results for the current keyword
+            keyword_results = response['tasks'][0]['result'][0]
 
-            #Determining Intent
-            for i in response['tasks'][0]['result'][0]['item_types']:
+            keyword_intent = []
+            # Update progress bar
+            progress_bar.progress((index + 1) / total_keywords)
+
+            # Extract SERP features
+            for i in keyword_results['item_types']:
                 if i in zero:
                     keyword_intent.append(0)
                 if i in one:
@@ -128,40 +128,37 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                     keyword_intent.append(10)
             
             if len(keyword_intent) != 0:
-                intent_avg = (sum(keyword_intent)/len(keyword_intent))
+                intent_avg = (sum(keyword_intent) / len(keyword_intent))
             else:
-                intent_avg = 0 
+                intent_avg = 0
 
             # Find the organic results & verify SERP features within the list
             organic_results = []
-            for res in all_results:
+            for res in keyword_results['items']:
                 if res.get('type') == 'organic':
-                    organic_results.extend(res['items'])
-
+                    organic_results.append(res)
 
             # Limit to 15 results
             organic_results = organic_results[:15]
-            
+
             # Create a list to store the extracted data for this keyword
             data_list = []
 
             # Iterate through the organic results and extract relevant information
             for result in organic_results:
-                keyword = keyword
-                intent_avg=intent_avg
                 url = result.get('url')
                 position = result.get('rank_absolute')
                 title = result.get('title')
                 description = result.get('description')
-                
+
                 # Append the extracted data to the list
                 data_list.append([keyword, url, position, title, description, intent_avg])
 
             # Add the data for this keyword to the list of all data
             all_data.extend(data_list)
-        
+
         else:
-            print(f"Error for keyword '{keyword}': Code: {response['status_code']} Message: {response['status_message']}")
+            print(f"Error for keyword '{keyword}': Code {response['status_code']} Message: {response['status_message']}")
 
     # Create a DataFrame from the combined data for all keywords
     df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
