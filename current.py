@@ -85,7 +85,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
     
 
-    if response["status_code"] == 20000:
+    while response["status_code"] == 20000 and True:
         # Check if tasks are ready
         response_ready = client.get("/v3/serp/google/organic/tasks_ready")
         if response_ready["status_code"] == 20000:
@@ -163,14 +163,11 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
         st.write(all_data)
         if len(response_ready['tasks']) == 0  and all_data:
-            st.write(all_data)
             df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
             df
             return df
+        break
         
-        else:
-            print("No data available.")
-            return None
     #     # Now 'results' contains the data for each completed task that you can process further.
     #     for x in results:
     #         # Do something with each result
