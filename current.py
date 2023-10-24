@@ -84,7 +84,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     
     response_ready = client.get("/v3/serp/google/organic/tasks_ready")
     
-    if response_ready["status_code"] == 20000:
+    while response_ready["status_code"] == 20000 and response_ready['tasks'] != 0:
         results = []
         for task in response_ready['tasks']:
             if (task['result'] and (len(task['result']) > 0)):
@@ -92,14 +92,14 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                     if resultTaskInfo['endpoint_advanced']:
                         task_id = resultTaskInfo['id']
                         result = client.get(resultTaskInfo['endpoint_advanced'])
-                        result
+                        
                         # Append the result to the list of results
                         results.append(result)
 
         # Now 'results' contains the data for each completed task that you can process further.
-        for result in results:
+        for x in results:
             # Do something with each result
-            print(result)
+            print(x)
     else:
         print("Error getting completed tasks. Code: %d Message: %s" % (response_ready["status_code"], response_ready["status_message"]))
 
