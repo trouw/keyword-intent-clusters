@@ -84,10 +84,13 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     
     response_ready = client.get("/v3/serp/google/organic/tasks_ready")
     
+    all_data = []
+
     if response_ready["status_code"] == 20000 and response_ready['tasks'] != 0:
         results = []
         for task in response_ready['tasks']:
             if (task['result'] and (len(task['result']) > 0)):
+                keyword = task['data'][0]['keyword']
                 for resultTaskInfo in task['result']:
                     if resultTaskInfo['endpoint_advanced']:
                         task_id = resultTaskInfo['id']
@@ -95,13 +98,80 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                         result
                         # Append the result to the list of results
                         results.append(result)
+                        keyword_results = result['tasks'][0]['result'][0]
 
-        # Now 'results' contains the data for each completed task that you can process further.
-        for x in results:
-            # Do something with each result
-            print(x)
-    else:
-        print("Error getting completed tasks. Code: %d Message: %s" % (response_ready["status_code"], response_ready["status_message"]))
+                        keyword_intent = []
+                        # Update progress bar
+                        # progress_bar.progress((index + 1) / total_keywords)
+
+                        # Extract SERP features
+                        for i in keyword_results['item_types']:
+                            if i in zero:
+                                keyword_intent.append(0)
+                            if i in one:
+                                keyword_intent.append(1)
+                            if i in two:
+                                keyword_intent.append(2)
+                            if i in two_half:
+                                keyword_intent.append(2.5)
+                            if i in four:
+                                keyword_intent.append(4)
+                            if i in five:
+                                keyword_intent.append(5)
+                            if i in six:
+                                keyword_intent.append(6)
+                            if i in six_half:
+                                keyword_intent.append(6.5)
+                            if i in seven:
+                                keyword_intent.append(7)
+                            if i in seven_half:
+                                keyword_intent.append(7.5)
+                            if i in eight:
+                                keyword_intent.append(8)
+                            if i in eight_half:
+                                keyword_intent.append(8.5)
+                            if i in nine:
+                                keyword_intent.append(9)
+                            if i in ten:
+                                keyword_intent.append(10)
+
+                        if len(keyword_intent) != 0:
+                            intent_avg = (sum(keyword_intent) / len(keyword_intent))
+                        else:
+                            intent_avg = 0
+
+                        # Find the organic results & verify SERP features within the list
+                        organic_results = []
+                        for res in keyword_results['items']:
+                            if res.get('type') == 'organic':
+                                organic_results.append(res)
+
+                        # Limit to 15 results
+                        organic_results = organic_results[:15]
+
+                        data_list = []
+
+                        # Iterate through the organic results and extract relevant information
+                        for result in organic_results:
+                            url = result.get('url')
+                            position = result.get('rank_absolute')
+                            title = result.get('title')
+                            description = result.get('description')
+
+                            data_list.append([keyword, url, position, title, description, intent_avg])
+                        
+                        all_data.extend(data_list)
+
+                        # Create a DataFrame from the combined data for all keywords
+                        df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
+
+                    return df
+    #     # Now 'results' contains the data for each completed task that you can process further.
+    #     for x in results:
+    #         # Do something with each result
+    #         print(x)
+    # else:
+    #     print("Error getting completed tasks. Code: %d Message: %s" % (response_ready["status_code"], response_ready["status_message"]))
 
 
     
@@ -173,21 +243,21 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     #             title = result.get('title')
     #             description = result.get('description')
 
-    #             # Append the extracted data to the list
-    #             data_list.append([keyword, url, position, title, description, intent_avg])
+    # #             # Append the extracted data to the list
+    # #             data_list.append([keyword, url, position, title, description, intent_avg])
 
-    #         # Add the data for this keyword to the list of all data
-    #         all_data.extend(data_list)
+    # #         # Add the data for this keyword to the list of all data
+    # #         all_data.extend(data_list)
 
-    #     # Create a DataFrame from the combined data for all keywords
-    #     df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
+    # #     # Create a DataFrame from the combined data for all keywords
+    # #     df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
 
-        # Retrieve the list of completed tasks
+    #     # Retrieve the list of completed tasks
 
-    # return df
-    # else:
-    #     print(f"Error creating tasks. Code: {response['status_code']} Message: {response['status_message']}")
-    #     return None
+    # # return df
+    # # else:
+    # #     print(f"Error creating tasks. Code: {response['status_code']} Message: {response['status_message']}")
+    # #     return None
 def jaccard_similarity(set1, set2):  #serp_sim dependency
     set1 = set(set1)
     set2 = set(set2)
