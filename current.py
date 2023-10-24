@@ -104,7 +104,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                 
                 # Check tasks readiness in the next iteration
                 response_ready = client.get("/v3/serp/google/organic/tasks_ready")
-                time.sleep(60)
                 st.write('refrsh)')
                 
 
