@@ -8,6 +8,7 @@ import streamlit as st
 import base64
 import concurrent.futures
 import requests
+import os
 
 # Function to preprocess data and apply filters
 def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_urls=None, include_urls=None, min_max_dict=None):
@@ -87,11 +88,14 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
     if response["status_code"] == 20000:
         # Check if tasks are ready
+        os.wait(5)
         response_ready = client.get("/v3/serp/google/organic/tasks_ready")
         results = []
         if response_ready["status_code"] == 20000:
+            
             control = True
             while control == True:
+                os.wait(5)
                 st.write(len(results))
                 response_ready = client.get("/v3/serp/google/organic/tasks_ready")
                 if len(response_ready['tasks']) == len(keywords):
