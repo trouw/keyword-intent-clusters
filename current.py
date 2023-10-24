@@ -83,13 +83,14 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     # Send a single API request to create tasks for all keywords
     endpoint = "/v3/serp/google/organic/task_post"
     response = client.post(endpoint, task_params)
+    time.sleep(10)
 
     results = []
     if response["status_code"] == 20000:
     # Check if tasks are ready initially
         response_ready = client.get("/v3/serp/google/organic/tasks_ready")
         if response_ready["status_code"] == 20000:
-            while response_ready['tasks_count'] > 0:
+            while len(response_ready['tasks'][0][results]) > 0:
                 for task in response_ready['tasks']:
                     if (task['result'] and (len(task['result']) > 0)):
                         for resultTaskInfo in task['result']:
@@ -102,7 +103,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                 response_ready = client.get("/v3/serp/google/organic/tasks_ready")
                 time.sleep(10)
                 st.write('refrsh)')
-                st.write(response_ready['tasks_count'])
+                st.write(len(response_ready['tasks'][0][results]))
 
         st.write('complete')
         
