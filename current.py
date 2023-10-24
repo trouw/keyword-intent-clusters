@@ -49,7 +49,7 @@ def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_
 
 # Function to query DataForSEO SERP for multiple keywords
 def query_dataforseo_serp(username, password, keywords, search_engine="google", search_type="organic", language_code="en", location_code=2840):
-    # Defining SERP features 
+    # Defining SERP features
     zero = ["shopping"]
     one = ["commercial_units"]
     two = ["paid", "popular_products", "local_services", "google_hotels"]
@@ -59,20 +59,16 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     six = ["events", "mention_carousel", "podcasts"]
     six_half = ["jobs"]
     seven = ["app", "multi_carousel", "math_solver", "visual_stories"]
-    seven_half = ["images", "related_searches", "people_also_search", "recipes", "find_results_on","found_on_the_web", "refine_products"]
+    seven_half = ["images", "related_searches", "people_also_search", "recipes", "find_results_on", "found_on_the_web", "refine_products"]
     eight = ["carousel", "top_stories", "video"]
     eight_half = ["google_posts", "knowledge_graph"]
-    nine = ["people_also_ask","scholarly_articles", "questions_and_answers", "short_videos"]
-    ten = ["answer_box","featured_snippet"]
-    
+    nine = ["people_also_ask", "scholarly_articles", "questions_and_answers", "short_videos"]
+    ten = ["answer_box", "featured_snippet"]
+
+    # Initialize DataForSEO client with your credentials
     client = RestClient(username, password)
-    all_data = []
-    keyword_intents = []  # Create a list to store the intent for each keyword
-
-    total_keywords = len(keywords)
-    progress_bar = st.progress(0)  # Initialize progress bar
-
-    # Prepare the task parameters for multiple keywords
+    
+    # Prepare task parameters for multiple keywords
     task_params = [
         {
             "language_code": language_code,
@@ -81,16 +77,19 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         }
         for keyword in keywords
     ]
-    print(task_params)
-    endpoint = "/v3/serp/google/organic/task_post"
 
-    # Send a single API request for all keywords
+    # Send a single API request to create tasks for all keywords
+    endpoint = f"/v3/serp/{search_engine}/{search_type}/task_post"
     response = client.post(endpoint, task_params)
-    print(response)
+
     if response["status_code"] == 20000:
+        all_data = []
+        total_keywords = len(keywords)
+        progress_bar = st.progress(0)  # Initialize progress bar
+
         # Iterate through the response to extract data for each keyword
         for index, keyword in enumerate(keywords):
-            keyword_results = response['tasks'][0]['result'][0]
+            keyword_results = response['tasks'][index]['result'][0]
 
             keyword_intent = []
             # Update progress bar
@@ -126,7 +125,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                     keyword_intent.append(9)
                 if i in ten:
                     keyword_intent.append(10)
-            
+
             if len(keyword_intent) != 0:
                 intent_avg = (sum(keyword_intent) / len(keyword_intent))
             else:
@@ -157,14 +156,36 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             # Add the data for this keyword to the list of all data
             all_data.extend(data_list)
 
+        # Create a DataFrame from the combined data for all keywords
+        df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
+
+        # Retrieve the list of completed tasks
+        response_ready = client.get(f"/v3/serp/{search_engine}/{search_type}/tasks_ready")
+        if response_ready["status_code"] == 20000:
+            results = []
+            for task in response_ready['tasks']:
+                if (task['result'] and (len(task['result']) > 0)):
+                    for resultTaskInfo in task['result']:
+                        # Using this method you can get results of each completed task
+                        # GET /v3/serp/{search_engine}/{search_type}/advanced/$id
+                        if resultTaskInfo['endpoint_advanced']:
+                            task_id = resultTaskInfo['id']
+                            result = client.get(resultTaskInfo['endpoint_advanced'])
+
+                            # Append the result to the list of results
+                            results.append(result)
+
+            # Now 'results' contains the data for each completed task that you can process further.
+            for result in results:
+                # Do something with each result
+                print(result)
         else:
-            print(f"Error for keyword '{keyword}': Code {response['status_code']} Message: {response['status_message']}")
+            print("Error getting completed tasks. Code: %d Message: %s" % (response_ready["status_code"], response_ready["status_message"]))
 
-    # Create a DataFrame from the combined data for all keywords
-    df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
-
-    return df
-
+        return df
+    else:
+        print(f"Error creating tasks. Code: {response['status_code']} Message: {response['status_message']}")
+        return None
 def jaccard_similarity(set1, set2):  #serp_sim dependency
     set1 = set(set1)
     set2 = set(set2)
