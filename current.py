@@ -88,7 +88,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     # Check if tasks are ready initially
         response_ready = client.get("/v3/serp/google/organic/tasks_ready")
         if response_ready["status_code"] == 20000:
-            if response_ready['tasks_count'] > 0:
+            while response_ready['tasks_count'] > 0:
                 for task in response_ready['tasks']:
                     if (task['result'] and (len(task['result']) > 0)):
                         for resultTaskInfo in task['result']:
@@ -100,7 +100,8 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                 # Check tasks readiness in the next iteration
                 response_ready = client.get("/v3/serp/google/organic/tasks_ready")
 
-        st.write(len(results))
+        st.write('complete')
+        
         all_data = []
         for serp in results:
             keyword = serp['tasks'][0]['data']['keyword']
