@@ -93,7 +93,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             control = True
             while control == True:
                 response_ready = client.get("/v3/serp/google/organic/tasks_ready")
-                st.write(len(response_ready['tasks']))
+                st.write(len(response_ready['tasks'][0]))
                 if len(response_ready['tasks']) == len(task_params):
                     control = False
                 for task in response_ready['tasks']:
