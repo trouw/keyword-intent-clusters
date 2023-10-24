@@ -67,29 +67,30 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     
     client = RestClient(username, password)
     all_data = []
+    keyword_intents = []  # Create a list to store the intent for each keyword
 
     total_keywords = len(keywords)
     progress_bar = st.progress(0)  # Initialize progress bar
 
-    endpoint = f"/v3/serp/{search_engine}/{search_type}/live/advanced"
-
-    # Create a list to store the extracted data for all keywords
-    all_data = []
-
-    for index, keyword in enumerate(keywords):
-        # Create task parameters for the current keyword
-        task_params = {
+    # Prepare the task parameters for multiple keywords
+    task_params = [
+        {
             "language_code": language_code,
             "location_code": location_code,
             "keyword": keyword,
             "calculate_rectangles": True
         }
+        for keyword in keywords
+    ]
 
-        # Send an API request for the current keyword
-        response = client.post(endpoint, [task_params])
+    endpoint = f"/v3/serp/{search_engine}/{search_type}/live/advanced"
 
-        if response["status_code"] == 20000:
-            # Extracting organic results for the current keyword
+    # Send a single API request for all keywords
+    response = client.post(endpoint, task_params)
+
+    if response["status_code"] == 20000:
+        # Iterate through the response to extract data for each keyword
+        for index, keyword in enumerate(keywords):
             keyword_results = response['tasks'][0]['result'][0]
 
             keyword_intent = []
