@@ -160,33 +160,33 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     #     df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
 
         # Retrieve the list of completed tasks
-        response_ready = client.get(f"/v3/serp/{search_engine}/{search_type}/tasks_ready")
-        print(response_ready)
-        if response_ready["status_code"] == 20000:
-            results = []
-            for task in response_ready['tasks']:
-                if (task['result'] and (len(task['result']) > 0)):
-                    for resultTaskInfo in task['result']:
-                        # Using this method you can get results of each completed task
-                        # GET /v3/serp/{search_engine}/{search_type}/advanced/$id
-                        if resultTaskInfo['endpoint_advanced']:
-                            task_id = resultTaskInfo['id']
-                            result = client.get(resultTaskInfo['endpoint_advanced'])
+    response_ready = client.get(f"/v3/serp/{search_engine}/{search_type}/tasks_ready")
+    print(response_ready)
+    if response_ready["status_code"] == 20000:
+        results = []
+        for task in response_ready['tasks']:
+            if (task['result'] and (len(task['result']) > 0)):
+                for resultTaskInfo in task['result']:
+                    # Using this method you can get results of each completed task
+                    # GET /v3/serp/{search_engine}/{search_type}/advanced/$id
+                    if resultTaskInfo['endpoint_advanced']:
+                        task_id = resultTaskInfo['id']
+                        result = client.get(resultTaskInfo['endpoint_advanced'])
 
-                            # Append the result to the list of results
-                            results.append(result)
+                        # Append the result to the list of results
+                        results.append(result)
 
-            # Now 'results' contains the data for each completed task that you can process further.
-            for result in results:
-                # Do something with each result
-                print(result)
-        else:
-            print("Error getting completed tasks. Code: %d Message: %s" % (response_ready["status_code"], response_ready["status_message"]))
-
-        return df
+        # Now 'results' contains the data for each completed task that you can process further.
+        for result in results:
+            # Do something with each result
+            print(result)
     else:
-        print(f"Error creating tasks. Code: {response['status_code']} Message: {response['status_message']}")
-        return None
+        print("Error getting completed tasks. Code: %d Message: %s" % (response_ready["status_code"], response_ready["status_message"]))
+
+    # return df
+    # else:
+    #     print(f"Error creating tasks. Code: {response['status_code']} Message: {response['status_message']}")
+    #     return None
 def jaccard_similarity(set1, set2):  #serp_sim dependency
     set1 = set(set1)
     set2 = set(set2)
