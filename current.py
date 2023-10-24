@@ -77,8 +77,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         {
             "language_code": language_code,
             "location_code": location_code,
-            "keyword": keyword,
-            "calculate_rectangles": True
+            "keyword": keyword
         }
         for keyword in keywords
     ]
