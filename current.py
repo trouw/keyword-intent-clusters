@@ -93,6 +93,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             while len(results) != len(task_params):
                 for task in response_ready['tasks']:
                     if (task['result'] and (len(task['result']) > 0)):
+                        st.write('hello')
                         for resultTaskInfo in task['result']:
                             if resultTaskInfo['endpoint_advanced']:
                                 result = client.get(resultTaskInfo['endpoint_advanced'])
