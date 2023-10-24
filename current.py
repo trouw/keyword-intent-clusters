@@ -92,7 +92,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         if response_ready["status_code"] == 20000:
             control = True
             while control == True:
-                st.write(len(results))
                 response_ready = client.get("/v3/serp/google/organic/tasks_ready")
                 if len(response_ready['tasks']) == len(task_params):
                     control = False
@@ -102,6 +101,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                             if resultTaskInfo['endpoint_advanced']:
                                 result = client.get(resultTaskInfo['endpoint_advanced'])
                                 results.append(result)
+                                st.write(len(results))
         st.write(len(results))
         all_data = []
         for serp in results:
