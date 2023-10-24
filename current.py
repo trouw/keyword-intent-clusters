@@ -94,7 +94,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                     if resultTaskInfo['endpoint_advanced']:
                         task_id = resultTaskInfo['id']
                         result = client.get(resultTaskInfo['endpoint_advanced'])
-                        keyword = result['tasks'][0]['data'][0]['keyword']
+                        keyword = result['tasks'][0]['data']['keyword']
                         keyword_results = result['tasks'][0]['result'][0]
 
                         keyword_intent = []
