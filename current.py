@@ -121,7 +121,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     response = client.post(endpoint, task_params)
 
     if response["status_code"] == 20000:
-        # Iterate through the response to extract data for each keyword
+        print(response)
         for index, keyword in enumerate(keywords):
             keyword_results = response['tasks'][index]['result'][0]
 
