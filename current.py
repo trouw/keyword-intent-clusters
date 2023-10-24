@@ -89,13 +89,13 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     response = client.post(endpoint, task_params)
 
     if response["status_code"] == 20000:
-        # Iterate through the response to extract data for each keyword
-        for index, keyword in enumerate(keywords):
-            keyword_results = response['tasks'][0]['result'][0]
+        all_results = response['tasks'][0]['result']
+        for i, keyword in enumerate(keywords):
+            keyword_results = all_results[i]
 
             keyword_intent = []
             # Update progress bar
-            progress_bar.progress((index + 1) / total_keywords)
+            progress_bar.progress((i + 1) / total_keywords)
 
             # Extract SERP features
             for i in keyword_results['item_types']:
@@ -207,7 +207,7 @@ def serps_similarity(data):
 
     # Initialize an empty matrix
     matrix = pd.DataFrame(0, index=keywords, columns=keywords)
-    st.dataframe(matrix)
+
     similar_keyword_pairs = []
     # Calculate URL similarity for all pairs of keywords
     for i, j in combinations(range(len(keywords)), 2):
