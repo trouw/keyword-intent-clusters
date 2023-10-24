@@ -97,12 +97,12 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                 if len(response_ready['tasks']) == 0:
                     control = False
                 for task in response_ready['tasks']:
-                    # if (task['result'] and (len(task['result']) > 0)):
-                    for resultTaskInfo in task['result']:
-                        if resultTaskInfo['endpoint_advanced']:
-                            result = client.get(resultTaskInfo['endpoint_advanced'])
-                            results.append(result)
-                            st.write(len(f'{len(results)} results'))
+                    if (task['result'] and (len(task['result']) > 0)):
+                        for resultTaskInfo in task['result']:
+                            if resultTaskInfo['endpoint_advanced']:
+                                result = client.get(resultTaskInfo['endpoint_advanced'])
+                                results.append(result)
+                                st.write(len(f'{len(results)} results'))
         st.write(len(results))
         all_data = []
         for serp in results:
