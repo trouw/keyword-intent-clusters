@@ -97,8 +97,8 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                             result = client.get(resultTaskInfo['endpoint_advanced'])
                             results.append(result)
         st.write(len(results))
+        all_data = []
         for serp in results:
-            all_data = []
             keyword = serp['tasks'][0]['data']['keyword']
             keyword_results = serp['tasks'][0]['result'][0]
 
@@ -151,8 +151,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             # Limit to 15 results
             organic_results = organic_results[:15]
 
-            data_list = []
-
             # Iterate through the organic results and extract relevant information
             for result in organic_results:
                 url = result.get('url')
@@ -160,10 +158,9 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                 title = result.get('title')
                 description = result.get('description')
 
-                data_list.append([keyword, url, position, title, description, intent_avg])
+                all_data.append([keyword, url, position, title, description, intent_avg])
 
-            all_data.extend(data_list)
-        
+        st.write(all_data)
         if len(response_ready['tasks']) == 0  and all_data:
             st.write(all_data)
             df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
