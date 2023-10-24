@@ -115,7 +115,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         ]
         task_params.append(task_params1)
 
-    endpoint = f"/v3/serp/{search_engine}/{search_type}/live/advanced"
+    endpoint = "https://api.dataforseo.com/v3/serp/google/organic/task_post"
 
     # Send a single API request for all keywords
     response = client.post(endpoint, task_params)
