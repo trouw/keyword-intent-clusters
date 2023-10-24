@@ -207,7 +207,7 @@ def serps_similarity(data):
 
     # Initialize an empty matrix
     matrix = pd.DataFrame(0, index=keywords, columns=keywords)
-
+    st.dataframe(matrix)
     similar_keyword_pairs = []
     # Calculate URL similarity for all pairs of keywords
     for i, j in combinations(range(len(keywords)), 2):
