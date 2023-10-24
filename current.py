@@ -48,6 +48,7 @@ def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_
     return data
 
 # Function to query DataForSEO SERP for multiple keywords
+
 def query_dataforseo_serp(username, password, keywords, search_engine="google", search_type="organic", language_code="en", location_code=2840):
     # Defining SERP features
     zero = ["shopping"]
@@ -67,7 +68,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
     # Initialize DataForSEO client with your credentials
     client = RestClient(username, password)
-    
+
     # Prepare task parameters for multiple keywords
     task_params = [
         {
@@ -81,88 +82,97 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     # Send a single API request to create tasks for all keywords
     endpoint = "/v3/serp/google/organic/task_post"
     response = client.post(endpoint, task_params)
-    
-    response_ready = client.get("/v3/serp/google/organic/tasks_ready")
-    
+
     all_data = []
 
-    if response_ready["status_code"] == 20000 and response_ready['tasks'] != 0:
-        results = []
-        for task in response_ready['tasks']:
-            if (task['result'] and (len(task['result']) > 0)):
-                for resultTaskInfo in task['result']:
-                    if resultTaskInfo['endpoint_advanced']:
-                        task_id = resultTaskInfo['id']
-                        result = client.get(resultTaskInfo['endpoint_advanced'])
-                        keyword = result['tasks'][0]['data']['keyword']
-                        keyword_results = result['tasks'][0]['result'][0]
+    while True:
+        # Check if tasks are ready
+        response_ready = client.get("/v3/serp/google/organic/tasks_ready")
 
-                        keyword_intent = []
-                        # Update progress bar
-                        # progress_bar.progress((index + 1) / total_keywords)
+        if response_ready["status_code"] == 20000 and response_ready['tasks'] != 0:
+            results = []
+            for task in response_ready['tasks']:
+                if (task['result'] and (len(task['result']) > 0)):
+                    for resultTaskInfo in task['result']:
+                        if resultTaskInfo['endpoint_advanced']:
+                            task_id = resultTaskInfo['id']
+                            result = client.get(resultTaskInfo['endpoint_advanced'])
+                            keyword = result['tasks'][0]['data']['keyword']
+                            keyword_results = result['tasks'][0]['result'][0]
 
-                        # Extract SERP features
-                        for i in keyword_results['item_types']:
-                            if i in zero:
-                                keyword_intent.append(0)
-                            if i in one:
-                                keyword_intent.append(1)
-                            if i in two:
-                                keyword_intent.append(2)
-                            if i in two_half:
-                                keyword_intent.append(2.5)
-                            if i in four:
-                                keyword_intent.append(4)
-                            if i in five:
-                                keyword_intent.append(5)
-                            if i in six:
-                                keyword_intent.append(6)
-                            if i in six_half:
-                                keyword_intent.append(6.5)
-                            if i in seven:
-                                keyword_intent.append(7)
-                            if i in seven_half:
-                                keyword_intent.append(7.5)
-                            if i in eight:
-                                keyword_intent.append(8)
-                            if i in eight_half:
-                                keyword_intent.append(8.5)
-                            if i in nine:
-                                keyword_intent.append(9)
-                            if i in ten:
-                                keyword_intent.append(10)
+                            keyword_intent = []
+                            # Update progress bar
+                            # progress_bar.progress((index + 1) / total_keywords)
 
-                        if len(keyword_intent) != 0:
-                            intent_avg = (sum(keyword_intent) / len(keyword_intent))
-                        else:
-                            intent_avg = 0
+                            # Extract SERP features
+                            for i in keyword_results['item_types']:
+                                if i in zero:
+                                    keyword_intent.append(0)
+                                if i in one:
+                                    keyword_intent.append(1)
+                                if i in two:
+                                    keyword_intent.append(2)
+                                if i in two_half:
+                                    keyword_intent.append(2.5)
+                                if i in four:
+                                    keyword_intent.append(4)
+                                if i in five:
+                                    keyword_intent.append(5)
+                                if i in six:
+                                    keyword_intent.append(6)
+                                if i in six_half:
+                                    keyword_intent.append(6.5)
+                                if i in seven:
+                                    keyword_intent.append(7)
+                                if i in seven_half:
+                                    keyword_intent.append(7.5)
+                                if i in eight:
+                                    keyword_intent.append(8)
+                                if i in eight_half:
+                                    keyword_intent.append(8.5)
+                                if i in nine:
+                                    keyword_intent.append(9)
+                                if i in ten:
+                                    keyword_intent.append(10)
 
-                        # Find the organic results & verify SERP features within the list
-                        organic_results = []
-                        for res in keyword_results['items']:
-                            if res.get('type') == 'organic':
-                                organic_results.append(res)
+                            if len(keyword_intent) != 0:
+                                intent_avg = (sum(keyword_intent) / len(keyword_intent))
+                            else:
+                                intent_avg = 0
 
-                        # Limit to 15 results
-                        organic_results = organic_results[:15]
+                            # Find the organic results & verify SERP features within the list
+                            organic_results = []
+                            for res in keyword_results['items']:
+                                if res.get('type') == 'organic':
+                                    organic_results.append(res)
 
-                        data_list = []
+                            # Limit to 15 results
+                            organic_results = organic_results[:15]
 
-                        # Iterate through the organic results and extract relevant information
-                        for result in organic_results:
-                            url = result.get('url')
-                            position = result.get('rank_absolute')
-                            title = result.get('title')
-                            description = result.get('description')
+                            data_list = []
 
-                            data_list.append([keyword, url, position, title, description, intent_avg])
-                        
-                        all_data.extend(data_list)
+                            # Iterate through the organic results and extract relevant information
+                            for result in organic_results:
+                                url = result.get('url')
+                                position = result.get('rank_absolute')
+                                title = result.get('title')
+                                description = result.get('description')
 
-                        # Create a DataFrame from the combined data for all keywords
-                        df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
+                                data_list.append([keyword, url, position, title, description, intent_avg])
 
-                    return df
+                            results.extend(data_list)
+
+            all_data.extend(results)
+        else:
+            break  # Exit the loop when tasks are ready
+
+    if all_data:
+        # Create a DataFrame from the combined data for all keywords
+        df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
+        return df
+    else:
+        print("No data available.")
+        return None
     #     # Now 'results' contains the data for each completed task that you can process further.
     #     for x in results:
     #         # Do something with each result
