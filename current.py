@@ -70,19 +70,27 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     # Initialize DataForSEO client with your credentials
     client = RestClient(username, password)
 
-    # Prepare task parameters for multiple keywords
-    task_params = [
-        {
-            "language_code": language_code,
-            "location_code": location_code,
-            "keyword": keyword
-        }
-        for keyword in keywords
-    ]
+    # Define a function to send a batch of keywords as tasks
+    def send_batch_task(keywords_batch):
+        task_params = [
+            {
+                "language_code": language_code,
+                "location_code": location_code,
+                "keyword": keyword
+            }
+            for keyword in keywords_batch
+        ]
 
-    # Send a single API request to create tasks for all keywords
-    endpoint = "/v3/serp/google/organic/task_post"
-    response = client.post(endpoint, task_params)
+        endpoint = f"/v3/serp/google/organic/task_post"
+        return client.post(endpoint, task_params)
+
+    # Split the keywords into batches
+    keyword_batches = [keywords[i:i+200] for i in range(0, len(keywords), 200)]
+
+    results = []
+    for keyword_batch in keyword_batches:
+        # Send a batch of keywords as tasks
+        response = send_batch_task(keyword_batch)
 
     results = []
     if response["status_code"] == 20000:
@@ -167,7 +175,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
                 all_data.append([keyword, url, position, title, description, intent_avg])
 
-        st.write(all_data)
         if len(results) == len(keywords):
             df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
             st.dataframe(df)
