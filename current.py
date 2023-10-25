@@ -80,14 +80,14 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             }
             for keyword in keywords_batch
         ]
-        st.write(task_params)
+
         endpoint = f"/v3/serp/google/organic/task_post"
         return client.post(endpoint, task_params)
 
     # Split the keywords into batches
     keyword_batches = [keywords[i:i+200] for i in range(0, len(keywords), 200)]
-    st.write(keyword_batches)
-    
+
+    results = []
     for keyword_batch in keyword_batches:
         # Send a batch of keywords as tasks
         response = send_batch_task(keyword_batch)
@@ -99,8 +99,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         if response_ready["status_code"] == 20000:
             progress_bar = st.progress(0)
             while len(results) != len(keywords):
-                st.write(len(results))
-                st.write(len(keywords))
                 for task in response_ready['tasks']:
                     if (task['result'] and (len(task['result']) > 0)):
                         for resultTaskInfo in task['result']:
@@ -109,7 +107,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                                 results.append(result)
 
                                 progress = len(results) / len(keywords)
-                                st.write("Progress:", progress)
                                 progress_bar.progress(progress)
                 
                 # Check tasks readiness in the next iteration
@@ -121,6 +118,8 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             keyword_results = serp['tasks'][0]['result'][0]
 
             keyword_intent = []
+            # Update progress bar
+            # progress_bar.progress((index + 1) / total_keywords)
 
             # Extract SERP features
             for i in keyword_results['item_types']:
