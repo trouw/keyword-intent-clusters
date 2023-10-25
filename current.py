@@ -80,7 +80,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             }
             for keyword in keywords_batch
         ]
-        st.write(task_params)
+        
         endpoint = f"/v3/serp/google/organic/task_post"
         return client.post(endpoint, task_params)
 
@@ -95,7 +95,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         response = send_batch_task(keyword_batch)
         if response["status_code"] == 20000:
             for task in response['tasks']:
-                st.write(task)
                 result_ids.append(task['id'])
 
     if len(result_ids) == len(keywords):
@@ -104,7 +103,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         
         if response_ready["status_code"] == 20000:
             progress_bar = st_progress(0)
-            while len(results) < len(result_ids):
+            while len(results) != len(result_ids):
                 for task in response_ready['tasks']:
                     if task['id'] in result_ids:
                         if (task['result'] and (len(task['result']) > 0)):
