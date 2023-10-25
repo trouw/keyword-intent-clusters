@@ -112,6 +112,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         while len(results) != len(result_id):
             for task in response_ready['tasks']:
                 if task['id'] in result_id:
+                    st.write(task)
                     if (task['result'] and (len(task['result']) > 0)):
                         for resultTaskInfo in task['result']:
                             if resultTaskInfo['endpoint_advanced']:
