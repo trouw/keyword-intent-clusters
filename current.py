@@ -107,7 +107,10 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                                 results.append(result)
 
                                 progress = len(results) / len(keywords)
-                                st.write(f"Progress: {progress}")  # Add this print statement for debugging
+                                # Ensure progress does not exceed 1.0
+                                if progress > 1.0:
+                                    progress = 1.0
+                                st.write(progress)
                                 progress_bar.progress(progress)
                             
                 # Check tasks readiness in the next iteration
