@@ -99,27 +99,27 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                 st.write(x)
                 id = x['id']
                 result_id.append(id)
+    if response["status code"] == 20000:
+        response_ready = client.get("/v3/serp/google/organic/tasks_ready")
+        if response_ready["status_code"] == 20000:
+            progress_bar = st.progress(0)
+            while len(results) != len(result_id):
+                for task in response_ready['tasks']:
+                    if task['id'] in result_id:
+                        if (task['result'] and (len(task['result']) > 0)):
+                            for resultTaskInfo in task['result']:
+                                if resultTaskInfo['endpoint_advanced']:
+                                    result = client.get(resultTaskInfo['endpoint_advanced'])
+                                    results.append(result)
+                                    progress = len(results) / len(result_id)
+                                    # Ensure progress does not exceed 1.0
+                                    if progress > 1.0:
+                                        progress = 1.0
     
-    response_ready = client.get("/v3/serp/google/organic/tasks_ready")
-    if response_ready["status_code"] == 20000:
-        progress_bar = st.progress(0)
-        while len(results) != len(result_id):
-            for task in response_ready['tasks']:
-                if task['id'] in result_id:
-                    if (task['result'] and (len(task['result']) > 0)):
-                        for resultTaskInfo in task['result']:
-                            if resultTaskInfo['endpoint_advanced']:
-                                result = client.get(resultTaskInfo['endpoint_advanced'])
-                                results.append(result)
-                                progress = len(results) / len(result_id)
-                                # Ensure progress does not exceed 1.0
-                                if progress > 1.0:
-                                    progress = 1.0
-
-                                progress_bar.progress(progress)
-
-            time.sleep(5)
-            response_ready = client.get("/v3/serp/google/organic/tasks_ready")
+                                    progress_bar.progress(progress)
+    
+                time.sleep(5)
+                response_ready = client.get("/v3/serp/google/organic/tasks_ready")
 
                 
         all_data = []
