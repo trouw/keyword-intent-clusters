@@ -111,6 +111,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         progress_bar = st.progress(0)
         while len(results) != len(result_id):
             for task in response_ready['tasks']:
+                st.write(task)
                 if (task['result'] and (len(task['result']) > 0)):
                     for resultTaskInfo in task['result']:
                         if resultTaskInfo['endpoint_advanced']:
@@ -124,9 +125,9 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                                     progress = 1.0
 
                                 progress_bar.progress(progress)
-                time.sleep(60)
+            time.sleep(60)
                 # Check tasks readiness in the next iteration
-                response_ready = client.get("/v3/serp/google/organic/tasks_ready")
+            response_ready = client.get("/v3/serp/google/organic/tasks_ready")
 
                 
         all_data = []
