@@ -113,9 +113,12 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             for task in response_ready['tasks']:
                 st.write(task['id'])
                 if task['id'] in result_id:
+                    st.write('task id in result_id')
                     if (task['result'] and (len(task['result']) > 0)):
+                        st.write('task result is not 0')
                         for resultTaskInfo in task['result']:
                             if resultTaskInfo['endpoint_advanced']:
+                                st.write('theres an endpoint result')
                                 result = client.get(resultTaskInfo['endpoint_advanced'])
                                 results.append(result)
                                 progress = len(results) / len(result_id)
