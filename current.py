@@ -109,7 +109,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     if response_ready["status_code"] == 20000:
         progress_bar = st.progress(0)
         while len(results) != len(result_id):
-            st.write(len(result))
+            st.write(len(results))
             st.write(len(result_id))
             for task in response_ready['tasks']:
                 st.write(task)
