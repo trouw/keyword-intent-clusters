@@ -183,7 +183,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
                 all_data.append([keyword, url, position, title, description, intent_avg])
 
-        if all_data.shape[1]  == len(result_ids):
+        if len(all_data)  == len(result_ids):
             df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
             st.dataframe(df)
             return df
