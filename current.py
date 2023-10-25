@@ -105,14 +105,12 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                             if resultTaskInfo['endpoint_advanced']:
                                 result = client.get(resultTaskInfo['endpoint_advanced'])
                                 results.append(result)
-                                st.write(len(results))
-                                st.write(len(keywords))
 
                                 progress = len(results) / len(keywords)
                                 # Ensure progress does not exceed 1.0
                                 if progress > 1.0:
                                     progress = 1.0
-                                st.write(progress)
+                                
                                 progress_bar.progress(progress)
                             
                 # Check tasks readiness in the next iteration
