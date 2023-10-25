@@ -104,12 +104,15 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             for x in response['tasks']:
                 id = x['id']
                 result_id.append(id)
-    st.write(len(result_id))
+    
     response_ready = client.get("/v3/serp/google/organic/tasks_ready")
     if response_ready["status_code"] == 20000:
         progress_bar = st.progress(0)
-        while len(results) != len(keywords):
+        while len(results) != len(result_id):
+            st.write(len(result))
+            st.write(len(result_id))
             for task in response_ready['tasks']:
+                st.write(task)
                 if (task['result'] and (len(task['result']) > 0)):
                     for resultTaskInfo in task['result']:
                         if resultTaskInfo['endpoint_advanced']:
@@ -117,7 +120,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                             if resultTaskInfo['id'] in result_id:
                                 result = client.get(resultTaskInfo['endpoint_advanced'])
                                 results.append(result)
-                                st.write(len(results))
+                                st.write(f'{len(results)} result')
                                 progress = len(results) / len(result_id)
                                 # Ensure progress does not exceed 1.0
                                 if progress > 1.0:
