@@ -89,13 +89,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
     results = []
     result_id = []
-    for keyword_batch in keyword_batches:
-        # Send a batch of keywords as tasks
-        st.write('post')
-        response = send_batch_task(keyword_batch)
-
-    results = []
-    result_id = []
 
     for keyword_batch in keyword_batches:
         # Send a batch of keywords as tasks
@@ -103,6 +96,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
         if response["status_code"] == 20000:
             for x in response['tasks']:
+                st.write(x)
                 id = x['id']
                 result_id.append(id)
     
@@ -111,14 +105,10 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         progress_bar = st.progress(0)
         while len(results) != len(result_id):
             for task in response_ready['tasks']:
-                st.write(task['id'])
                 if task['id'] in result_id:
-                    st.write('task id in result_id')
                     if (task['result'] and (len(task['result']) > 0)):
-                        st.write('task result is not 0')
                         for resultTaskInfo in task['result']:
                             if resultTaskInfo['endpoint_advanced']:
-                                st.write('theres an endpoint result')
                                 result = client.get(resultTaskInfo['endpoint_advanced'])
                                 results.append(result)
                                 progress = len(results) / len(result_id)
