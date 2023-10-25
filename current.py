@@ -499,6 +499,7 @@ def main():
                 selected_columns2 = st.session_state['filtered_data'][['Keyword', 'clicks', 'impressions', 'ctr', 'position']]
                 merged_df2 = pd.merge(selected_columns2, selected_columns1, on='Keyword', how='inner').drop_duplicates()
                 agg_clusters = aggregate_clusters(clusters, merged_df2)
+                st.session_state['agg_clusters'] = agg_clusters
                 st.write(agg_clusters)
 
             elif 'Search Volume' in st.session_state['filtered_data'].columns:
