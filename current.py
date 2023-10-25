@@ -9,7 +9,6 @@ import base64
 import concurrent.futures
 import requests
 import time
-from datetime import datetime
 
 # Function to preprocess data and apply filters
 def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_urls=None, include_urls=None, min_max_dict=None):
@@ -87,7 +86,12 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
     # Split the keywords into batches
     keyword_batches = [keywords[i:i+200] for i in range(0, len(keywords), 200)]
-    st.write(len(keyword_batches))
+
+    results = []
+    result_id = []
+    for keyword_batch in keyword_batches:
+        # Send a batch of keywords as tasks
+        response = send_batch_task(keyword_batch)
 
     results = []
     result_id = []
@@ -100,120 +104,102 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             for x in response['tasks']:
                 id = x['id']
                 result_id.append(id)
-
-    # Initialize rate limiting variables
-    max_requests_per_minute = 20
-    requests_made = 0
-    start_time = datetime.now()
-
+    
     response_ready = client.get("/v3/serp/google/organic/tasks_ready")
     if response_ready["status_code"] == 20000:
         progress_bar = st.progress(0)
+        while len(results) != len(result_id):
+            for task in response_ready['tasks']:
+                if task['id'] in result_id:
+                    st.write(task)
+                    if (task['result'] and (len(task['result']) > 0)):
+                        for resultTaskInfo in task['result']:
+                            if resultTaskInfo['endpoint_advanced']:
+                                result = client.get(resultTaskInfo['endpoint_advanced'])
+                                results.append(result)
+                                progress = len(results) / len(result_id)
+                                # Ensure progress does not exceed 1.0
+                                if progress > 1.0:
+                                    progress = 1.0
 
-    while len(results) != len(result_id):
-        # Check if you've reached the rate limit
-        elapsed_time = (datetime.now() - start_time).total_seconds()
-        if elapsed_time < 60 and requests_made >= max_requests_per_minute:
-            # Wait until the next minute starts
-            sleep_time = 60 - elapsed_time + 1
-            time.sleep(sleep_time)
-            start_time = datetime.now()
-            requests_made = 0
+                                progress_bar.progress(progress)
 
-        for task in response_ready['tasks']:
-            if task['id'] in result_id:
-                st.write(task)
-                if (task['result'] and (len(task['result']) > 0)):
-                    for resultTaskInfo in task['result']:
-                        if resultTaskInfo['endpoint_advanced']:
-                            result = client.get(resultTaskInfo['endpoint_advanced'])
-                            results.append(result)
-                            requests_made += 1
-
-        # Update progress
-        progress = requests_made / len(result_id)
-        # Ensure progress does not exceed 1.0
-        if progress > 1.0:
-            progress = 1.0
-        progress_bar.progress(progress)
-
-        # Check tasks readiness in the next iteration
-        response_ready = client.get("/v3/serp/google/organic/tasks_ready")
+            time.sleep(5)
+            response_ready = client.get("/v3/serp/google/organic/tasks_ready")
 
                 
         all_data = []
-        if len(results) == len(result_id):
-            for serp in results:
-                keyword = serp['tasks'][0]['data']['keyword']
-                keyword_results = serp['tasks'][0]['result'][0]
+        for serp in results:
+            keyword = serp['tasks'][0]['data']['keyword']
+            keyword_results = serp['tasks'][0]['result'][0]
 
-                keyword_intent = []
-                # Update progress bar
-                # progress_bar.progress((index + 1) / total_keywords)
+            keyword_intent = []
+            # Update progress bar
+            # progress_bar.progress((index + 1) / total_keywords)
 
-                # Extract SERP features
-                for i in keyword_results['item_types']:
-                    if i in zero:
-                        keyword_intent.append(0)
-                    if i in one:
-                        keyword_intent.append(1)
-                    if i in two:
-                        keyword_intent.append(2)
-                    if i in two_half:
-                        keyword_intent.append(2.5)
-                    if i in four:
-                        keyword_intent.append(4)
-                    if i in five:
-                        keyword_intent.append(5)
-                    if i in six:
-                        keyword_intent.append(6)
-                    if i in six_half:
-                        keyword_intent.append(6.5)
-                    if i in seven:
-                        keyword_intent.append(7)
-                    if i in seven_half:
-                        keyword_intent.append(7.5)
-                    if i in eight:
-                        keyword_intent.append(8)
-                    if i in eight_half:
-                        keyword_intent.append(8.5)
-                    if i in nine:
-                        keyword_intent.append(9)
-                    if i in ten:
-                        keyword_intent.append(10)
+            # Extract SERP features
+            for i in keyword_results['item_types']:
+                if i in zero:
+                    keyword_intent.append(0)
+                if i in one:
+                    keyword_intent.append(1)
+                if i in two:
+                    keyword_intent.append(2)
+                if i in two_half:
+                    keyword_intent.append(2.5)
+                if i in four:
+                    keyword_intent.append(4)
+                if i in five:
+                    keyword_intent.append(5)
+                if i in six:
+                    keyword_intent.append(6)
+                if i in six_half:
+                    keyword_intent.append(6.5)
+                if i in seven:
+                    keyword_intent.append(7)
+                if i in seven_half:
+                    keyword_intent.append(7.5)
+                if i in eight:
+                    keyword_intent.append(8)
+                if i in eight_half:
+                    keyword_intent.append(8.5)
+                if i in nine:
+                    keyword_intent.append(9)
+                if i in ten:
+                    keyword_intent.append(10)
 
-                if len(keyword_intent) != 0:
-                    intent_avg = (sum(keyword_intent) / len(keyword_intent))
-                else:
-                    intent_avg = 0
-
-                # Find the organic results & verify SERP features within the list
-                organic_results = []
-                for res in keyword_results['items']:
-                    if res.get('type') == 'organic':
-                        organic_results.append(res)
-
-                # Limit to 15 results
-                organic_results = organic_results[:15]
-
-                # Iterate through the organic results and extract relevant information
-                for result in organic_results:
-                    url = result.get('url')
-                    position = result.get('rank_absolute')
-                    title = result.get('title')
-                    description = result.get('description')
-
-                    all_data.append([keyword, url, position, title, description, intent_avg])
-
-            if len(results) == len(keywords):
-                df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
-                st.dataframe(df)
-                return df
-            
+            if len(keyword_intent) != 0:
+                intent_avg = (sum(keyword_intent) / len(keyword_intent))
             else:
-                print("No data available.")
-                return None
+                intent_avg = 0
+
+            # Find the organic results & verify SERP features within the list
+            organic_results = []
+            for res in keyword_results['items']:
+                if res.get('type') == 'organic':
+                    organic_results.append(res)
+
+            # Limit to 15 results
+            organic_results = organic_results[:15]
+
+            # Iterate through the organic results and extract relevant information
+            for result in organic_results:
+                url = result.get('url')
+                position = result.get('rank_absolute')
+                title = result.get('title')
+                description = result.get('description')
+
+                all_data.append([keyword, url, position, title, description, intent_avg])
+
+        if len(results) == len(keywords):
+            df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
+            st.dataframe(df)
+            return df
         
+        else:
+            print("No data available.")
+            return None
+    
 
 def jaccard_similarity(set1, set2):  #serp_sim dependency
     set1 = set(set1)
