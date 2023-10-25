@@ -88,38 +88,36 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     keyword_batches = [keywords[i:i+200] for i in range(0, len(keywords), 200)]
 
     results = []
-    result_id = []
+    result_ids = []
 
+    # Send tasks in batches
     for keyword_batch in keyword_batches:
-        # Send a batch of keywords as tasks
         response = send_batch_task(keyword_batch)
-
         if response["status_code"] == 20000:
-            for x in response['tasks']:
-                st.write(x)
-                id = x['id']
-                result_id.append(id)
-    if response["status code"] == 20000:
-        response_ready = client.get("/v3/serp/google/organic/tasks_ready")
+            for task in response['tasks']:
+                st_write(task)
+                result_ids.append(task['id'])
+
+    if len(result_ids) == len(keywords):
+        tasks_ready_endpoint = f"/v3/serp/google/organic/tasks_ready"
+        response_ready = client.post(tasks_ready_endpoint, {"ids": result_ids})
+        
         if response_ready["status_code"] == 20000:
-            progress_bar = st.progress(0)
-            while len(results) != len(result_id):
+            progress_bar = st_progress(0)
+            while len(results) < len(result_ids):
                 for task in response_ready['tasks']:
-                    if task['id'] in result_id:
+                    if task['id'] in result_ids:
                         if (task['result'] and (len(task['result']) > 0)):
                             for resultTaskInfo in task['result']:
                                 if resultTaskInfo['endpoint_advanced']:
                                     result = client.get(resultTaskInfo['endpoint_advanced'])
                                     results.append(result)
-                                    progress = len(results) / len(result_id)
-                                    # Ensure progress does not exceed 1.0
-                                    if progress > 1.0:
-                                        progress = 1.0
-    
+                                    progress = len(results) / len(result_ids)
                                     progress_bar.progress(progress)
-    
+                
                 time.sleep(5)
-                response_ready = client.get("/v3/serp/google/organic/tasks_ready")
+                response_ready = client.post(tasks_ready_endpoint, {"ids": result_ids})
+                
 
                 
         all_data = []
