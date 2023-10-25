@@ -102,12 +102,8 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         if response_ready["status_code"] == 20000:
             progress_bar = st.progress(0)
             while len(results) != len(keywords):
-                st.write(len(results))
-                st.write(len(keywords))
                 for task in response_ready['tasks']:
                     if (task['result'] and (len(task['result']) > 0)):
-                        st.write(task['result'])
-                        st.write(len(task['result']) > 0)
                         for resultTaskInfo in task['result']:
                             if resultTaskInfo['endpoint_advanced']:
                                 # Check if the result's ID is in the list of desired IDs
