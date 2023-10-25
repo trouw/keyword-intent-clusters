@@ -125,9 +125,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
                                 progress_bar.progress(progress)
 
-                # Check tasks readiness in the next iteration
-            response_ready = client.get("/v3/serp/google/organic/tasks_ready")
-
                 
         all_data = []
         for serp in results:
