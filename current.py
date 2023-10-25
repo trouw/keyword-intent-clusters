@@ -88,13 +88,16 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     keyword_batches = [keywords[i:i+200] for i in range(0, len(keywords), 200)]
 
     results = []
+    result_id = []
     for keyword_batch in keyword_batches:
         # Send a batch of keywords as tasks
         response = send_batch_task(keyword_batch)
 
-    results = []
     if response["status_code"] == 20000:
-    # Check if tasks are ready initially
+        for x in response['tasks']:
+            id = x['id']
+            result_id.append(id)
+
         response_ready = client.get("/v3/serp/google/organic/tasks_ready")
         if response_ready["status_code"] == 20000:
             progress_bar = st.progress(0)
@@ -103,18 +106,21 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                     if (task['result'] and (len(task['result']) > 0)):
                         for resultTaskInfo in task['result']:
                             if resultTaskInfo['endpoint_advanced']:
-                                result = client.get(resultTaskInfo['endpoint_advanced'])
-                                results.append(result)
+                                # Check if the result's ID is in the list of desired IDs
+                                if resultTaskInfo['id'] in result_id:
+                                    result = client.get(resultTaskInfo['endpoint_advanced'])
+                                    results.append(result)
 
-                                progress = len(results) / len(keywords)
-                                # Ensure progress does not exceed 1.0
-                                if progress > 1.0:
-                                    progress = 1.0
-                                
-                                progress_bar.progress(progress)
-                            
+                                    progress = len(results) / len(keywords)
+                                    # Ensure progress does not exceed 1.0
+                                    if progress > 1.0:
+                                        progress = 1.0
+
+                                    progress_bar.progress(progress)
+
                 # Check tasks readiness in the next iteration
                 response_ready = client.get("/v3/serp/google/organic/tasks_ready")
+
                 
         all_data = []
         for serp in results:
