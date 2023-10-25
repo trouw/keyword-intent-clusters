@@ -107,7 +107,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                                 results.append(result)
 
                                 progress = len(results) / len(keywords)
-                                print(f"Progress: {progress}")  # Add this print statement for debugging
+                                st.write(f"Progress: {progress}")  # Add this print statement for debugging
                                 progress_bar.progress(progress)
                             
                 # Check tasks readiness in the next iteration
