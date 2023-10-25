@@ -91,6 +91,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     result_id = []
     for keyword_batch in keyword_batches:
         # Send a batch of keywords as tasks
+        st.write('post')
         response = send_batch_task(keyword_batch)
 
     results = []
