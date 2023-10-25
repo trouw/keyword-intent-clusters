@@ -77,16 +77,16 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                 "language_code": language_code,
                 "location_code": location_code,
                 "keyword": keyword
-            }
+            },
             for keyword in keywords_batch
         ]
-        
+        st.write(task_params)
         endpoint = f"/v3/serp/google/organic/task_post"
         return client.post(endpoint, task_params)
 
     # Split the keywords into batches
     keyword_batches = [keywords[i:i+200] for i in range(0, len(keywords), 200)]
-    st.write(keyword_batches)
+
     results = []
     result_ids = []
 
