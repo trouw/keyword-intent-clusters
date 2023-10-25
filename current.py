@@ -142,77 +142,78 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
                 
         all_data = []
-        for serp in results:
-            keyword = serp['tasks'][0]['data']['keyword']
-            keyword_results = serp['tasks'][0]['result'][0]
+        if len(results) == len(result_id):
+            for serp in results:
+                keyword = serp['tasks'][0]['data']['keyword']
+                keyword_results = serp['tasks'][0]['result'][0]
 
-            keyword_intent = []
-            # Update progress bar
-            # progress_bar.progress((index + 1) / total_keywords)
+                keyword_intent = []
+                # Update progress bar
+                # progress_bar.progress((index + 1) / total_keywords)
 
-            # Extract SERP features
-            for i in keyword_results['item_types']:
-                if i in zero:
-                    keyword_intent.append(0)
-                if i in one:
-                    keyword_intent.append(1)
-                if i in two:
-                    keyword_intent.append(2)
-                if i in two_half:
-                    keyword_intent.append(2.5)
-                if i in four:
-                    keyword_intent.append(4)
-                if i in five:
-                    keyword_intent.append(5)
-                if i in six:
-                    keyword_intent.append(6)
-                if i in six_half:
-                    keyword_intent.append(6.5)
-                if i in seven:
-                    keyword_intent.append(7)
-                if i in seven_half:
-                    keyword_intent.append(7.5)
-                if i in eight:
-                    keyword_intent.append(8)
-                if i in eight_half:
-                    keyword_intent.append(8.5)
-                if i in nine:
-                    keyword_intent.append(9)
-                if i in ten:
-                    keyword_intent.append(10)
+                # Extract SERP features
+                for i in keyword_results['item_types']:
+                    if i in zero:
+                        keyword_intent.append(0)
+                    if i in one:
+                        keyword_intent.append(1)
+                    if i in two:
+                        keyword_intent.append(2)
+                    if i in two_half:
+                        keyword_intent.append(2.5)
+                    if i in four:
+                        keyword_intent.append(4)
+                    if i in five:
+                        keyword_intent.append(5)
+                    if i in six:
+                        keyword_intent.append(6)
+                    if i in six_half:
+                        keyword_intent.append(6.5)
+                    if i in seven:
+                        keyword_intent.append(7)
+                    if i in seven_half:
+                        keyword_intent.append(7.5)
+                    if i in eight:
+                        keyword_intent.append(8)
+                    if i in eight_half:
+                        keyword_intent.append(8.5)
+                    if i in nine:
+                        keyword_intent.append(9)
+                    if i in ten:
+                        keyword_intent.append(10)
 
-            if len(keyword_intent) != 0:
-                intent_avg = (sum(keyword_intent) / len(keyword_intent))
+                if len(keyword_intent) != 0:
+                    intent_avg = (sum(keyword_intent) / len(keyword_intent))
+                else:
+                    intent_avg = 0
+
+                # Find the organic results & verify SERP features within the list
+                organic_results = []
+                for res in keyword_results['items']:
+                    if res.get('type') == 'organic':
+                        organic_results.append(res)
+
+                # Limit to 15 results
+                organic_results = organic_results[:15]
+
+                # Iterate through the organic results and extract relevant information
+                for result in organic_results:
+                    url = result.get('url')
+                    position = result.get('rank_absolute')
+                    title = result.get('title')
+                    description = result.get('description')
+
+                    all_data.append([keyword, url, position, title, description, intent_avg])
+
+            if len(results) == len(keywords):
+                df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
+                st.dataframe(df)
+                return df
+            
             else:
-                intent_avg = 0
-
-            # Find the organic results & verify SERP features within the list
-            organic_results = []
-            for res in keyword_results['items']:
-                if res.get('type') == 'organic':
-                    organic_results.append(res)
-
-            # Limit to 15 results
-            organic_results = organic_results[:15]
-
-            # Iterate through the organic results and extract relevant information
-            for result in organic_results:
-                url = result.get('url')
-                position = result.get('rank_absolute')
-                title = result.get('title')
-                description = result.get('description')
-
-                all_data.append([keyword, url, position, title, description, intent_avg])
-
-        if len(results) == len(keywords):
-            df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
-            st.dataframe(df)
-            return df
+                print("No data available.")
+                return None
         
-        else:
-            print("No data available.")
-            return None
-    
 
 def jaccard_similarity(set1, set2):  #serp_sim dependency
     set1 = set(set1)
