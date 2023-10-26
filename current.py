@@ -103,7 +103,6 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     if len(result_ids) == len(keywords):
         st.write('entering if')
         response_ready = st.write(client.get("/v3/serp/google/organic/tasks_ready"))
-        st.write(response_ready)
         if response_ready["status_code"] == 20000:
             progress_bar = st.progress(0)
             while len(results) != len(result_ids):
