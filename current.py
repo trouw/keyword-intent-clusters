@@ -93,6 +93,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
     # Send tasks in batches
     for keyword_batch in keyword_batches:
         response = send_batch_task(keyword_batch)
+        st.write(response)
         if response["status_code"] == 20000:
             for task in response['tasks']:
                 result_ids.append(task['id'])
