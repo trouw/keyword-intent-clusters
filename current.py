@@ -98,7 +98,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             for task in response['tasks']:
                 result_ids.append(task['id'])
 
-    time.sleep(20)
+    time.sleep(60)
 
     if len(result_ids) == len(keywords):
         st.write('entering if')
