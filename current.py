@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
 import base64
-import concurrent.futures
 import requests
 import time
 
@@ -50,92 +49,190 @@ def preprocess_data(data, exclude_keywords=None, include_keywords=None, exclude_
 
 # Function to query DataForSEO SERP for multiple keywords
 
+# def query_dataforseo_serp(username, password, keywords, search_engine="google", search_type="organic", language_code="en", location_code=2840):
+#     # Defining SERP features
+#     zero = ["shopping"]
+#     one = ["commercial_units"]
+#     two = ["paid", "popular_products", "local_services", "google_hotels"]
+#     two_half = ["google_reviews", "stocks_box"]
+#     four = ["local_pack", "hotels_pack", "top_sights", "google_flights"]
+#     five = ["map", "twitter", "currency_box", "explore_brands"]
+#     six = ["events", "mention_carousel", "podcasts"]
+#     six_half = ["jobs"]
+#     seven = ["app", "multi_carousel", "math_solver", "visual_stories"]
+#     seven_half = ["images", "related_searches", "people_also_search", "recipes", "find_results_on", "found_on_the_web", "refine_products"]
+#     eight = ["carousel", "top_stories", "video"]
+#     eight_half = ["google_posts", "knowledge_graph"]
+#     nine = ["people_also_ask", "scholarly_articles", "questions_and_answers", "short_videos"]
+#     ten = ["answer_box", "featured_snippet"]
+
+#     # Initialize DataForSEO client with your credentials
+#     client = RestClient(username, password)
+
+#     # Define a function to send a batch of keywords as tasks
+#     def send_batch_task(keywords_batch):
+#         task_params = [
+#             {
+#                 "language_code": language_code,
+#                 "location_code": location_code,
+#                 "keyword": keyword
+#             }
+#             for keyword in keywords_batch
+#         ]
+#         endpoint = "/v3/serp/google/organic/task_post"
+#         return client.post(endpoint, task_params)
+
+#     # Split the keywords into batches
+#     keyword_batches = [keywords[i:i+200] for i in range(0, len(keywords), 200)]
+
+#     results = []
+#     result_ids = []
+
+#     # Send tasks in batches
+#     for keyword_batch in keyword_batches:
+#         response = send_batch_task(keyword_batch)
+#         st.write(response)
+#         if response["status_code"] == 20000:
+#             for task in response['tasks']:
+#                 result_ids.append(task['id'])
+
+#     time.sleep(60)
+
+#     if len(result_ids) == len(keywords):
+#         response_ready = client.get("/v3/serp/google/organic/tasks_ready")
+#         if response_ready["status_code"] == 20000:
+#             progress_bar = st.progress(0)
+#             while len(results) != len(result_ids):
+#                 if response_ready['tasks'] is not None:
+#                     for task in response_ready['tasks']:
+#                         if task['id'] in result_ids:
+#                             if task['result'] is not None:
+#                                 for resultTaskInfo in task['result']:
+#                                     if resultTaskInfo['endpoint_advanced']:
+#                                         result = client.get(resultTaskInfo['endpoint_advanced'])
+#                                         results.append(result)
+#                                         progress = len(results) / len(result_ids)
+#                                         progress_bar.progress(progress)
+                
+#                 time.sleep(5)
+#                 response_ready = client.get("/v3/serp/google/organic/tasks_ready")
+                
+
+                
+#         all_data = []
+#         for serp in results:
+#             keyword = serp['tasks'][0]['data']['keyword']
+#             keyword_results = serp['tasks'][0]['result'][0]
+
+#             keyword_intent = []
+#             # Update progress bar
+#             # progress_bar.progress((index + 1) / total_keywords)
+
+#             # Extract SERP features
+#             for i in keyword_results['item_types']:
+#                 if i in zero:
+#                     keyword_intent.append(0)
+#                 if i in one:
+#                     keyword_intent.append(1)
+#                 if i in two:
+#                     keyword_intent.append(2)
+#                 if i in two_half:
+#                     keyword_intent.append(2.5)
+#                 if i in four:
+#                     keyword_intent.append(4)
+#                 if i in five:
+#                     keyword_intent.append(5)
+#                 if i in six:
+#                     keyword_intent.append(6)
+#                 if i in six_half:
+#                     keyword_intent.append(6.5)
+#                 if i in seven:
+#                     keyword_intent.append(7)
+#                 if i in seven_half:
+#                     keyword_intent.append(7.5)
+#                 if i in eight:
+#                     keyword_intent.append(8)
+#                 if i in eight_half:
+#                     keyword_intent.append(8.5)
+#                 if i in nine:
+#                     keyword_intent.append(9)
+#                 if i in ten:
+#                     keyword_intent.append(10)
+
+#             if len(keyword_intent) != 0:
+#                 intent_avg = (sum(keyword_intent) / len(keyword_intent))
+#             else:
+#                 intent_avg = 0
+
+#             # Find the organic results & verify SERP features within the list
+#             organic_results = []
+#             for res in keyword_results['items']:
+#                 if res.get('type') == 'organic':
+#                     organic_results.append(res)
+
+#             # Limit to 15 results
+#             organic_results = organic_results[:15]
+
+#             # Iterate through the organic results and extract relevant information
+#             for result in organic_results:
+#                 url = result.get('url')
+#                 position = result.get('rank_absolute')
+#                 title = result.get('title')
+#                 description = result.get('description')
+
+#                 all_data.append([keyword, url, position, title, description, intent_avg])
+
+#         if len(all_data)  == len(result_ids):
+#             df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
+#             st.dataframe(df)
+#             return df
+        
+#         else:
+#             print("No data available.")
+#             return None
+    
 def query_dataforseo_serp(username, password, keywords, search_engine="google", search_type="organic", language_code="en", location_code=2840):
-    # Defining SERP features
-    zero = ["shopping"]
-    one = ["commercial_units"]
-    two = ["paid", "popular_products", "local_services", "google_hotels"]
-    two_half = ["google_reviews", "stocks_box"]
-    four = ["local_pack", "hotels_pack", "top_sights", "google_flights"]
-    five = ["map", "twitter", "currency_box", "explore_brands"]
-    six = ["events", "mention_carousel", "podcasts"]
-    six_half = ["jobs"]
-    seven = ["app", "multi_carousel", "math_solver", "visual_stories"]
-    seven_half = ["images", "related_searches", "people_also_search", "recipes", "find_results_on", "found_on_the_web", "refine_products"]
-    eight = ["carousel", "top_stories", "video"]
-    eight_half = ["google_posts", "knowledge_graph"]
-    nine = ["people_also_ask", "scholarly_articles", "questions_and_answers", "short_videos"]
-    ten = ["answer_box", "featured_snippet"]
-
-    # Initialize DataForSEO client with your credentials
+    # Create a RestClient instance
     client = RestClient(username, password)
-
-    # Define a function to send a batch of keywords as tasks
-    def send_batch_task(keywords_batch):
-        task_params = [
-            {
-                "language_code": language_code,
-                "location_code": location_code,
-                "keyword": keyword
-            }
-            for keyword in keywords_batch
-        ]
-        endpoint = "/v3/serp/google/organic/task_post"
-        return client.post(endpoint, task_params)
-
-    # Split the keywords into batches
-    keyword_batches = [keywords[i:i+200] for i in range(0, len(keywords), 200)]
-
-    results = []
-    result_ids = []
-
-    # Send tasks in batches
-    for keyword_batch in keyword_batches:
-        response = send_batch_task(keyword_batch)
-        st.write(response)
+    all_data = []
+    keyword_intents = []  # Create a list to store the intent for each keyword
+    total_keywords = len(keywords)
+    progress_bar = st.progress(0)  # Initialize progress bar
+    for index, keyword in enumerate(keywords):
+        
+        # Defining SERP features 
+        zero = ["shopping"]
+        one = ["commercial_units"]
+        two = ["paid", "popular_products", "local_services", "google_hotels"]
+        two_half = ["google_reviews", "stocks_box"]
+        four = ["local_pack", "hotels_pack", "top_sights", "google_flights"]
+        five = ["map", "twitter", "currency_box", "explore_brands"]
+        six = ["events", "mention_carousel", "podcasts"]
+        six_half = ["jobs"]
+        seven = ["app", "multi_carousel", "math_solver", "visual_stories"]
+        seven_half = ["images", "related_searches", "people_also_search", "recipes", "find_results_on","found_on_the_web", "refine_products"]
+        eight = ["carousel", "top_stories", "video"]
+        eight_half = ["google_posts", "knowledge_graph"]
+        nine = ["people_also_ask","scholarly_articles", "questions_and_answers", "short_videos"]
+        ten = ["answer_box","featured_snippet"]
+        keyword_intent = []
+        # Update progress bar
+        progress_bar.progress((index + 1) / total_keywords)
+        post_data = dict()
+        post_data[len(post_data)] = {
+            "language_code": language_code,
+            "location_code": location_code,
+            "keyword": keyword,
+            "calculate_rectangles": True
+        }
+        endpoint = f"/v3/serp/{search_engine}/{search_type}/live/advanced"
+        
+        response = client.post(endpoint, post_data)
         if response["status_code"] == 20000:
-            for task in response['tasks']:
-                result_ids.append(task['id'])
-
-    time.sleep(60)
-
-    if len(result_ids) == len(keywords):
-        st.write('entering if')
-        response_ready = client.get("/v3/serp/google/organic/tasks_ready")
-        if response_ready["status_code"] == 20000:
-            progress_bar = st.progress(0)
-            while len(results) != len(result_ids):
-                st.write('entering while')
-                if response_ready['tasks'] is not None:
-                    for task in response_ready['tasks']:
-                        st.write('entering for')
-                        st.write(task)
-                        if task['id'] in result_ids:
-                            if task['result'] is not None:
-                                for resultTaskInfo in task['result']:
-                                    st.write('entering second for')
-                                    if resultTaskInfo['endpoint_advanced']:
-                                        result = client.get(resultTaskInfo['endpoint_advanced'])
-                                        results.append(result)
-                                        progress = len(results) / len(result_ids)
-                                        progress_bar.progress(progress)
-                
-                time.sleep(5)
-                response_ready = client.get("/v3/serp/google/organic/tasks_ready")
-                
-
-                
-        all_data = []
-        for serp in results:
-            keyword = serp['tasks'][0]['data']['keyword']
-            keyword_results = serp['tasks'][0]['result'][0]
-
-            keyword_intent = []
-            # Update progress bar
-            # progress_bar.progress((index + 1) / total_keywords)
-
-            # Extract SERP features
-            for i in keyword_results['item_types']:
+            # Extracting organic results
+            all_results = response['tasks'][0]['result']
+            #Determining Intent
+            for i in response['tasks'][0]['result'][0]['item_types']:
                 if i in zero:
                     keyword_intent.append(0)
                 if i in one:
@@ -164,39 +261,38 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                     keyword_intent.append(9)
                 if i in ten:
                     keyword_intent.append(10)
-
-            if len(keyword_intent) != 0:
-                intent_avg = (sum(keyword_intent) / len(keyword_intent))
-            else:
-                intent_avg = 0
-
+            
+            intent_avg = (sum(keyword_intent)/len(keyword_intent))
             # Find the organic results & verify SERP features within the list
             organic_results = []
-            for res in keyword_results['items']:
+            for res in all_results:
                 if res.get('type') == 'organic':
-                    organic_results.append(res)
-
+                    organic_results.extend(res['items'])
             # Limit to 15 results
             organic_results = organic_results[:15]
-
+            
+            # Create a list to store the extracted data for this keyword
+            data_list = []
             # Iterate through the organic results and extract relevant information
             for result in organic_results:
+                keyword = keyword
+                intent_avg=intent_avg
                 url = result.get('url')
                 position = result.get('rank_absolute')
                 title = result.get('title')
                 description = result.get('description')
-
-                all_data.append([keyword, url, position, title, description, intent_avg])
-
-        if len(all_data)  == len(result_ids):
-            df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
-            st.dataframe(df)
-            return df
+                
+                # Append the extracted data to the list
+                data_list.append([keyword, url, position, title, description, intent_avg])
+            # Add the data for this keyword to the list of all data
+            all_data.extend(data_list)
         
         else:
-            print("No data available.")
-            return None
-    
+            print(f"Error for keyword '{keyword}': Code: {response['status_code']} Message: {response['status_message']}")
+    # Create a DataFrame from the combined data for all keywords
+    df = pd.DataFrame(all_data, columns=["Keyword", "URL", "Position", "Title", "Description", "Keyword Intent"])
+    return df
+
 
 def jaccard_similarity(set1, set2):  #serp_sim dependency
     set1 = set(set1)
