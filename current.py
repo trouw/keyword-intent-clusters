@@ -85,8 +85,8 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         return client.post(endpoint, task_params)
 
     # Split the keywords into batches
-    keyword_batches = [keywords[i:i+200] for i in range(0, len(keywords), 200)]
-
+    # keyword_batches = [keywords[i:i+200] for i in range(0, len(keywords), 200)]
+    keyword_batches = keywords
     results = []
     result_ids = []
 
