@@ -361,7 +361,7 @@ def serps_similarity(data):
     clusters = remove_subsets(similar_pairs_df)
 
     st.session_state['Clusters'] = clusters
-
+    st.write(matrix)
     return clusters
 
 def aggregate_clusters(cluster_data, keyword_df):
