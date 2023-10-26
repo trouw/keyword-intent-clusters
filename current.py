@@ -81,7 +81,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             for keyword in keywords_batch
         ]
         
-        endpoint = f"/v3/serp/google/organic/task_post"
+        endpoint = "/v3/serp/google/organic/task_post"
         return client.post(endpoint, task_params)
 
     # Split the keywords into batches
@@ -102,8 +102,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
     if len(result_ids) == len(keywords):
         st.write('entering if')
-        tasks_ready_endpoint = "/v3/serp/google/organic/tasks_ready"
-        response_ready = client.get(tasks_ready_endpoint)
+        response_ready = client.get("/v3/serp/google/organic/tasks_ready")
         st.write(response_ready)
         if response_ready["status_code"] == 20000:
             progress_bar = st.progress(0)
@@ -124,7 +123,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                                         progress_bar.progress(progress)
                 
                 time.sleep(5)
-                response_ready = client.get(tasks_ready_endpoint)
+                response_ready = client.get("/v3/serp/google/organic/tasks_ready")
                 
 
                 
