@@ -99,7 +99,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
 
     if len(result_ids) == len(keywords):
         tasks_ready_endpoint = f"/v3/serp/google/organic/tasks_ready"
-        response_ready = client.post(tasks_ready_endpoint, {"ids": result_ids})
+        response_ready = client.post(tasks_ready_endpoint)
         st.write(response_ready)
         if response_ready["status_code"] == 20000:
             progress_bar = st.progress(0)
@@ -107,7 +107,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                 for task in response_ready['tasks']:
                     st.write(task)
                     if task['id'] in result_ids:
-                        if (task['result'] and (len(task['result']) > 0)):
+                        if task['result'] is not None:
                             for resultTaskInfo in task['result']:
                                 if resultTaskInfo['endpoint_advanced']:
                                     result = client.get(resultTaskInfo['endpoint_advanced'])
