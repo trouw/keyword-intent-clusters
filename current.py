@@ -347,7 +347,7 @@ def serps_similarity(data):
             matrix.loc[keywords[i], keywords[j]] = common_urls
             matrix.loc[keywords[j], keywords[i]] = common_urls
 
-        if common_urls >= 4:
+        if common_urls >= 5:
                 similar_keyword_pairs.append({
                     'Keyword_A': keywords[i],
                     'Keyword_B': keywords[j],
