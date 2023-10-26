@@ -98,6 +98,8 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
             for task in response['tasks']:
                 result_ids.append(task['id'])
 
+    time.sleep(20)
+
     if len(result_ids) == len(keywords):
         tasks_ready_endpoint = f"/v3/serp/google/organic/tasks_ready"
         response_ready = client.get(tasks_ready_endpoint)
