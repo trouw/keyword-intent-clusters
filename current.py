@@ -124,7 +124,7 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
                                         progress_bar.progress(progress)
                 
                 time.sleep(5)
-                response_ready = client.post(tasks_ready_endpoint, {"ids": result_ids})
+                response_ready = client.get(tasks_ready_endpoint)
                 
 
                 
