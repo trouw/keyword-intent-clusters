@@ -390,17 +390,17 @@ def aggregate_clusters(cluster_data, keyword_df):
             # Append the cluster-level data to the cluster_agg_df DataFrame
             cluster_agg_df = cluster_agg_df.append(cluster_agg, ignore_index=True)
 
-        elif 'Search Volume' in keyword_df.columns:
-            # If only Search Volume is present in keyword data, choose the keyword with the highest Search Volume
+        elif 'Volume' in keyword_df.columns:
+            # If only Volume is present in keyword data, choose the keyword with the highest Volume
             cluster_keyword_data = keyword_df[keyword_df['Keyword'].isin(cluster_keywords)]
-            cluster_name_keyword = keyword_df.loc[cluster_keyword_data['Search Volume'].idxmax()]['Keyword']
+            cluster_name_keyword = keyword_df.loc[cluster_keyword_data['Volume'].idxmax()]['Keyword']
             
             # Aggregate data within the cluster
             cluster_agg = {
                 'Cluster Name': cluster_name_keyword,
                 'Cluster': ', '.join(cluster_keywords),
                 'Keyword Intent': cluster_keyword_data['Keyword Intent'].mean(),
-                'Search Volume': cluster_keyword_data['Search Volume'].sum()
+                'Volume': cluster_keyword_data['Volume'].sum()
             }
 
             # Append the cluster-level data to the cluster_agg_df DataFrame
@@ -414,8 +414,8 @@ def create_bubble_chart(agg_data, x_limit, y_limit, font_size):
         available_metrics.append('Clicks')
     if 'Impressions' in agg_data.columns:
         available_metrics.append('Impressions')
-    if 'Search Volume' in agg_data.columns:
-        available_metrics.append('Search Volume')
+    if 'Volume' in agg_data.columns:
+        available_metrics.append('Volume')
 
     # Check if 'size_metric' is in session state, otherwise set default
     if 'size_metric' not in st.session_state or st.session_state.size_metric not in available_metrics:
@@ -608,9 +608,9 @@ def main():
                 st.session_state['agg_clusters'] = agg_clusters
                 st.write(agg_clusters)
 
-            elif 'Search Volume' in st.session_state['filtered_data'].columns:
+            elif 'Volume' in st.session_state['filtered_data'].columns:
                 selected_columns1 = st.session_state['result_df'][['Keyword', 'Keyword Intent']]
-                selected_columns2 = st.session_state['filtered_data'][['Keyword', 'Search Volume']]
+                selected_columns2 = st.session_state['filtered_data'][['Keyword', 'Volume']]
                 merged_df2 = pd.merge(selected_columns2, selected_columns1, on='Keyword', how='inner').drop_duplicates()
                 agg_clusters = aggregate_clusters(clusters, merged_df2)
                 st.session_state['agg_clusters'] = agg_clusters
