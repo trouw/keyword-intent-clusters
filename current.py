@@ -104,16 +104,17 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         if response_ready["status_code"] == 20000:
             progress_bar = st.progress(0)
             while len(results) != len(result_ids):
-                for task in response_ready['tasks']:
-                    st.write(task)
-                    if task['id'] in result_ids:
-                        if task['result'] is not None:
-                            for resultTaskInfo in task['result']:
-                                if resultTaskInfo['endpoint_advanced']:
-                                    result = client.get(resultTaskInfo['endpoint_advanced'])
-                                    results.append(result)
-                                    progress = len(results) / len(result_ids)
-                                    progress_bar.progress(progress)
+                if response_ready['tasks'] is not None:
+                    for task in response_ready['tasks']:
+                        st.write(task)
+                        if task['id'] in result_ids:
+                            if task['result'] is not None:
+                                for resultTaskInfo in task['result']:
+                                    if resultTaskInfo['endpoint_advanced']:
+                                        result = client.get(resultTaskInfo['endpoint_advanced'])
+                                        results.append(result)
+                                        progress = len(results) / len(result_ids)
+                                        progress_bar.progress(progress)
                 
                 time.sleep(5)
                 response_ready = client.post(tasks_ready_endpoint, {"ids": result_ids})
