@@ -102,9 +102,10 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         response_ready = client.post(tasks_ready_endpoint, {"ids": result_ids})
         st.write(response_ready)
         if response_ready["status_code"] == 20000:
-            progress_bar = st_progress(0)
+            progress_bar = st.progress(0)
             while len(results) != len(result_ids):
                 for task in response_ready['tasks']:
+                    st.write(task)
                     if task['id'] in result_ids:
                         if (task['result'] and (len(task['result']) > 0)):
                             for resultTaskInfo in task['result']:
