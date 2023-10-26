@@ -107,12 +107,15 @@ def query_dataforseo_serp(username, password, keywords, search_engine="google", 
         if response_ready["status_code"] == 20000:
             progress_bar = st.progress(0)
             while len(results) != len(result_ids):
+                st.write('entering while')
                 if response_ready['tasks'] is not None:
                     for task in response_ready['tasks']:
+                        st.write('entering for')
                         st.write(task)
                         if task['id'] in result_ids:
                             if task['result'] is not None:
                                 for resultTaskInfo in task['result']:
+                                    st.write('entering second for')
                                     if resultTaskInfo['endpoint_advanced']:
                                         result = client.get(resultTaskInfo['endpoint_advanced'])
                                         results.append(result)
